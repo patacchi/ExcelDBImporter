@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Drawing.Charts;
 using ExcelDBImporter.Context;
 using ExcelDBImporter.Modeles;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -98,7 +99,15 @@ namespace ExcelDBImporter
             {
                 if (row != null)
                 {
-                    JudgeUpdateInsert(keyValuePairs, row, dbContextorigin);
+                    try
+                    {
+                        JudgeUpdateInsert(keyValuePairs, row, dbContextorigin);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                        throw;
+                    }
                 }
             }
             dbContextorigin.SaveChanges();
@@ -217,6 +226,11 @@ namespace ExcelDBImporter
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
+                if (MessageBox.Show(ex.Message,"エラー発生",MessageBoxButtons.CancelTryContinue) == DialogResult.Cancel)
+                {
+                    dbContext.Dispose();
+                    throw;
+                };
                 //return;
                 //throw;
             }

@@ -72,7 +72,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasKey("ShShukkaID");
 
-                    b.ToTable("ExcelData", t =>
+                    b.ToTable("ExcelData", null, t =>
                         {
                             t.HasComment("発番出荷物件予定表モデルクラス");
                         });
@@ -100,7 +100,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasKey("TableFieldAliasNameListId");
 
-                    b.ToTable("TableFieldAliasNameLists", t =>
+                    b.ToTable("TableFieldAliasNameLists", null, t =>
                         {
                             t.HasComment("テーブル列名の別名(表示名等)格納テーブル");
                         });

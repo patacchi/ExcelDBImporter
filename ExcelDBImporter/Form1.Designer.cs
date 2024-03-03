@@ -31,7 +31,7 @@
             textBoxInputFilename = new TextBox();
             label1 = new Label();
             btnImputExcelFile = new Button();
-            button1 = new Button();
+            BtnOutpuToxlsx = new Button();
             DtpickStart = new DateTimePicker();
             DtpickEnd = new DateTimePicker();
             label2 = new Label();
@@ -71,14 +71,15 @@
             btnImputExcelFile.UseVisualStyleBackColor = true;
             btnImputExcelFile.Click += BtnImputExcelFile_Click;
             // 
-            // button1
+            // BtnOutpuToxlsx
             // 
-            button1.Location = new Point(182, 192);
-            button1.Name = "button1";
-            button1.Size = new Size(141, 48);
-            button1.TabIndex = 2;
-            button1.Text = "マーシャリング実績\r\nxlsx出力(日付範囲)";
-            button1.UseVisualStyleBackColor = true;
+            BtnOutpuToxlsx.Location = new Point(182, 192);
+            BtnOutpuToxlsx.Name = "BtnOutpuToxlsx";
+            BtnOutpuToxlsx.Size = new Size(141, 48);
+            BtnOutpuToxlsx.TabIndex = 2;
+            BtnOutpuToxlsx.Text = "マーシャリング実績\r\nxlsx出力(日付範囲)";
+            BtnOutpuToxlsx.UseVisualStyleBackColor = true;
+            BtnOutpuToxlsx.Click += BtnOutputToxlsx_Click;
             // 
             // DtpickStart
             // 
@@ -133,7 +134,7 @@
             Controls.Add(DtpickEnd);
             Controls.Add(DtpickStart);
             Controls.Add(BtnFieldNamAlias);
-            Controls.Add(button1);
+            Controls.Add(BtnOutpuToxlsx);
             Controls.Add(btnImputExcelFile);
             Controls.Add(label3);
             Controls.Add(label2);
@@ -150,7 +151,7 @@
         private TextBox textBoxInputFilename;
         private Label label1;
         private Button btnImputExcelFile;
-        private Button button1;
+        private Button BtnOutpuToxlsx;
         private DateTimePicker DtpickStart;
         private DateTimePicker DtpickEnd;
         private Label label2;
