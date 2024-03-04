@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Linq;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Bibliography;
@@ -95,6 +96,12 @@ namespace ExcelDBImporter
         /// <param name="e"></param>
         private void BtnOutputToxlsx_Click(object sender, EventArgs e)
         {
+            OutputxlsxFilterdByTimePickerTime();
+
+        }
+
+        private void OutputxlsxFilterdByTimePickerTime()
+        {
             DateTime dateStart = DtpickStart.Value.Date;
             DateTime dateEnd = DtpickEnd.Value.Date;
             if (dateStart > dateEnd) { dateEnd = dateStart; }
@@ -115,7 +122,7 @@ namespace ExcelDBImporter
                                                     e.IntAmount,
                                                     e.DateMarshalling
                                                 }
-                                                ) .ToList();
+                                                ).ToList();
                 if (listFilterdData == null || listFilterdData.Count == 0)
                 {
                     MessageBox.Show(
@@ -133,15 +140,18 @@ namespace ExcelDBImporter
                 };
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    int IntStartRow = 4;
+                    int IntTableHeaderRow = 4;
+                    int IntTitleRow = 2;
+                    double DblTitleFontSize = 14;
                     XLWorkbook wb = new();
                     //デフォルトのフォントとフォントサイズを設定
-                    wb.Style.Font.FontName = "BIZ UDPゴシック";
+                    XLWorkbook.DefaultStyle.Font.FontName = "BIZ UDゴシック";
+                    wb.Style.Font.FontName = "BIZ UDゴシック";
                     wb.Style.Font.FontSize = 9;
                     IXLWorksheet xlworksheet = wb.AddWorksheet("マーシャリング実績集計" + DtpickStart.Value.Date.Year + "年" + DtpickStart.Value.Date.Month + "月");
-                    xlworksheet.Cell(IntStartRow, 1).InsertTable(listFilterdData);
-                    var CellsTitle = xlworksheet.Row(IntStartRow).CellsUsed();
-                    foreach ( var cell in CellsTitle )
+                    xlworksheet.Cell(IntTableHeaderRow, 1).InsertTable(listFilterdData);
+                    var CellsTitle = xlworksheet.Row(IntTableHeaderRow).CellsUsed();
+                    foreach (IXLCell? cell in CellsTitle)
                     {
                         var aliasName = dbContext.TableFieldAliasNameLists
                                                 .Where(t => t.StrClassName == typeof(ShShukka).Name &&
@@ -149,12 +159,25 @@ namespace ExcelDBImporter
                                                 .FirstOrDefault();
                         if (aliasName != null)
                         {
-                            cell.Value = aliasName.StrColnmnAliasName == null ? cell.Value : aliasName.StrColnmnAliasName; 
+                            cell.Value = aliasName.StrColnmnAliasName ?? cell.Value;
                         }
                     }
                     xlworksheet.ColumnsUsed().AdjustToContents();
+                    foreach (IXLCell cell1 in CellsTitle) { xlworksheet.Column(cell1.Address.ColumnNumber).Width *= 1.30; }
+                    //タイトルの入力
+                    xlworksheet.Cell(IntTitleRow, 1).Value = DtpickStart.Value.Date.Year + "年" + DtpickStart.Value.Date.Month + "月  マーシャリング実績    5D8B4869P002";
+                    xlworksheet.Cell(IntTitleRow, 1).Style.Font.FontSize = DblTitleFontSize;
+                    //選択範囲で中央(上手くいくかな？)
+                    xlworksheet.Range(IntTitleRow, 1, IntTitleRow, xlworksheet.Row(IntTableHeaderRow).LastCellUsed().Address.ColumnNumber)
+                        .Style.Alignment.Horizontal = XLAlignmentHorizontalValues.CenterContinuous;
+                    //タイトル行の設定
+                    xlworksheet.PageSetup.SetRowsToRepeatAtTop(1, IntTableHeaderRow);
+                    //印刷範囲の設定
+                    xlworksheet.PageSetup.PrintAreas.Add(xlworksheet.Cell(1, 1).Address, xlworksheet.LastCellUsed().Address);
                     wb.SaveAs(saveFileDialog.FileName);
                     wb.Dispose();
+                    //出力ファイル名をテキストボックスに適用
+                    TextBoxOutputFileName.Text = saveFileDialog.FileName;
                     MessageBox.Show("xlsxファイル出力完了しました。");
                 }
             }
@@ -166,8 +189,59 @@ namespace ExcelDBImporter
             finally
             {
             }
-
-
         }
+
+        /// <summary>
+        /// 出力ファイル名で示されるディレクトリが存在すれば、表示ボタンを有効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TextBoxOutputFileName_TextChanged(object sender, EventArgs e)
+        {
+            //テキストボックスが空ではない場合のみ処理
+            if (!string.IsNullOrEmpty(TextBoxOutputFileName.Text) && Directory.Exists(Path.GetDirectoryName(TextBoxOutputFileName.Text)))
+            {
+                //更にテキストボックスのディレクトリが存在する時のフォルダ表示ボタン有効に
+                BtnOpenOutputDir.Enabled = true;
+            }
+            //テキストボックスが空の場合はフォルダ表示ボタン無効
+            else
+            {
+                BtnOpenOutputDir.Enabled = false;
+            }
+        }
+
+        /// <summary>
+        /// 出力ディレクトリをエクスプローラーで開くボタン
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnOpenOutputDir_Click(object sender, EventArgs e)
+        {
+            string Strfolderpath = Path.GetDirectoryName(TextBoxOutputFileName.Text) ?? string.Empty;
+            OpenFolderInExplorer(Strfolderpath);
+        }
+
+        private static void OpenFolderInExplorer(string folderPath)
+        {
+            try
+            {
+                // フォルダが存在するかどうか確認
+                if (Directory.Exists(folderPath))
+                {
+                    // 指定のパスのフォルダをエクスプローラーで開く
+                    Process.Start("explorer.exe", folderPath);
+                }
+                else
+                {
+                    MessageBox.Show("指定のフォルダが存在しません。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"エクスプローラーを開く際にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
     }
 }

@@ -37,6 +37,9 @@
             label2 = new Label();
             label3 = new Label();
             BtnFieldNamAlias = new Button();
+            TextBoxOutputFileName = new TextBox();
+            label4 = new Label();
+            BtnOpenOutputDir = new Button();
             SuspendLayout();
             // 
             // textBoxInputFilename
@@ -84,7 +87,7 @@
             // DtpickStart
             // 
             DtpickStart.Format = DateTimePickerFormat.Custom;
-            DtpickStart.Location = new Point(158, 62);
+            DtpickStart.Location = new Point(158, 103);
             DtpickStart.Name = "DtpickStart";
             DtpickStart.Size = new Size(231, 23);
             DtpickStart.TabIndex = 3;
@@ -92,7 +95,7 @@
             // DtpickEnd
             // 
             DtpickEnd.Format = DateTimePickerFormat.Custom;
-            DtpickEnd.Location = new Point(158, 91);
+            DtpickEnd.Location = new Point(158, 132);
             DtpickEnd.Name = "DtpickEnd";
             DtpickEnd.Size = new Size(231, 23);
             DtpickEnd.TabIndex = 3;
@@ -100,7 +103,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(75, 68);
+            label2.Location = new Point(75, 109);
             label2.Name = "label2";
             label2.Size = new Size(67, 15);
             label2.TabIndex = 1;
@@ -109,7 +112,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(75, 97);
+            label3.Location = new Point(75, 138);
             label3.Name = "label3";
             label3.Size = new Size(67, 15);
             label3.TabIndex = 1;
@@ -125,12 +128,48 @@
             BtnFieldNamAlias.UseVisualStyleBackColor = true;
             BtnFieldNamAlias.Click += BtnFieldNamAlias_Click;
             // 
+            // TextBoxOutputFileName
+            // 
+            TextBoxOutputFileName.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            TextBoxOutputFileName.Font = new Font("BIZ UDゴシック", 9F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            TextBoxOutputFileName.Location = new Point(158, 63);
+            TextBoxOutputFileName.Multiline = true;
+            TextBoxOutputFileName.Name = "TextBoxOutputFileName";
+            TextBoxOutputFileName.ReadOnly = true;
+            TextBoxOutputFileName.ScrollBars = ScrollBars.Horizontal;
+            TextBoxOutputFileName.Size = new Size(685, 37);
+            TextBoxOutputFileName.TabIndex = 0;
+            TextBoxOutputFileName.WordWrap = false;
+            TextBoxOutputFileName.TextChanged += TextBoxOutputFileName_TextChanged;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(75, 65);
+            label4.Name = "label4";
+            label4.Size = new Size(77, 15);
+            label4.TabIndex = 1;
+            label4.Text = "出力ファイル名";
+            // 
+            // BtnOpenOutputDir
+            // 
+            BtnOpenOutputDir.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            BtnOpenOutputDir.Enabled = false;
+            BtnOpenOutputDir.Location = new Point(724, 109);
+            BtnOpenOutputDir.Name = "BtnOpenOutputDir";
+            BtnOpenOutputDir.Size = new Size(119, 44);
+            BtnOpenOutputDir.TabIndex = 4;
+            BtnOpenOutputDir.Text = "出力ファイルの\r\nフォルダを開く";
+            BtnOpenOutputDir.UseVisualStyleBackColor = true;
+            BtnOpenOutputDir.Click += BtnOpenOutputDir_Click;
+            // 
             // FrmExcelImpoerter
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoScroll = true;
             ClientSize = new Size(863, 253);
+            Controls.Add(BtnOpenOutputDir);
             Controls.Add(DtpickEnd);
             Controls.Add(DtpickStart);
             Controls.Add(BtnFieldNamAlias);
@@ -138,7 +177,9 @@
             Controls.Add(btnImputExcelFile);
             Controls.Add(label3);
             Controls.Add(label2);
+            Controls.Add(label4);
             Controls.Add(label1);
+            Controls.Add(TextBoxOutputFileName);
             Controls.Add(textBoxInputFilename);
             Name = "FrmExcelImpoerter";
             Text = "Excelファイルインポーター";
@@ -157,5 +198,8 @@
         private Label label2;
         private Label label3;
         private Button BtnFieldNamAlias;
+        private TextBox TextBoxOutputFileName;
+        private Label label4;
+        private Button BtnOpenOutputDir;
     }
 }
