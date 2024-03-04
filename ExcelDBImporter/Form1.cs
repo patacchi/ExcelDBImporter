@@ -42,7 +42,7 @@ namespace ExcelDBImporter
                     }
                     ShShukkaUpsert shShukkaUpsert = new(rangeInport);
                     shShukkaUpsert.DoUpsert();
-                    ExcelDbContext dbContext = new();
+                    //ExcelDbContext dbContext = new();
                     MessageBox.Show("DB取り込み完了");
                 }
                 catch (Exception ex)
@@ -109,7 +109,8 @@ namespace ExcelDBImporter
                                                 {
                                                     //抽出する列の選択
                                                     e.StrSeiban,
-                                                    e.StrOrderFrom,
+                                                    //e.StrOrderFrom,
+                                                    e.StrKishu,
                                                     e.StrHinmei,
                                                     e.IntAmount,
                                                     e.DateMarshalling
@@ -128,14 +129,18 @@ namespace ExcelDBImporter
                 SaveFileDialog saveFileDialog = new()
                 {
                     Filter = "Excel files (*.xlsx)|*.xlsx",
-                    FileName = "5P8D______マーシャリング実績集計" + DtpickStart.Value.Date.Year + "年" + DtpickStart.Value.Date.Month + "月"
+                    FileName = "5D8B4869P002_マーシャリング実績集計" + DtpickStart.Value.Date.Year + "年" + DtpickStart.Value.Date.Month + "月"
                 };
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
+                    int IntStartRow = 4;
                     XLWorkbook wb = new();
+                    //デフォルトのフォントとフォントサイズを設定
+                    wb.Style.Font.FontName = "BIZ UDPゴシック";
+                    wb.Style.Font.FontSize = 9;
                     IXLWorksheet xlworksheet = wb.AddWorksheet("マーシャリング実績集計" + DtpickStart.Value.Date.Year + "年" + DtpickStart.Value.Date.Month + "月");
-                    xlworksheet.Cell(10, 1).InsertTable(listFilterdData);
-                    var CellsTitle = xlworksheet.Row(10).CellsUsed();
+                    xlworksheet.Cell(IntStartRow, 1).InsertTable(listFilterdData);
+                    var CellsTitle = xlworksheet.Row(IntStartRow).CellsUsed();
                     foreach ( var cell in CellsTitle )
                     {
                         var aliasName = dbContext.TableFieldAliasNameLists

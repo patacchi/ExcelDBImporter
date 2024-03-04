@@ -36,7 +36,10 @@ namespace ExcelDBImporter
                 //EnsureCreated使うとMigrationの時にタイヘン・・・
                 //dbContextAlias.Database.EnsureCreated();
                 Tool.RegistAllClassAndPropertys RegistClass = new("ExcelDBImporter.Modeles");
-                dgvUpdater.DataSource = dbContextAlias.TableFieldAliasNameLists.ToList();
+                dgvUpdater.DataSource = dbContextAlias.TableFieldAliasNameLists
+                                                        .OrderBy(t => t.StrClassName)
+                                                        .ThenBy(t => t.StrColumnName)
+                                                        .ToList();
             }
             catch (Exception ex)
             {

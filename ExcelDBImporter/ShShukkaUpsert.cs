@@ -32,12 +32,18 @@ namespace ExcelDBImporter
             ShShukka ShShukkaClass = new();
             //列番号取得(移動に対応するため)
             //全体でSerchすると先頭の「発番出荷物件予定表」が悪さをする・・・
+            //Dictionary keyValuePairs <ShShukkaClassプロパティ名、Excelシート上の列番号>
             Dictionary<string, int> keyValuePairs = new()
             {
                 //出荷計画
                 {
                     nameof(ShShukkaClass.DateShukka),
                     RangeToUpsert.Search("出荷計画").First().Address.ColumnNumber
+                },
+                //機種
+                {
+                    nameof(ShShukkaClass.StrKishu),
+                    RangeToUpsert.Search("機種").First().Address.ColumnNumber
                 },
                 //製番
                 {
@@ -124,6 +130,11 @@ namespace ExcelDBImporter
             DateTime DateShukka = row.Cell(keyValuePairs[nameof(ShShukkaClass.DateShukka)]).Value.IsDateTime ?
                                 row.Cell(keyValuePairs[nameof(ShShukkaClass.DateShukka)]).Value.GetDateTime()
                                 : DateTime.MinValue;
+            //機種
+            string StrKishu = row.Cell(keyValuePairs[nameof(ShShukkaClass.StrKishu)]).Value.IsText ?
+                                row.Cell(keyValuePairs[nameof(ShShukkaClass.StrKishu)]).Value.GetText()
+                                : string.Empty;
+
             //製番
             string StrSeiban = row.Cell(keyValuePairs[nameof(ShShukkaClass.StrSeiban)]).Value.IsText ?
                                 row.Cell(keyValuePairs[nameof(ShShukkaClass.StrSeiban)]).Value.GetText()
@@ -175,6 +186,8 @@ namespace ExcelDBImporter
                     {
                         //出荷計画
                         DateShukka = DateShukka,
+                        //機種
+                        StrKishu = StrKishu,
                         //製番
                         StrSeiban = StrSeiban,
                         //注文主
@@ -202,6 +215,8 @@ namespace ExcelDBImporter
                     //更新の場合
                     //出荷計画
                     existingdata.DateShukka = DateShukka;
+                    //機種
+                    existingdata.StrKishu = StrKishu;
                     //製番はキーなので更新無し
                     //注文主
                     existingdata.StrOrderFrom = StrOrderFrom;
