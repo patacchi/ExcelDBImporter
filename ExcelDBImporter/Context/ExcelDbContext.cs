@@ -13,7 +13,7 @@ namespace ExcelDBImporter.Context
 {
     public class ExcelDbContext : DbContext
     {
-        public DbSet<ShShukka> ExcelData { get; set; }
+        public DbSet<ShShukka> ShShukka { get; set; }
         public DbSet<TableFieldAliasNameList> TableFieldAliasNameLists { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

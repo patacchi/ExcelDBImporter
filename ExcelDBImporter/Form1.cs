@@ -108,7 +108,7 @@ namespace ExcelDBImporter
             try
             {
                 using ExcelDbContext dbContext = new();
-                var listFilterdData = dbContext.ExcelData
+                var listFilterdData = dbContext.ShShukka
                                                 .Where(e => e.DateMarshalling >= dateStart && e.DateMarshalling <= dateEnd)
                                                 .OrderBy(e => e.DateMarshalling)
                                                 .ThenBy(e => e.StrSeiban)

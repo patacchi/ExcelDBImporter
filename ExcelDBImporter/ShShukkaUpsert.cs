@@ -178,11 +178,11 @@ namespace ExcelDBImporter
             try
             {
                 //既存データか判別する
-                ShShukka? existingdata = dbContext.ExcelData.FirstOrDefault(e => e.StrSeiban == StrSeiban);
+                ShShukka? existingdata = dbContext.ShShukka.FirstOrDefault(e => e.StrSeiban == StrSeiban);
                 if (existingdata == null)
                 {
                     //既存データが無い→新規の場合
-                    dbContext.ExcelData.Add(new ShShukka
+                    dbContext.ShShukka.Add(new ShShukka
                     {
                         //出荷計画
                         DateShukka = DateShukka,
