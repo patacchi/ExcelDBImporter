@@ -77,21 +77,33 @@ namespace ExcelDBImporter
         /// <summary>
         /// 日付フィルタの初期設定を行います
         /// </summary>
-        private void DateTimePickerInitialize()
+        public void DateTimePickerInitialize()
         {
             //1か月前の初日を求める
             //当月に変更になった・・・
             int IntOffsetMonth = 0;
-            DateTime dateOutputMonth = new(DateTime.Now.AddMonths(IntOffsetMonth).Year, DateTime.Now.AddMonths(IntOffsetMonth).Month, 1);
-            DtpickStart.Value = dateOutputMonth;
+            //Outputフラグが立っているもので最新のデータを取得
+            ExcelDbContext dbContext = new();
+            ShShukka? OutputNewest = dbContext.ShShukka
+                                    .Where(s => s.IsAlreadyOutput == true)
+                                    .OrderByDescending(s => s.DateMarshalling)
+                                    .FirstOrDefault();
+
+            DateTime dateFirstDayinTargetManth = new(DateTime.Now.AddMonths(IntOffsetMonth).Year, DateTime.Now.AddMonths(IntOffsetMonth).Month, 1);
+            //フラグが立っているレコードが無かった場合は現在日時を設定する
+            DateTime DateOlder = (OutputNewest == null
+                                  || OutputNewest.DateMarshalling == null) ? DateTime.Now : (DateTime)OutputNewest.DateMarshalling;
+            //フラグ付き最新データと対象月初日の日付が古いほうをスタート日付とする
+            DtpickStart.Value = dateFirstDayinTargetManth <= DateOlder ? dateFirstDayinTargetManth : DateOlder;
             //1か月前の最終日の23:59:59
-            DtpickEnd.Value = new DateTime(dateOutputMonth.Year,
-                                             dateOutputMonth.Month,
-                                             DateTime.DaysInMonth(dateOutputMonth.Year, dateOutputMonth.Month)
+            DtpickEnd.Value = new DateTime(dateFirstDayinTargetManth.Year,
+                                             dateFirstDayinTargetManth.Month,
+                                             DateTime.DaysInMonth(dateFirstDayinTargetManth.Year, dateFirstDayinTargetManth.Month)
                                              ).AddDays(1).AddSeconds(-1);
             //表示形式変更
             DtpickStart.CustomFormat = "yyyy年MM月dd日 HH時mm分ss秒";
             DtpickEnd.CustomFormat = "yyyy年MM月dd日 HH時mm分ss秒";
+            dbContext.Dispose();
         }
 
         private void BtnFieldNamAlias_Click(object sender, EventArgs e)
@@ -119,8 +131,10 @@ namespace ExcelDBImporter
             try
             {
                 using ExcelDbContext dbContext = new();
+                //日付が範囲内でなおかつ出力済みでは「無い」物を選択
                 var listFilterdData = dbContext.ShShukka
-                                                .Where(e => e.DateMarshalling >= dateStart && e.DateMarshalling <= dateEnd)
+                                                .Where(e => e.DateMarshalling >= dateStart && e.DateMarshalling <= dateEnd
+                                                        && e.IsAlreadyOutput == false)
                                                 .OrderBy(e => e.DateMarshalling)
                                                 .ThenBy(e => e.StrSeiban)
                                                 .Select(e => new
@@ -148,19 +162,19 @@ namespace ExcelDBImporter
                 SaveFileDialog saveFileDialog = new()
                 {
                     Filter = "Excel files (*.xlsx)|*.xlsx",
-                    FileName = "5D8B4869P002_マーシャリング実績集計" + DtpickStart.Value.Date.Year + "年" + DtpickStart.Value.Date.Month + "月"
+                    FileName = "5D8B4869P002_マーシャリング実績集計" + DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月"
                 };
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     int IntTableHeaderRow = 4;
                     int IntTitleRow = 2;
-                    double DblTitleFontSize = 14;
+                    double DblTitleFontSize = 13;
                     XLWorkbook wb = new();
                     //デフォルトのフォントとフォントサイズを設定
                     XLWorkbook.DefaultStyle.Font.FontName = "BIZ UDゴシック";
                     wb.Style.Font.FontName = "BIZ UDゴシック";
                     wb.Style.Font.FontSize = 9;
-                    IXLWorksheet xlworksheet = wb.AddWorksheet("マーシャリング実績集計" + DtpickStart.Value.Date.Year + "年" + DtpickStart.Value.Date.Month + "月");
+                    IXLWorksheet xlworksheet = wb.AddWorksheet("マーシャリング実績集計" + DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月");
                     xlworksheet.Cell(IntTableHeaderRow, 1).InsertTable(listFilterdData);
                     var CellsTitle = xlworksheet.Row(IntTableHeaderRow).CellsUsed();
                     foreach (IXLCell? cell in CellsTitle)
@@ -177,7 +191,7 @@ namespace ExcelDBImporter
                     xlworksheet.ColumnsUsed().AdjustToContents();
                     foreach (IXLCell cell1 in CellsTitle) { xlworksheet.Column(cell1.Address.ColumnNumber).Width *= 1.30; }
                     //タイトルの入力
-                    xlworksheet.Cell(IntTitleRow, 1).Value = DtpickStart.Value.Date.Year + "年" + DtpickStart.Value.Date.Month + "月  マーシャリング実績    5D8B4869P002";
+                    xlworksheet.Cell(IntTitleRow, 1).Value = DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月  マーシャリング実績    5D8B4869P002";
                     xlworksheet.Cell(IntTitleRow, 1).Style.Font.FontSize = DblTitleFontSize;
                     //選択範囲で中央(上手くいくかな？)
                     xlworksheet.Range(IntTitleRow, 1, IntTitleRow, xlworksheet.Row(IntTableHeaderRow).LastCellUsed().Address.ColumnNumber)
