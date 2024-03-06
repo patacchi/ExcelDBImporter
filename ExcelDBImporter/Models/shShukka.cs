@@ -45,5 +45,8 @@ namespace ExcelDBImporter.Modeles
         [Comment("出荷検査日")]
         [Column(Order =12)]
         public DateTime? DateShippingTest { get; set; }
+        [Comment("データ出力済みフラグ")]
+        [Column(Order =13)]
+        public bool IsAlreadyOutput { get; set; } = false;
     }
 }
