@@ -157,7 +157,7 @@ namespace ExcelDBImporter
                         );
                     return;
                 }
-                
+
                 //保存ファイル名選択
                 SaveFileDialog saveFileDialog = new()
                 {
@@ -274,5 +274,42 @@ namespace ExcelDBImporter
             }
         }
 
+        private void FrmExcelImpoerter_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                //ctrlキーが押されている間だけフラグ解除ボタンを有効にする
+                case Keys.ControlKey:
+                    {
+                        BtnUnsetOutputFlag.Enabled = true;
+                        break;
+                    }
+                //それ以外は特に何もしない
+                default: { return; }
+            }
+        }
+
+        private void FrmExcelImpoerter_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                //ctrlキーが離れたらフラグ解除ボタンを無効にする
+                case Keys.ControlKey:
+                    {
+                        BtnUnsetOutputFlag.Enabled = false;
+                        break;
+                    }
+                //それ以外は特に何もしない
+                default: { return; }
+            }
+        }
+
+        private void BtnUnsetOutputFlag_Click(object sender, EventArgs e)
+        {
+            _ = UnsetOutputFlagByTimePickerTime();
+            DateTimePickerInitialize();
+            BtnUnsetOutputFlag.Enabled = false;
+            return;
+        }
     }
 }

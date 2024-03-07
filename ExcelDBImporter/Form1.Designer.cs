@@ -40,6 +40,7 @@
             TextBoxOutputFileName = new TextBox();
             label4 = new Label();
             BtnOpenOutputDir = new Button();
+            BtnUnsetOutputFlag = new Button();
             SuspendLayout();
             // 
             // textBoxInputFilename
@@ -163,12 +164,24 @@
             BtnOpenOutputDir.UseVisualStyleBackColor = true;
             BtnOpenOutputDir.Click += BtnOpenOutputDir_Click;
             // 
+            // BtnUnsetOutputFlag
+            // 
+            BtnUnsetOutputFlag.Enabled = false;
+            BtnUnsetOutputFlag.Location = new Point(589, 109);
+            BtnUnsetOutputFlag.Name = "BtnUnsetOutputFlag";
+            BtnUnsetOutputFlag.Size = new Size(129, 44);
+            BtnUnsetOutputFlag.TabIndex = 5;
+            BtnUnsetOutputFlag.Text = "表示日の出力済み\r\nフラグ解除(試験運用)";
+            BtnUnsetOutputFlag.UseVisualStyleBackColor = true;
+            BtnUnsetOutputFlag.Click += BtnUnsetOutputFlag_Click;
+            // 
             // FrmExcelImpoerter
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoScroll = true;
             ClientSize = new Size(863, 253);
+            Controls.Add(BtnUnsetOutputFlag);
             Controls.Add(BtnOpenOutputDir);
             Controls.Add(DtpickEnd);
             Controls.Add(DtpickStart);
@@ -181,8 +194,11 @@
             Controls.Add(label1);
             Controls.Add(TextBoxOutputFileName);
             Controls.Add(textBoxInputFilename);
+            KeyPreview = true;
             Name = "FrmExcelImpoerter";
             Text = "Excelファイルインポーター";
+            KeyDown += FrmExcelImpoerter_KeyDown;
+            KeyUp += FrmExcelImpoerter_KeyUp;
             ResumeLayout(false);
             PerformLayout();
         }
@@ -201,5 +217,6 @@
         private TextBox TextBoxOutputFileName;
         private Label label4;
         private Button BtnOpenOutputDir;
+        private Button BtnUnsetOutputFlag;
     }
 }
