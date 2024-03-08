@@ -1,5 +1,5 @@
 ﻿using ExcelDBImporter.Context;
-using ExcelDBImporter.Modeles;
+using ExcelDBImporter.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,6 +11,10 @@ namespace ExcelDBImporter
 {
     partial class FrmExcelImpoerter
     {
+        /// <summary>
+        /// ExcelDBImporterのアプリ名
+        /// </summary>
+        public const string CONST_STR_ExcelDBImporterAppName = "ExcelDBImporter";
         /// <summary>
         /// DateTimePickerの範囲内にあるレコードのOutputFlagを落とす
         /// </summary>
@@ -42,6 +46,31 @@ namespace ExcelDBImporter
             {
                 MessageBox.Show(ex.Message);
                 return 0;
+            }
+        }
+        private void AppSettingExistsCheck()
+        {
+            try
+            {
+                ExcelDbContext dbContext = new();
+                //ExcelDBImpoerter
+                AppSetting? appSetting = dbContext.AppSettings
+                                        .Where(a => a.StrAppName == CONST_STR_ExcelDBImporterAppName)
+                                        .FirstOrDefault();
+                //アプリ名見つからなかったら登録する
+                if (appSetting == null)
+                {
+                    dbContext.AppSettings.Add(new AppSetting
+                    {
+                        StrAppName = CONST_STR_ExcelDBImporterAppName
+                    });
+                    dbContext.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
             }
         }
     }

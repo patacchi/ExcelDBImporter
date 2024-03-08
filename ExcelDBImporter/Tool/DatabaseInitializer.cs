@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ExcelDBImporter.Context;
-using ExcelDBImporter.Modeles;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExcelDBImporter.Tool

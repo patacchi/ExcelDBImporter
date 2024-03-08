@@ -1,5 +1,4 @@
-﻿using ExcelDBImporter.Modeles;
-using ExcelDBImporter.Context;
+﻿using ExcelDBImporter.Context;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -35,7 +34,7 @@ namespace ExcelDBImporter
                 //dbContextAlias = new();
                 //EnsureCreated使うとMigrationの時にタイヘン・・・
                 //dbContextAlias.Database.EnsureCreated();
-                Tool.RegistAllClassAndPropertys RegistClass = new("ExcelDBImporter.Modeles");
+                Tool.RegistAllClassAndPropertys RegistClass = new("ExcelDBImporter.Models");
                 dgvUpdater.DataSource = dbContextAlias.TableFieldAliasNameLists
                                                         .OrderBy(t => t.StrClassName)
                                                         .ThenBy(t => t.StrColumnName)
