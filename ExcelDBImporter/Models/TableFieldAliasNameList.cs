@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace ExcelDBImporter.Modeles
+namespace ExcelDBImporter.Models
 {
     [Comment("テーブル列名の別名(表示名等)格納テーブル")]
     [PrimaryKey(nameof(TableFieldAliasNameListId))]

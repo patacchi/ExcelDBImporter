@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ExcelDBImporter.Modeles
+namespace ExcelDBImporter.Models
 {
     [Comment("発番出荷物件予定表モデルクラス")]
     public class ShShukka

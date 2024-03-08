@@ -6,7 +6,7 @@ using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Spreadsheet;
 using ExcelDBImporter.Context;
-using ExcelDBImporter.Modeles;
+using ExcelDBImporter.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExcelDBImporter
@@ -17,6 +17,7 @@ namespace ExcelDBImporter
         {
             InitializeComponent();
             Tool.DatabaseInitializer.DatabaseExlistCheker();
+            AppSettingExistsCheck();
             DateTimePickerInitialize();
         }
         private void BtnImputExcelFile_Click(object sender, EventArgs e)
@@ -158,9 +159,19 @@ namespace ExcelDBImporter
                     return;
                 }
 
+                //DBより保存ディレクトリの設定があるかチェック、なければString.Empty
+                AppSetting? appExists = dbContext.AppSettings.FirstOrDefault(a => a.StrAppName == CONST_STR_ExcelDBImporterAppName);
+                string StrDBSaveDir = string.Empty;
+                if (appExists != null)
+                {
+
+                    //LastSaveDirに設定値が存在する場合のみ設定
+                    StrDBSaveDir = string.IsNullOrEmpty(appExists.StrLastSaveToDir) ? string.Empty : appExists.StrLastSaveToDir;
+                }
                 //保存ファイル名選択
                 SaveFileDialog saveFileDialog = new()
                 {
+                    InitialDirectory = StrDBSaveDir,
                     Filter = "Excel files (*.xlsx)|*.xlsx",
                     FileName = "5D8B4869P002_マーシャリング実績集計" + DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月"
                 };
@@ -206,6 +217,19 @@ namespace ExcelDBImporter
                     dbContext.ShShukka
                         .Where(e => e.DateMarshalling >= dateStart && e.DateMarshalling <= dateEnd)
                         .ExecuteUpdate(u => u.SetProperty(p => p.IsAlreadyOutput, true));
+                    //出力ディレクトリを更新
+                    AppSetting? appSetting = dbContext.AppSettings.FirstOrDefault(a => a.StrAppName == CONST_STR_ExcelDBImporterAppName);
+                    if (appSetting == null) 
+                    {
+                        //アプリ設定そのものが見つからなかった
+                        MessageBox.Show("アプリ設定が見つかりませんでした。処理を中断します\n" + CONST_STR_ExcelDBImporterAppName);
+                    }
+                    else
+                    {
+                        //出力ディレクトを更新
+                        appSetting.StrLastSaveToDir = Path.GetDirectoryName(saveFileDialog.FileName);
+                        dbContext.SaveChanges();
+                    }
                     dbContext.Dispose();
                     //出力ファイル名をテキストボックスに適用
                     TextBoxOutputFileName.Text = saveFileDialog.FileName;

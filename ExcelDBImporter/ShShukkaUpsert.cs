@@ -1,7 +1,7 @@
 ﻿using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using ExcelDBImporter.Context;
-using ExcelDBImporter.Modeles;
+using ExcelDBImporter.Models;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;

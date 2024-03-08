@@ -17,7 +17,7 @@ namespace ExcelDBImporter.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0-preview.1.24081.2");
 
-            modelBuilder.Entity("ExcelDBImporter.Modeles.ShShukka", b =>
+            modelBuilder.Entity("ExcelDBImporter.Models.ShShukka", b =>
                 {
                     b.Property<int>("ShShukkaID")
                         .ValueGeneratedOnAdd()
@@ -100,7 +100,7 @@ namespace ExcelDBImporter.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ExcelDBImporter.Modeles.TableFieldAliasNameList", b =>
+            modelBuilder.Entity("ExcelDBImporter.Models.TableFieldAliasNameList", b =>
                 {
                     b.Property<int>("TableFieldAliasNameListId")
                         .ValueGeneratedOnAdd()
@@ -125,6 +125,33 @@ namespace ExcelDBImporter.Migrations
                     b.ToTable("TableFieldAliasNameLists", t =>
                         {
                             t.HasComment("テーブル列名の別名(表示名等)格納テーブル");
+                        });
+                });
+
+            modelBuilder.Entity("ExcelDBImporter.Models.AppSetting", b =>
+                {
+                    b.Property<int>("AppSettingID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("StrAppName")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasComment("アプリ名、必須");
+
+                    b.Property<string>("StrLastLoadFromDir")
+                        .HasColumnType("TEXT")
+                        .HasComment("最終読み取りディレクトリ");
+
+                    b.Property<string>("StrLastSaveToDir")
+                        .HasColumnType("TEXT")
+                        .HasComment("最終保存ディレクトリ");
+
+                    b.HasKey("AppSettingID");
+
+                    b.ToTable("AppSettings", t =>
+                        {
+                            t.HasComment("各アプリの設定を格納する。1アプリ１レコード");
                         });
                 });
 #pragma warning restore 612, 618

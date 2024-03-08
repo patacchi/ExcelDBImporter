@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using DocumentFormat.OpenXml.Office2016.Presentation.Command;
+using ExcelDBImporter.Context;
+using ExcelDBImporter.Models;
 using Microsoft.Office.Interop.Excel;
 namespace ExcelDBImporter
 {
@@ -22,14 +24,31 @@ namespace ExcelDBImporter
 
         public string ExcelFileComVerter()
         {
+            //DBよりLastLoadFromDirを取得、なければString.Empty
+            string StrLastLoadDir = string.Empty;
+            ExcelDbContext dbLoadDir = new();
+            AppSetting? appSetting = dbLoadDir.AppSettings.FirstOrDefault(a => a.StrAppName == FrmExcelImpoerter.CONST_STR_ExcelDBImporterAppName);
+            if (appSetting != null)
+            {
+                //LoadFromDirの設定が存在する場合のみ設定
+                StrLastLoadDir = string.IsNullOrEmpty(appSetting.StrLastLoadFromDir) ? string.Empty : appSetting.StrLastLoadFromDir;
+            }
             //ファイル選択ダイアログ表示
             OpenFileDialog DialogImportExcelFile = new()
             {
+                InitialDirectory = StrLastLoadDir,
                 Filter = "Excel files (*.xlsx)|*.xlsx;*.xls|" + "Excel files(old)(*.xls)|*.xls"
             };
             if (DialogImportExcelFile.ShowDialog() == DialogResult.OK)
             {
                 StrOriginFilePath = DialogImportExcelFile.FileName;
+                //DBのLastLoadFromDirを更新
+                if (appSetting != null)
+                {
+                    appSetting.StrLastLoadFromDir = Path.GetDirectoryName(DialogImportExcelFile.FileName); 
+                }
+                dbLoadDir.SaveChanges();
+                dbLoadDir.Dispose();
                 if (Path.GetExtension(StrOriginFilePath).Equals(".xls", StringComparison.CurrentCultureIgnoreCase))
                 {
                     //xlsファイルだった場合(変換が必要)

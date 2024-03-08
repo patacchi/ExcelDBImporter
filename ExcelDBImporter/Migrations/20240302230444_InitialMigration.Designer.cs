@@ -20,7 +20,7 @@ namespace ExcelDBImporter.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0-preview.1.24081.2");
 
-            modelBuilder.Entity("ExcelDBImporter.Modeles.ShShukka", b =>
+            modelBuilder.Entity("ExcelDBImporter.Models.ShShukka", b =>
                 {
                     b.Property<int>("ShShukkaID")
                         .ValueGeneratedOnAdd()
@@ -81,7 +81,7 @@ namespace ExcelDBImporter.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ExcelDBImporter.Modeles.TableFieldAliasNameList", b =>
+            modelBuilder.Entity("ExcelDBImporter.Models.TableFieldAliasNameList", b =>
                 {
                     b.Property<int>("TableFieldAliasNameListId")
                         .ValueGeneratedOnAdd()
