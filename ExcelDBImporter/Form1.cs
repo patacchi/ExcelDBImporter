@@ -17,6 +17,7 @@ namespace ExcelDBImporter
         {
             InitializeComponent();
             Tool.DatabaseInitializer.DatabaseExlistCheker();
+            Text = Text + " Ver " + Tool.AssemblyInfo.AssemblyVersion();
             AppSettingExistsCheck();
             DateTimePickerInitialize();
         }
