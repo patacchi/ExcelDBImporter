@@ -93,10 +93,10 @@ namespace ExcelDBImporter
 
             DateTime dateFirstDayinTargetManth = new(DateTime.Now.AddMonths(IntOffsetMonth).Year, DateTime.Now.AddMonths(IntOffsetMonth).Month, 1);
             //フラグが立っているレコードが無かった場合は現在日時を設定する
-            DateTime DateOlder = (OutputNewest == null
+            DateTime DateEndDayofMarshalling = (OutputNewest == null
                                   || OutputNewest.DateMarshalling == null) ? DateTime.Now : (DateTime)OutputNewest.DateMarshalling;
             //フラグ付き最新データと対象月初日の日付が古いほうをスタート日付とする
-            DtpickStart.Value = dateFirstDayinTargetManth <= DateOlder ? dateFirstDayinTargetManth : DateOlder;
+            DtpickStart.Value = dateFirstDayinTargetManth <= DateEndDayofMarshalling ? dateFirstDayinTargetManth : DateEndDayofMarshalling;
             //1か月前の最終日の23:59:59
             DtpickEnd.Value = new DateTime(dateFirstDayinTargetManth.Year,
                                              dateFirstDayinTargetManth.Month,
