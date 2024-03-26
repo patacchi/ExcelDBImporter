@@ -12,11 +12,27 @@ namespace ExcelDBImporter.Tool
 {
     public class RegistAllClassAndPropertys
     {
+        /// <summary>
+        /// 特定の名前空間以下の全てのクラスのプロパティを登録する
+        /// </summary>
+        /// <param name="StrTargetNameSpace"></param>
         public RegistAllClassAndPropertys(string StrTargetNameSpace)
         {
             if (string.IsNullOrEmpty(StrTargetNameSpace)) { return; }
             GetAllProperty getAllProperty = new();
             List<ClassAndProperty> listPropertys = getAllProperty.GetClassnameAndPropertyPairBasedNameSpace(StrTargetNameSpace);
+            RegistToDB(listPropertys);
+        }
+        /// <summary>
+        /// 指定のクラスのプロパティのみ登録する
+        /// </summary>
+        /// <param name="StrNameSpace"></param>
+        /// <param name="StrClassName"></param>
+        public RegistAllClassAndPropertys(string StrNameSpace,string StrClassName)
+        {
+            if (string.IsNullOrEmpty(StrNameSpace) || string.IsNullOrEmpty(StrClassName)) { return; }
+            GetAllProperty getAllProperty = new();
+            List<ClassAndProperty> listPropertys = getAllProperty.GetPropertyByClassNameAndNamespace(StrNameSpace,StrClassName);
             RegistToDB(listPropertys);
         }
         internal void RegistToDB(List<ClassAndProperty> listProperty)

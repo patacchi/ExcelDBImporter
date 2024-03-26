@@ -44,7 +44,7 @@ namespace ExcelDBImporter.Tool
         /// <param name="StrNameSpace">名前空間</param>
         /// <param name="StrClassName">クラス名</param>
         /// <returns>ClassAndProperty型のリスト</returns>
-        public List<ClassAndProperty> GetPropertyByClassName(string StrNameSpace, string StrClassName)
+        public List<ClassAndProperty> GetPropertyByClassNameAndNamespace(string? StrNameSpace, string StrClassName)
         {
             //実行中のアセンブリ(DLL)取得
             Assembly assm = Assembly.GetExecutingAssembly();

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Sqlite;
+using ExcelDBImporter.Models;
 
 
 namespace ExcelDBImporter
@@ -31,11 +32,11 @@ namespace ExcelDBImporter
         {
             try
             {
-                //dbContextAlias = new();
                 //EnsureCreated使うとMigrationの時にタイヘン・・・
                 //dbContextAlias.Database.EnsureCreated();
-                Tool.RegistAllClassAndPropertys RegistClass = new("ExcelDBImporter.Models");
+                Tool.RegistAllClassAndPropertys RegistClass = new(typeof(ShShukka).Namespace ?? string.Empty,nameof(ShShukka));
                 dgvUpdater.DataSource = dbContextAlias.TableFieldAliasNameLists
+                                                        .Where(l => l.StrClassName == nameof(ShShukka))
                                                         .OrderBy(t => t.StrClassName)
                                                         .ThenBy(t => t.StrColumnName)
                                                         .ToList();

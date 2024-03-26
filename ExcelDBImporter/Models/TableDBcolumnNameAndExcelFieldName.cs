@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 namespace ExcelDBImporter.Models
 {
     [Comment("DBとExcelファイルのフィールド名の対応格納テーブル。対応Excelファイルが増えると列が増えていく")]
-    [PrimaryKey(nameof(TableDBcolumnNameAndExcelFieldNameID))]
     
     public class TableDBcolumnNameAndExcelFieldName
     {
@@ -18,7 +17,7 @@ namespace ExcelDBImporter.Models
         [Comment("モデルクラスのオリジナルDBColumn名")]
         public string StrDBColumnName { get; set; } = null!;
         [Column(Order = 3)]
-        [Comment("出荷物件予定表Excelファイルのフィールド名")]
+        [Comment("出荷物件予定表Excelファイルのフィールド名、4行目と5行目の文字列を連結する")]
         public string? StrshShukkaFieldName {  get; set; }
         [Column(Order = 4)]
         [Comment("工程管理システムからの出力Excelファイルのフィールド名")]
