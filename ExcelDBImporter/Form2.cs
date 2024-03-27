@@ -36,9 +36,9 @@ namespace ExcelDBImporter
                 //dbContextAlias.Database.EnsureCreated();
                 Tool.RegistAllClassAndPropertys RegistClass = new(typeof(ShShukka).Namespace ?? string.Empty,nameof(ShShukka));
                 dgvUpdater.DataSource = dbContextAlias.TableFieldAliasNameLists
-                                                        .Where(l => l.StrClassName == nameof(ShShukka))
-                                                        .OrderBy(t => t.StrClassName)
-                                                        .ThenBy(t => t.StrColumnName)
+                                                        .Where(l => l.DBcolumn.StrClassName == nameof(ShShukka))
+                                                        .OrderBy(t => t.DBcolumn.StrClassName)
+                                                        .ThenBy(t => t.DBcolumn.StrDBColumnName)
                                                         .ToList();
             }
             catch (Exception ex)

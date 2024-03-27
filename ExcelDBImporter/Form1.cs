@@ -192,8 +192,11 @@ namespace ExcelDBImporter
                     foreach (IXLCell? cell in CellsTitle)
                     {
                         var aliasName = dbContext.TableFieldAliasNameLists
-                                                .Where(t => t.StrClassName == typeof(ShShukka).Name &&
-                                                t.StrColumnName == cell.Value.ToString())
+                                                .Include(tableDBColumn => tableDBColumn.DBcolumn)
+                                                .Where(table => table.DBcolumn.StrClassName == typeof(ShShukka).Name &&
+                                                table.DBcolumn.StrDBColumnName == cell.Value.ToString())
+                                                /*.Where(t => t.StrClassName == typeof(ShShukka).Name &&
+                                                t.StrColumnName == cell.Value.ToString())*/
                                                 .FirstOrDefault();
                         if (aliasName != null)
                         {

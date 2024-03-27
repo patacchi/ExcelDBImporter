@@ -13,7 +13,7 @@ namespace ExcelDBImporter.Tool
     public class RegistAllClassAndPropertys
     {
         /// <summary>
-        /// 特定の名前空間以下の全てのクラスのプロパティを登録する
+        /// 特定の名前空間以下の全てのクラスのプロパティをTableDBcolumnAndExcelFieldテーブル登録する
         /// </summary>
         /// <param name="StrTargetNameSpace"></param>
         public RegistAllClassAndPropertys(string StrTargetNameSpace)
@@ -43,14 +43,14 @@ namespace ExcelDBImporter.Tool
             {
                 foreach (ClassAndProperty property in listProperty) 
                 {
-                    TableFieldAliasNameList? existing = dbContext.TableFieldAliasNameLists.FirstOrDefault(
-                        e => e.StrClassName == property.ClassName && e.StrColumnName == property.PropertyName);
+                    TableDBcolumnNameAndExcelFieldName? existing = dbContext.tableDBcolumnNameAndExcelFieldNames.FirstOrDefault(
+                        e => e.StrClassName == property.ClassName && e.StrDBColumnName == property.PropertyName);
                     if (existing == null)
                     {
-                        dbContext.TableFieldAliasNameLists.Add(new TableFieldAliasNameList
+                        dbContext.tableDBcolumnNameAndExcelFieldNames.Add(new TableDBcolumnNameAndExcelFieldName
                         {
                             StrClassName = property.ClassName,
-                            StrColumnName = property.PropertyName
+                            StrDBColumnName = property.PropertyName
                         });
                     }
                 }
