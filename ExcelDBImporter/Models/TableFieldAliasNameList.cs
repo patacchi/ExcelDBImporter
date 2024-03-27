@@ -18,15 +18,17 @@ namespace ExcelDBImporter.Models
         [Comment("列の表示用別名")]
         public string? StrColnmnAliasName { get; set; }
 
-        /*
         [Column(Order = 3)]
+        [NotMapped]
         public string StrClassName { get; set; } = null!;
+        
         [Column(Order = 4)]
-        public string StrColumnName { get; set; } = null!;
-        */
+        [NotMapped]
+        public string StrDBColumnName { get; set; } = null!;
+        
 
         [Comment("ナビゲーションプロパティ")]
-        public required TableDBcolumnNameAndExcelFieldName DBcolumn { get; set; }
+        public TableDBcolumnNameAndExcelFieldName DBcolumn { get; set; } = null!;
 
     }
 }

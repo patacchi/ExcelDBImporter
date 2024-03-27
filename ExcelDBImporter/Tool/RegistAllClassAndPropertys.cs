@@ -43,11 +43,11 @@ namespace ExcelDBImporter.Tool
             {
                 foreach (ClassAndProperty property in listProperty) 
                 {
-                    TableDBcolumnNameAndExcelFieldName? existing = dbContext.tableDBcolumnNameAndExcelFieldNames.FirstOrDefault(
+                    TableDBcolumnNameAndExcelFieldName? existing = dbContext.TableDBcolumnNameAndExcelFieldNames.FirstOrDefault(
                         e => e.StrClassName == property.ClassName && e.StrDBColumnName == property.PropertyName);
                     if (existing == null)
                     {
-                        dbContext.tableDBcolumnNameAndExcelFieldNames.Add(new TableDBcolumnNameAndExcelFieldName
+                        dbContext.TableDBcolumnNameAndExcelFieldNames.Add(new TableDBcolumnNameAndExcelFieldName
                         {
                             StrClassName = property.ClassName,
                             StrDBColumnName = property.PropertyName
@@ -65,6 +65,38 @@ namespace ExcelDBImporter.Tool
             {
                 dbContext.Dispose();
             }
+        }
+        /// <summary>
+        /// TableAliasに未追加のフィールド名があれば追加する
+        /// </summary>
+        /// <param name="StrClassname"></param>
+        /// <param name="StrNamespace"></param>
+        public void AddAliasNameTableByClassnameAndNamespace(string StrNameSpace ,string StrClassName)
+        {
+            if (string.IsNullOrEmpty(StrNameSpace) || string.IsNullOrEmpty(StrClassName)) { return; }
+            GetAllProperty getAllProperty = new();
+            List<ClassAndProperty> listPropertys = getAllProperty.GetPropertyByClassNameAndNamespace(StrNameSpace, StrClassName);
+            using ExcelDbContext dbContext = new();
+            foreach (ClassAndProperty property in listPropertys)
+            {
+                TableFieldAliasNameList? existing = dbContext.TableFieldAliasNameLists
+                    .Include(alias => alias.DBcolumn)
+                    .Where(alias => alias.DBcolumn.StrClassName == property.ClassName && alias.DBcolumn.StrDBColumnName == property.PropertyName)
+                    .FirstOrDefault();
+                if (existing == null)
+                {
+                    //既存データがなかった場合
+                    dbContext.Add(new TableFieldAliasNameList
+                    {
+                        //DBcolumnテーブルより指定のクラス名とプロパティ名の外部キーを取得して、Aliasテーブルに設定する
+                        TableDBcolumnNameAndExcelFieldNameID = dbContext.TableDBcolumnNameAndExcelFieldNames
+                        .Where(alias => alias.StrClassName == property.ClassName && alias.StrDBColumnName == property.PropertyName)
+                        .Select(alias => alias.TableDBcolumnNameAndExcelFieldNameID)
+                        .FirstOrDefault()
+                    });
+                }
+            }
+            dbContext.SaveChanges();
         }
     }
 }

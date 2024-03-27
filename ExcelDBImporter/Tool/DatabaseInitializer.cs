@@ -55,12 +55,12 @@ namespace ExcelDBImporter.Tool
             foreach (ClassAndProperty property in listProperty)
             {
                 //クラス内各プロパティに対してDBに存在するかチェック(無ければ追記)
-                TableDBcolumnNameAndExcelFieldName? existit = dbContext.tableDBcolumnNameAndExcelFieldNames.FirstOrDefault(
+                TableDBcolumnNameAndExcelFieldName? existit = dbContext.TableDBcolumnNameAndExcelFieldNames.FirstOrDefault(
                                                         d => d.StrClassName == property.ClassName && d.StrDBColumnName == property.PropertyName);
                 if (existit == null)
                 {
                     //クラス名とプロパティ名(DB カラム名)が存在しないときは追加
-                    dbContext.tableDBcolumnNameAndExcelFieldNames.Add(new TableDBcolumnNameAndExcelFieldName
+                    dbContext.TableDBcolumnNameAndExcelFieldNames.Add(new TableDBcolumnNameAndExcelFieldName
                     {
                         StrClassName = property.ClassName,
                         StrDBColumnName = property.PropertyName,

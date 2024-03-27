@@ -40,6 +40,7 @@
             // dgvUpdater
             // 
             dgvUpdater.AllowUserToDeleteRows = false;
+            dgvUpdater.AllowUserToOrderColumns = true;
             dgvUpdater.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvUpdater.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.ColumnHeader;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;

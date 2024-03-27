@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Sqlite;
 using ExcelDBImporter.Models;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 
 namespace ExcelDBImporter
@@ -35,7 +36,11 @@ namespace ExcelDBImporter
                 //EnsureCreated使うとMigrationの時にタイヘン・・・
                 //dbContextAlias.Database.EnsureCreated();
                 Tool.RegistAllClassAndPropertys RegistClass = new(typeof(ShShukka).Namespace ?? string.Empty,nameof(ShShukka));
+                //Aliasテーブルのキーの存在チェック(ない場合は追加)
+                RegistClass.AddAliasNameTableByClassnameAndNamespace(typeof(ShShukka).Namespace ?? string.Empty, nameof(ShShukka));
+                BindingList<TableFieldAliasNameList> BindListAlias = new BindingList<TableFieldAliasNameList>();
                 dgvUpdater.DataSource = dbContextAlias.TableFieldAliasNameLists
+                                                        .Include(dbdata => dbdata.DBcolumn)
                                                         .Where(l => l.DBcolumn.StrClassName == nameof(ShShukka))
                                                         .OrderBy(t => t.DBcolumn.StrClassName)
                                                         .ThenBy(t => t.DBcolumn.StrDBColumnName)

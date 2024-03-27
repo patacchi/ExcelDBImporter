@@ -16,7 +16,7 @@ namespace ExcelDBImporter.Context
         public DbSet<ShShukka> ShShukka { get; set; }
         public DbSet<TableFieldAliasNameList> TableFieldAliasNameLists { get; set; }
         public DbSet<AppSetting> AppSettings { get; set; }
-        public DbSet<TableDBcolumnNameAndExcelFieldName> tableDBcolumnNameAndExcelFieldNames { get; set; }
+        public DbSet<TableDBcolumnNameAndExcelFieldName> TableDBcolumnNameAndExcelFieldNames { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
