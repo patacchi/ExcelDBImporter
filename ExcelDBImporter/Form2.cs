@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Sqlite;
 using ExcelDBImporter.Models;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using ExcelDBImporter.Tool;
 
 
 namespace ExcelDBImporter
@@ -27,7 +27,9 @@ namespace ExcelDBImporter
 
         private void FrmDataViewer_Load(object sender, EventArgs e)
         {
+            dgvUpdater.AutoGenerateColumns = false;
             LoadData();
+
         }
         private void LoadData()
         {
@@ -38,13 +40,15 @@ namespace ExcelDBImporter
                 Tool.RegistAllClassAndPropertys RegistClass = new(typeof(ShShukka).Namespace ?? string.Empty,nameof(ShShukka));
                 //Aliasテーブルのキーの存在チェック(ない場合は追加)
                 RegistClass.AddAliasNameTableByClassnameAndNamespace(typeof(ShShukka).Namespace ?? string.Empty, nameof(ShShukka));
-                BindingList<TableFieldAliasNameList> BindListAlias = new BindingList<TableFieldAliasNameList>();
-                dgvUpdater.DataSource = dbContextAlias.TableFieldAliasNameLists
+
+                SortableBindingList<TableFieldAliasNameList> blistAlias = new(dbContextAlias.TableFieldAliasNameLists
                                                         .Include(dbdata => dbdata.DBcolumn)
                                                         .Where(l => l.DBcolumn.StrClassName == nameof(ShShukka))
                                                         .OrderBy(t => t.DBcolumn.StrClassName)
                                                         .ThenBy(t => t.DBcolumn.StrDBColumnName)
-                                                        .ToList();
+                                                        .ToList());
+                dgvUpdater.AutoGenerateColumns = true;
+                dgvUpdater.DataSource = blistAlias;
             }
             catch (Exception ex)
             {

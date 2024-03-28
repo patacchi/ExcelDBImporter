@@ -42,7 +42,6 @@
             dgvUpdater.AllowUserToDeleteRows = false;
             dgvUpdater.AllowUserToOrderColumns = true;
             dgvUpdater.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            dgvUpdater.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.ColumnHeader;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = SystemColors.Control;
             dataGridViewCellStyle1.Font = new Font("Yu Gothic UI", 9F);
