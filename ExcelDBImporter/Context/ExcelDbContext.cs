@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -8,6 +9,7 @@ using ExcelDBImporter.Models;
 
 /// Nuget Microsoft.EntityFrameworkCore.Sqlite
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ExcelDBImporter.Context
 {
@@ -22,6 +24,7 @@ namespace ExcelDBImporter.Context
         {
             string dbPath = Path.Combine(Application.StartupPath, "excel_data.db");
             optionsBuilder.UseSqlite($"Data Source={dbPath}");
+            optionsBuilder.LogTo(message => Debug.WriteLine(message),LogLevel.Information);
         }
     }
 }
