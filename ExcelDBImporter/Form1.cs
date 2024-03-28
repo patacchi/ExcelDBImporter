@@ -15,11 +15,19 @@ namespace ExcelDBImporter
     {
         public FrmExcelImpoerter()
         {
-            InitializeComponent();
-            Tool.DatabaseInitializer.DatabaseExlistCheker();
-            Text = Text + " Ver " + Tool.AssemblyInfo.AssemblyVersion();
-            AppSettingExistsCheck();
-            DateTimePickerInitialize();
+            try 
+            {
+                InitializeComponent();
+                Tool.DatabaseInitializer.DatabaseExlistCheker();
+                Text = Text + " Ver " + Tool.AssemblyInfo.AssemblyVersion();
+                AppSettingExistsCheck();
+                DateTimePickerInitialize();
+            }
+            catch 
+            {
+                this.Close();
+                throw;
+            }
         }
         private void BtnImputExcelFile_Click(object sender, EventArgs e)
         {
