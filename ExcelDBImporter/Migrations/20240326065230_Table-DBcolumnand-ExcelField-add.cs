@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using DocumentFormat.OpenXml.Office2021.PowerPoint.Comment;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -26,6 +27,16 @@ namespace ExcelDBImporter.Migrations
                     table.PrimaryKey("PK_tableDBcolumnNameAndExcelFieldNames", x => x.TableDBcolumnNameAndExcelFieldNameID);
                 },
                 comment: "DBとExcelファイルのフィールド名の対応格納テーブル。対応Excelファイルが増えると列が増えていく");
+            //ここまでにAliasテーブルにデータ追加していると、クラス名とDBcolumnがDBcolumnテーブルに格納するが、
+            //Aliasテーブルが外部キー(依存側)なので、新規作成したReference(親)側のテーブルに合わせるとAliasテーブルのデータが消えてしまう
+            //そのため、Aliasテーブルにクラス名とDBcolumnの関係があったら DBcolumnテーブルに転記をする
+            //(この時にIDがオートインクリメントで付加されるので外部キーとして機能するようになり、次のマイグレーションで活用できる)
+            migrationBuilder.Sql(@"
+            INSERT INTO ""tableDBcolumnNameAndExcelFieldNames"" ( ""StrClassName"",""StrDBColumnName"") 
+            SELECT ""StrClassName"",""StrColumnName""
+            FROM ""TableFieldAliasNameLists""
+            WHERE ""StrClassName"" = ""ShShukka"";
+            ");
         }
 
         /// <inheritdoc />
