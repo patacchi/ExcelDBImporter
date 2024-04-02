@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ExcelDBImporter.Models
 {
+    [Table(name: nameof(ShShukka))]
     [Comment("発番出荷物件予定表モデルクラス")]
     public class ShShukka
     {
