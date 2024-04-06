@@ -19,6 +19,7 @@ namespace ExcelDBImporter.Context
         public DbSet<TableFieldAliasNameList> TableFieldAliasNameLists { get; set; }
         public DbSet<AppSetting> AppSettings { get; set; }
         public DbSet<TableDBcolumnNameAndExcelFieldName> TableDBcolumnNameAndExcelFieldNames { get; set; }
+        public DbSet<TQRinput> TQRinputs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

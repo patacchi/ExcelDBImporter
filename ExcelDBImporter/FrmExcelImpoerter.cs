@@ -133,6 +133,12 @@ namespace ExcelDBImporter
 
         }
 
+        private void BtnShowQRForm_Click(object sender, EventArgs e)
+        {
+            FrmPrintQRCode frmPrintQRCode = new();
+            frmPrintQRCode.ShowDialog();
+        }
+
         private void OutputxlsxFilterdByTimePickerTime()
         {
             DateTime dateStart = DtpickStart.Value.Date;
