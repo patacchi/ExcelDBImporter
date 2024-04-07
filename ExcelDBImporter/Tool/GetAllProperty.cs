@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -71,6 +72,30 @@ namespace ExcelDBImporter.Tool
                 }
             }
             return listProperty;
+        }
+
+        // Enumの要素がMicrosoft.Entity.FrameworkCoreのCommentアノテーションを持っているかどうかをチェックし、内容を取得するジェネリック型メソッド
+        public static string GetEnumComment<T>(T value) where T : Enum
+        {
+            // Enumの型を取得
+            Type type = typeof(T);
+
+            // Enumのフィールド情報を取得
+            FieldInfo fieldInfo = type.GetField(value.ToString())!;
+
+            // Microsoft.Entity.FrameworkCoreのCommentアノテーションを取得
+            CommentAttribute[] attributes = (CommentAttribute[])fieldInfo.GetCustomAttributes(typeof(CommentAttribute), false);
+
+            if (attributes.Length > 0)
+            {
+                // アノテーションが存在する場合は、その内容を返す
+                return attributes[0].Comment;
+            }
+            else
+            {
+                // アノテーションが存在しない場合は、要素名をそのまま返す
+                return value.ToString();
+            }
         }
 
     }

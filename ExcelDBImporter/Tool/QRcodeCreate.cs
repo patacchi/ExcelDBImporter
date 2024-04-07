@@ -95,6 +95,23 @@ namespace ExcelDBImporter.Tool
             }
             return QuememoryStreams;
         }
+        internal static Dictionary<string,MemoryStream> GetSVGMemoryStreamWithComment(
+            Dictionary<string,string> DicJsonWithComment )
+        {
+            BarcodeWriterSvg qrwriter = QRWriterformat();
+            Dictionary<string, MemoryStream> DicmemoryStreamWithComment = [];
+            foreach (KeyValuePair<string, string> keyValuePair in DicJsonWithComment)
+            {
+                byte[] byteArray = Encoding.UTF8.GetBytes(qrwriter.Write(keyValuePair.Value).Content);
+                MemoryStream ms = new(byteArray);
+                _ = ms.Seek(0, SeekOrigin.Begin);
+                DicmemoryStreamWithComment.Add(
+                    keyValuePair.Key,
+                    ms
+                    );
+            }
+            return DicmemoryStreamWithComment;
+        }
 
         private static BarcodeWriterSvg QRWriterformat()
         {

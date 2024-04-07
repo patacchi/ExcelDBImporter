@@ -17,30 +17,52 @@ namespace ExcelDBImporter
 {
     public partial class FrmPrintQRCode : Form
     {
-        public Queue<MemoryStream> QueSVGStream { get; set; }
+        public Dictionary<string,MemoryStream> DicSVGStream { get; set; }
         public FrmPrintQRCode()
         {
             InitializeComponent();
-            //ここまでQueSVGがnullだったら、標準動作としてQROPcodeのQRコードを作成
-            QueSVGStream ??= QRcodeCreate.GetSVGMemoryStream(CreateOPcodeJsonQue());
+            //ここまででDicSVFStreamがnullだったら初期値としてOROPcodeを設定
+            DicSVGStream ??= QRcodeCreate.GetSVGMemoryStreamWithComment(
+                CreateOPcodeJsonDic(GetQROPcodeQue()));
             SetSVGImageToPictbox();
         }
+
         /// <summary>
-        /// QROPcodeをシリアライズしたJSONTextのQueを返す
+        /// QROPcodeのQueを返す
         /// </summary>
-        /// <returns>シリアライズされたクラスのQue</returns>
-        public static Queue<string> CreateOPcodeJsonQue()
+        /// <returns>Que<QROPcode></returns>
+        private static Queue<QrOPcode> GetQROPcodeQue()
         {
-            Queue<string> QueJSON = new();
-             QueJSON.Enqueue(QRcodeCreate.GeneratetJsonFromClass(
-                new TQRinput(){ QROPcode = QrOPcode.PrepareReceive }));
-            QueJSON.Enqueue(QRcodeCreate.GeneratetJsonFromClass(
-                new TQRinput() {QROPcode = QrOPcode.PrepareReveiveSet }));
-            QueJSON.Enqueue(QRcodeCreate.GeneratetJsonFromClass(
-                new TQRinput() { QROPcode = QrOPcode.FreewayDataInput }));
-            QueJSON.Enqueue(QRcodeCreate.GeneratetJsonFromClass(
-                new TQRinput() { QROPcode = QrOPcode.ShppingDeliverSet }));
-            return QueJSON;
+            Queue<QrOPcode> qrOPcodes = new ();
+            qrOPcodes.Enqueue(QrOPcode.PrepareReceive);
+            qrOPcodes.Enqueue(QrOPcode.PrepareReveiveSet);
+            qrOPcodes.Enqueue(QrOPcode.FreewayDataInput);
+            qrOPcodes.Enqueue(QrOPcode.ShppingDeliverSet);
+            return qrOPcodes;
+        }
+
+        /// <summary>
+        /// QROPcodeのQueueを引数に、キーがCommentのDictionaryを返す関数
+        /// </summary>
+        /// <param name="QueqrOPcode">QROPcodeのQueue</param>
+        /// <returns>キーがCommentのDictionary、Commen無い時はプロパティ名そのまま
+        ///  Value はTQRinputにQROPcodeの値がセットされたクラスのJson</returns>
+        public static Dictionary<string, string> CreateOPcodeJsonDic(Queue<QrOPcode> QueqrOPcode)
+        {
+            Dictionary<string, string> DicJson = [];
+            foreach (QrOPcode qrOPcode in QueqrOPcode)
+            {
+                //それぞれのQROPcodeからCommentを取り出す
+
+                DicJson.Add(
+                    //キーはQROPcodeのComment
+                    GetAllProperty.GetEnumComment<QrOPcode>(qrOPcode),
+                    //ValueはTQRinputクラスのJson
+                    QRcodeCreate.GeneratetJsonFromClass(
+                    new TQRinput() { QROPcode = qrOPcode })
+                    );
+            }
+            return DicJson;
         }
 
         /// <summary>
@@ -48,7 +70,7 @@ namespace ExcelDBImporter
         /// </summary>
         private void SetSVGImageToPictbox()
         {
-            if ( QueSVGStream == null) { return; }
+            if ( DicSVGStream == null) { return; }
             int IntImageCount = 0;
             PictureBox[] PictBoxArray =
             [
@@ -64,13 +86,13 @@ namespace ExcelDBImporter
                 Lbl3of4,
                 Lbl4of4,
                 ];
-            foreach (MemoryStream ms in QueSVGStream ) 
+            foreach (KeyValuePair<string, MemoryStream> keyValuePair in DicSVGStream) 
             {
                 if (IntImageCount > 4) { break; }
-                SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(ms);
+                SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(keyValuePair.Value);
                 PictBoxArray[IntImageCount].Image = svgDocument.Draw(300, 300);
-                LabelArray[IntImageCount].Text = IntImageCount.ToString();
-                ms.Dispose();
+                LabelArray[IntImageCount].Text = keyValuePair.Key;
+                keyValuePair.Value.Dispose();
                 IntImageCount++;
             }
         }

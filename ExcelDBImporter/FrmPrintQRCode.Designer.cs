@@ -44,9 +44,11 @@
             // 
             // PictBox1of4
             // 
+            PictBox1of4.BackColor = Color.White;
             PictBox1of4.Location = new Point(33, 12);
             PictBox1of4.Name = "PictBox1of4";
             PictBox1of4.Size = new Size(300, 300);
+            PictBox1of4.SizeMode = PictureBoxSizeMode.AutoSize;
             PictBox1of4.TabIndex = 0;
             PictBox1of4.TabStop = false;
             // 
@@ -70,6 +72,8 @@
             // 
             // PictBox2of4
             // 
+            PictBox2of4.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            PictBox2of4.BackColor = Color.White;
             PictBox2of4.Location = new Point(409, 12);
             PictBox2of4.Name = "PictBox2of4";
             PictBox2of4.Size = new Size(300, 300);
@@ -78,9 +82,12 @@
             // 
             // PictBox3of4
             // 
+            PictBox3of4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            PictBox3of4.BackColor = Color.White;
             PictBox3of4.Location = new Point(33, 527);
             PictBox3of4.Name = "PictBox3of4";
             PictBox3of4.Size = new Size(300, 300);
+            PictBox3of4.SizeMode = PictureBoxSizeMode.AutoSize;
             PictBox3of4.TabIndex = 0;
             PictBox3of4.TabStop = false;
             // 
@@ -95,6 +102,8 @@
             // 
             // PictBox4of4
             // 
+            PictBox4of4.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            PictBox4of4.BackColor = Color.White;
             PictBox4of4.Location = new Point(409, 527);
             PictBox4of4.Name = "PictBox4of4";
             PictBox4of4.Size = new Size(300, 300);
@@ -114,6 +123,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            AutoScroll = true;
             ClientSize = new Size(774, 1027);
             Controls.Add(Lbl2of4);
             Controls.Add(PictBox2of4);
@@ -123,7 +133,6 @@
             Controls.Add(PictBox4of4);
             Controls.Add(PictBox3of4);
             Controls.Add(PictBox1of4);
-            FormBorderStyle = FormBorderStyle.Fixed3D;
             Name = "FrmPrintQRCode";
             SizeGripStyle = SizeGripStyle.Hide;
             Text = "QRコード";
@@ -132,6 +141,7 @@
             ((System.ComponentModel.ISupportInitialize)PictBox3of4).EndInit();
             ((System.ComponentModel.ISupportInitialize)PictBox4of4).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
