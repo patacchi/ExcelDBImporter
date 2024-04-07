@@ -133,6 +133,11 @@ namespace ExcelDBImporter
 
         }
 
+        private void BtnfrmShowQR_Read_Click(object sender, EventArgs e)
+        {
+            FrmQRread frmQRread = new ();
+            frmQRread.ShowDialog();
+        }
         private void BtnShowQRForm_Click(object sender, EventArgs e)
         {
             FrmPrintQRCode frmPrintQRCode = new();

@@ -42,6 +42,7 @@
             BtnOpenOutputDir = new Button();
             BtnUnsetOutputFlag = new Button();
             BtnShowQRForm = new Button();
+            btnQRread = new Button();
             SuspendLayout();
             // 
             // textBoxInputFilename
@@ -178,13 +179,23 @@
             // 
             // BtnShowQRForm
             // 
-            BtnShowQRForm.Location = new Point(21, 264);
+            BtnShowQRForm.Location = new Point(182, 264);
             BtnShowQRForm.Name = "BtnShowQRForm";
             BtnShowQRForm.Size = new Size(141, 48);
             BtnShowQRForm.TabIndex = 2;
             BtnShowQRForm.Text = "QRコード印刷";
             BtnShowQRForm.UseVisualStyleBackColor = true;
-            BtnShowQRForm.Click += this.BtnShowQRForm_Click;
+            BtnShowQRForm.Click += BtnShowQRForm_Click;
+            // 
+            // btnQRread
+            // 
+            btnQRread.Location = new Point(21, 264);
+            btnQRread.Name = "btnQRread";
+            btnQRread.Size = new Size(141, 48);
+            btnQRread.TabIndex = 2;
+            btnQRread.Text = "QRコード読み取り";
+            btnQRread.UseVisualStyleBackColor = true;
+            btnQRread.Click += BtnfrmShowQR_Read_Click;
             // 
             // FrmExcelImpoerter
             // 
@@ -196,6 +207,7 @@
             Controls.Add(BtnOpenOutputDir);
             Controls.Add(DtpickEnd);
             Controls.Add(DtpickStart);
+            Controls.Add(btnQRread);
             Controls.Add(BtnShowQRForm);
             Controls.Add(BtnFieldNamAlias);
             Controls.Add(BtnOutpuToxlsx);
@@ -231,5 +243,6 @@
         private Button BtnOpenOutputDir;
         private Button BtnUnsetOutputFlag;
         private Button BtnShowQRForm;
+        private Button btnQRread;
     }
 }

@@ -70,8 +70,10 @@ namespace ExcelDBImporter.Models
     }
     [Comment("工程管理用 QRコード記録テーブル")]
     [Table(nameof(TQRinput))]
-    public class TQRinput
+    public class TQRinput()
     {
+        private QrOPcode qROPcode;
+
         [Key]
         [Column(nameof(TQRinputId))]
         [Comment("QRテーブルのキー")]
@@ -84,6 +86,6 @@ namespace ExcelDBImporter.Models
         public DateTime? DateToDate { get; set; }
         [Column(nameof(QROPcode))]
         [Comment("行程種別のenum。初期値 None")]
-        public QrOPcode QROPcode { get; set; } = QrOPcode.None;
+        public QrOPcode QROPcode { get => qROPcode; set => qROPcode = value; }
     }
 }

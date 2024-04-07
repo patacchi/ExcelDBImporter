@@ -41,12 +41,14 @@ namespace ExcelDBImporter
                 Tool.RegistAllClassAndPropertys RegistClass = new(typeof(ShShukka).Namespace ?? string.Empty,nameof(ShShukka));
                 //Aliasテーブルのキーの存在チェック(ない場合は追加)
                 RegistClass.AddAliasNameTableByClassnameAndNamespace(typeof(ShShukka).Namespace ?? string.Empty, nameof(ShShukka));
+#pragma warning disable IDE0305 // コレクションの初期化を簡略化します
                 SortableBindingList<TableFieldAliasNameList> blistAlias = new(dbContextAlias.TableFieldAliasNameLists
                                                         .Include(dbdata => dbdata.DBcolumn)
                                                         .Where(l => l.DBcolumn.StrClassName == nameof(ShShukka))
                                                         .OrderBy(t => t.DBcolumn.StrClassName)
                                                         .ThenBy(t => t.DBcolumn.StrDBColumnName)
                                                         .ToList());
+#pragma warning restore IDE0305 // コレクションの初期化を簡略化します
                 dgvUpdater.AutoGenerateColumns = true;
                 dgvUpdater.DataSource = blistAlias;
                 dgvUpdater.AutoResizeColumns();
