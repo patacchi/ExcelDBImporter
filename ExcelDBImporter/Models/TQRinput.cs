@@ -63,12 +63,12 @@ namespace ExcelDBImporter.Models
         /// マイクロ波部品出庫作業
         /// </summary>
         [Comment("マイクロ波部品出庫作業")]
-        MicrowaveDelivary = opMicroWave | Delivery,
+        MicrowaveDelivary = FreewayDataInput| opMicroWave | Delivery,
         /// <summary>
         /// 支給品出庫・支給準備作業セット
         /// </summary>
         [Comment("支給品出庫・支給準備作業セット")]
-        ShppingDeliverSet = PrepareShpping | Delivery,
+        ShppingDeliverSet =FreewayDataInput | PrepareShpping | Delivery,
         /// <summary>
         /// 新規部品登録作業(Freeway込み)
         /// </summary>

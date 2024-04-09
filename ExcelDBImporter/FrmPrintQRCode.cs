@@ -17,7 +17,7 @@ namespace ExcelDBImporter
 {
     public partial class FrmPrintQRCode : Form
     {
-        public Dictionary<string,MemoryStream> DicSVGStream { get; set; }
+        public Dictionary<string, MemoryStream> DicSVGStream { get; set; }
         public FrmPrintQRCode()
         {
             InitializeComponent();
@@ -33,11 +33,12 @@ namespace ExcelDBImporter
         /// <returns>Que<QROPcode></returns>
         private static Queue<QrOPcode> GetQROPcodeQue()
         {
-            Queue<QrOPcode> qrOPcodes = new ();
-            qrOPcodes.Enqueue(QrOPcode.PrepareReceive);
+            Queue<QrOPcode> qrOPcodes = new();
             qrOPcodes.Enqueue(QrOPcode.PrepareReveiveSet);
             qrOPcodes.Enqueue(QrOPcode.FreewayDataInput);
+            qrOPcodes.Enqueue(QrOPcode.Delivery);
             qrOPcodes.Enqueue(QrOPcode.ShppingDeliverSet);
+            qrOPcodes.Enqueue(QrOPcode.MicrowaveDelivary);
             return qrOPcodes;
         }
 
@@ -70,31 +71,51 @@ namespace ExcelDBImporter
         /// </summary>
         private void SetSVGImageToPictbox()
         {
-            if ( DicSVGStream == null) { return; }
+            if (DicSVGStream == null) { return; }
             int IntImageCount = 0;
             PictureBox[] PictBoxArray =
             [
-                PictBox1of4,
-                PictBox2of4,
-                PictBox3of4,
-                PictBox4of4
+                PictBox1,
+                PictBox2,
+                PictBox3,
+                PictBox4,
+                PictBox5,
+                PictBox6
             ];
             Label[] LabelArray =
-                [
-                Lbl1of4,
-                Lbl2of4,
-                Lbl3of4,
-                Lbl4of4,
-                ];
-            foreach (KeyValuePair<string, MemoryStream> keyValuePair in DicSVGStream) 
+            [
+                Lbl1,
+                Lbl2,
+                Lbl3,
+                Lbl4,
+                Lbl5,
+                Lbl6
+            ];
+            foreach (KeyValuePair<string, MemoryStream> keyValuePair in DicSVGStream)
             {
-                if (IntImageCount > 4) { break; }
+                if (IntImageCount > 6) { break; }
                 SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(keyValuePair.Value);
-                PictBoxArray[IntImageCount].Image = svgDocument.Draw(300, 300);
+                PictBoxArray[IntImageCount].Image = svgDocument.Draw(200, 200);
                 LabelArray[IntImageCount].Text = keyValuePair.Key;
                 keyValuePair.Value.Dispose();
                 IntImageCount++;
             }
+        }
+
+        private void TxtBoxUserString_TextChanged(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(TxtBoxUserString.Text)) { return; }
+            //QR自由記述欄に記入があったら、カスタムQRコードを作成するので、6番目のQRコードと当初のラベルを非表示にする
+            PictBox6.Image = null;
+            Lbl6.Visible = false;
+            TxtBoxUserDescription.Visible = true;
+            //(いる？)
+            //自由記記述欄と同じ内容をDescriptionにも反映
+            TxtBoxUserDescription.Text = TxtBoxUserString.Text;
+            //記述された内容のSVGイメージのMemoryStreamを取得し、イメージ表示する
+            SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(QRcodeCreate.GetQR_SVFMemoryStreamFromText(TxtBoxUserString.Text));
+            //得られたSVGドキュメントを描画
+            PictBox6.Image = svgDocument.Draw(200, 200);
         }
     }
 }

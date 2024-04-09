@@ -28,131 +28,210 @@
         /// </summary>
         private void InitializeComponent()
         {
-            PictBox1of4 = new PictureBox();
-            Lbl1of4 = new Label();
-            Lbl2of4 = new Label();
-            PictBox2of4 = new PictureBox();
-            PictBox3of4 = new PictureBox();
-            Lbl3of4 = new Label();
-            PictBox4of4 = new PictureBox();
-            Lbl4of4 = new Label();
-            ((System.ComponentModel.ISupportInitialize)PictBox1of4).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)PictBox2of4).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)PictBox3of4).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)PictBox4of4).BeginInit();
+            PictBox1 = new PictureBox();
+            Lbl1 = new Label();
+            Lbl2 = new Label();
+            PictBox2 = new PictureBox();
+            PictBox3 = new PictureBox();
+            Lbl3 = new Label();
+            PictBox4 = new PictureBox();
+            Lbl4 = new Label();
+            PictBox5 = new PictureBox();
+            Lbl5 = new Label();
+            PictBox6 = new PictureBox();
+            Lbl6 = new Label();
+            TxtBoxUserString = new TextBox();
+            TxtBoxUserDescription = new TextBox();
+            ((System.ComponentModel.ISupportInitialize)PictBox1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)PictBox2).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)PictBox3).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)PictBox4).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)PictBox5).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)PictBox6).BeginInit();
             SuspendLayout();
             // 
-            // PictBox1of4
+            // PictBox1
             // 
-            PictBox1of4.BackColor = Color.White;
-            PictBox1of4.Location = new Point(33, 12);
-            PictBox1of4.Name = "PictBox1of4";
-            PictBox1of4.Size = new Size(300, 300);
-            PictBox1of4.SizeMode = PictureBoxSizeMode.AutoSize;
-            PictBox1of4.TabIndex = 0;
-            PictBox1of4.TabStop = false;
+            PictBox1.BackColor = Color.White;
+            PictBox1.Location = new Point(12, 12);
+            PictBox1.Name = "PictBox1";
+            PictBox1.Size = new Size(210, 210);
+            PictBox1.SizeMode = PictureBoxSizeMode.CenterImage;
+            PictBox1.TabIndex = 0;
+            PictBox1.TabStop = false;
             // 
-            // Lbl1of4
+            // Lbl1
             // 
-            Lbl1of4.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            Lbl1of4.Location = new Point(33, 335);
-            Lbl1of4.Name = "Lbl1of4";
-            Lbl1of4.Size = new Size(300, 152);
-            Lbl1of4.TabIndex = 1;
-            Lbl1of4.TextAlign = ContentAlignment.MiddleCenter;
+            Lbl1.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            Lbl1.Location = new Point(12, 273);
+            Lbl1.Name = "Lbl1";
+            Lbl1.Size = new Size(210, 210);
+            Lbl1.TabIndex = 1;
+            Lbl1.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // Lbl2of4
+            // Lbl2
             // 
-            Lbl2of4.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            Lbl2of4.Location = new Point(409, 335);
-            Lbl2of4.Name = "Lbl2of4";
-            Lbl2of4.Size = new Size(300, 152);
-            Lbl2of4.TabIndex = 3;
-            Lbl2of4.TextAlign = ContentAlignment.MiddleCenter;
+            Lbl2.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            Lbl2.Location = new Point(273, 273);
+            Lbl2.Name = "Lbl2";
+            Lbl2.Size = new Size(210, 210);
+            Lbl2.TabIndex = 3;
+            Lbl2.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // PictBox2of4
+            // PictBox2
             // 
-            PictBox2of4.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            PictBox2of4.BackColor = Color.White;
-            PictBox2of4.Location = new Point(409, 12);
-            PictBox2of4.Name = "PictBox2of4";
-            PictBox2of4.Size = new Size(300, 300);
-            PictBox2of4.TabIndex = 2;
-            PictBox2of4.TabStop = false;
+            PictBox2.BackColor = Color.White;
+            PictBox2.Location = new Point(273, 12);
+            PictBox2.Name = "PictBox2";
+            PictBox2.Size = new Size(210, 210);
+            PictBox2.SizeMode = PictureBoxSizeMode.CenterImage;
+            PictBox2.TabIndex = 2;
+            PictBox2.TabStop = false;
             // 
-            // PictBox3of4
+            // PictBox3
             // 
-            PictBox3of4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            PictBox3of4.BackColor = Color.White;
-            PictBox3of4.Location = new Point(33, 527);
-            PictBox3of4.Name = "PictBox3of4";
-            PictBox3of4.Size = new Size(300, 300);
-            PictBox3of4.SizeMode = PictureBoxSizeMode.AutoSize;
-            PictBox3of4.TabIndex = 0;
-            PictBox3of4.TabStop = false;
+            PictBox3.BackColor = Color.White;
+            PictBox3.Location = new Point(523, 12);
+            PictBox3.Name = "PictBox3";
+            PictBox3.Size = new Size(210, 210);
+            PictBox3.SizeMode = PictureBoxSizeMode.CenterImage;
+            PictBox3.TabIndex = 0;
+            PictBox3.TabStop = false;
             // 
-            // Lbl3of4
+            // Lbl3
             // 
-            Lbl3of4.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            Lbl3of4.Location = new Point(33, 850);
-            Lbl3of4.Name = "Lbl3of4";
-            Lbl3of4.Size = new Size(300, 152);
-            Lbl3of4.TabIndex = 1;
-            Lbl3of4.TextAlign = ContentAlignment.MiddleCenter;
+            Lbl3.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            Lbl3.Location = new Point(523, 273);
+            Lbl3.Name = "Lbl3";
+            Lbl3.Size = new Size(210, 210);
+            Lbl3.TabIndex = 1;
+            Lbl3.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // PictBox4of4
+            // PictBox4
             // 
-            PictBox4of4.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            PictBox4of4.BackColor = Color.White;
-            PictBox4of4.Location = new Point(409, 527);
-            PictBox4of4.Name = "PictBox4of4";
-            PictBox4of4.Size = new Size(300, 300);
-            PictBox4of4.TabIndex = 0;
-            PictBox4of4.TabStop = false;
+            PictBox4.BackColor = Color.White;
+            PictBox4.Location = new Point(12, 563);
+            PictBox4.Name = "PictBox4";
+            PictBox4.Size = new Size(210, 210);
+            PictBox4.SizeMode = PictureBoxSizeMode.CenterImage;
+            PictBox4.TabIndex = 0;
+            PictBox4.TabStop = false;
             // 
-            // Lbl4of4
+            // Lbl4
             // 
-            Lbl4of4.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            Lbl4of4.Location = new Point(409, 850);
-            Lbl4of4.Name = "Lbl4of4";
-            Lbl4of4.Size = new Size(300, 152);
-            Lbl4of4.TabIndex = 1;
-            Lbl4of4.TextAlign = ContentAlignment.MiddleCenter;
+            Lbl4.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            Lbl4.Location = new Point(12, 824);
+            Lbl4.Name = "Lbl4";
+            Lbl4.Size = new Size(210, 210);
+            Lbl4.TabIndex = 1;
+            Lbl4.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // PictBox5
+            // 
+            PictBox5.BackColor = Color.White;
+            PictBox5.Location = new Point(273, 563);
+            PictBox5.Name = "PictBox5";
+            PictBox5.Size = new Size(210, 210);
+            PictBox5.SizeMode = PictureBoxSizeMode.CenterImage;
+            PictBox5.TabIndex = 0;
+            PictBox5.TabStop = false;
+            // 
+            // Lbl5
+            // 
+            Lbl5.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            Lbl5.Location = new Point(273, 824);
+            Lbl5.Name = "Lbl5";
+            Lbl5.Size = new Size(210, 210);
+            Lbl5.TabIndex = 1;
+            Lbl5.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // PictBox6
+            // 
+            PictBox6.BackColor = Color.White;
+            PictBox6.Location = new Point(523, 563);
+            PictBox6.Name = "PictBox6";
+            PictBox6.Size = new Size(210, 210);
+            PictBox6.SizeMode = PictureBoxSizeMode.CenterImage;
+            PictBox6.TabIndex = 0;
+            PictBox6.TabStop = false;
+            // 
+            // Lbl6
+            // 
+            Lbl6.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            Lbl6.Location = new Point(523, 824);
+            Lbl6.Name = "Lbl6";
+            Lbl6.Size = new Size(210, 152);
+            Lbl6.TabIndex = 1;
+            Lbl6.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // TxtBoxUserString
+            // 
+            TxtBoxUserString.Font = new Font("BIZ UDPゴシック", 9F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            TxtBoxUserString.Location = new Point(523, 456);
+            TxtBoxUserString.Multiline = true;
+            TxtBoxUserString.Name = "TxtBoxUserString";
+            TxtBoxUserString.Size = new Size(210, 100);
+            TxtBoxUserString.TabIndex = 4;
+            TxtBoxUserString.TextChanged += TxtBoxUserString_TextChanged;
+            // 
+            // TxtBoxUserDescription
+            // 
+            TxtBoxUserDescription.Font = new Font("BIZ UDPゴシック", 9F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            TxtBoxUserDescription.Location = new Point(522, 810);
+            TxtBoxUserDescription.Multiline = true;
+            TxtBoxUserDescription.Name = "TxtBoxUserDescription";
+            TxtBoxUserDescription.Size = new Size(211, 180);
+            TxtBoxUserDescription.TabIndex = 4;
+            TxtBoxUserDescription.Visible = false;
             // 
             // FrmPrintQRCode
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            AutoScroll = true;
-            ClientSize = new Size(774, 1027);
-            Controls.Add(Lbl2of4);
-            Controls.Add(PictBox2of4);
-            Controls.Add(Lbl4of4);
-            Controls.Add(Lbl3of4);
-            Controls.Add(Lbl1of4);
-            Controls.Add(PictBox4of4);
-            Controls.Add(PictBox3of4);
-            Controls.Add(PictBox1of4);
+            ClientSize = new Size(735, 1027);
+            Controls.Add(TxtBoxUserString);
+            Controls.Add(Lbl2);
+            Controls.Add(PictBox2);
+            Controls.Add(Lbl6);
+            Controls.Add(Lbl5);
+            Controls.Add(Lbl4);
+            Controls.Add(Lbl3);
+            Controls.Add(Lbl1);
+            Controls.Add(PictBox6);
+            Controls.Add(PictBox5);
+            Controls.Add(PictBox4);
+            Controls.Add(PictBox3);
+            Controls.Add(PictBox1);
+            Controls.Add(TxtBoxUserDescription);
+            FormBorderStyle = FormBorderStyle.Fixed3D;
             Name = "FrmPrintQRCode";
             SizeGripStyle = SizeGripStyle.Hide;
             Text = "QRコード";
-            ((System.ComponentModel.ISupportInitialize)PictBox1of4).EndInit();
-            ((System.ComponentModel.ISupportInitialize)PictBox2of4).EndInit();
-            ((System.ComponentModel.ISupportInitialize)PictBox3of4).EndInit();
-            ((System.ComponentModel.ISupportInitialize)PictBox4of4).EndInit();
+            ((System.ComponentModel.ISupportInitialize)PictBox1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)PictBox2).EndInit();
+            ((System.ComponentModel.ISupportInitialize)PictBox3).EndInit();
+            ((System.ComponentModel.ISupportInitialize)PictBox4).EndInit();
+            ((System.ComponentModel.ISupportInitialize)PictBox5).EndInit();
+            ((System.ComponentModel.ISupportInitialize)PictBox6).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
 
-        private PictureBox PictBox1of4;
-        private Label Lbl1of4;
-        private Label Lbl2of4;
-        private PictureBox PictBox2of4;
-        private PictureBox PictBox3of4;
-        private Label Lbl3of4;
-        private PictureBox PictBox4of4;
-        private Label Lbl4of4;
+        private PictureBox PictBox1;
+        private Label Lbl1;
+        private Label Lbl2;
+        private PictureBox PictBox2;
+        private PictureBox PictBox3;
+        private Label Lbl3;
+        private PictureBox PictBox4;
+        private Label Lbl4;
+        private PictureBox PictBox5;
+        private Label Lbl5;
+        private PictureBox PictBox6;
+        private Label Lbl6;
+        private TextBox TxtBoxUserString;
+        private TextBox TxtBoxUserDescription;
     }
 }

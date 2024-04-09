@@ -29,11 +29,13 @@
         private void InitializeComponent()
         {
             TextBoxQRread = new TextBox();
+            BtnEditInput = new Button();
             SuspendLayout();
             // 
             // TextBoxQRread
             // 
             TextBoxQRread.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            TextBoxQRread.ImeMode = ImeMode.Disable;
             TextBoxQRread.Location = new Point(33, 28);
             TextBoxQRread.Multiline = true;
             TextBoxQRread.Name = "TextBoxQRread";
@@ -41,11 +43,22 @@
             TextBoxQRread.TabIndex = 0;
             TextBoxQRread.TextChanged += TextBoxQRread_TextChanged;
             // 
+            // BtnEditInput
+            // 
+            BtnEditInput.Location = new Point(100, 401);
+            BtnEditInput.Name = "BtnEditInput";
+            BtnEditInput.Size = new Size(190, 30);
+            BtnEditInput.TabIndex = 1;
+            BtnEditInput.Text = "入力内容を修正する";
+            BtnEditInput.UseVisualStyleBackColor = true;
+            BtnEditInput.Click += BtnEditInput_Click;
+            // 
             // FrmQRread
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(389, 421);
+            ClientSize = new Size(389, 443);
+            Controls.Add(BtnEditInput);
             Controls.Add(TextBoxQRread);
             Name = "FrmQRread";
             Text = "QRコード入力";
@@ -56,5 +69,6 @@
         #endregion
 
         private TextBox TextBoxQRread;
+        private Button BtnEditInput;
     }
 }

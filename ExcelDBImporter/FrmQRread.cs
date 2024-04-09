@@ -30,6 +30,14 @@ namespace ExcelDBImporter
         }
 
         /// <summary>
+        /// Invokeメソッド用デリゲート
+        /// </summary>
+        private delegate void DelegateDisableInput();
+        private void DisableInput()
+        {
+            TextBoxQRread.ReadOnly = true;
+        }
+        /// <summary>
         /// Timerで一定時間経過すると発生するイベント
         /// </summary>
         /// <param name="sender"></param>
@@ -38,10 +46,21 @@ namespace ExcelDBImporter
         {
             // 一定時間経過後の処理をここに記述
             string StrText = TextBoxQRread.Text ?? string.Empty;
+            if (string.IsNullOrEmpty(StrText)) { return; }
+            //入力用テキストボックスをReadOnlyに
+            if (this.InvokeRequired)    
+            {
+                //Invokeが必要な場合(メイン(UI)スレッドじゃないのが変更しようとした)
+                this.Invoke(new DelegateDisableInput(DisableInput));
+            }
+            else 
+            {
+                //メインスレッドから呼ばれた場合
+                DisableInput();
+            }
             MessageBox.Show(TextBoxQRread.Text);
             DecordQRstringToTQRinput(StrText);
         }
-
         private void TextBoxQRread_TextChanged(object sender, EventArgs e)
         {
             // テキストボックスのテキストが変更されるたびにタイマーを再起動
@@ -56,6 +75,24 @@ namespace ExcelDBImporter
         private void DecordQRstringToTQRinput(string? text)
         {
             if (string.IsNullOrEmpty(text)) { return; }
+        }
+
+        /// <summary>
+        /// バーコードからの入力値を編集可能にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnEditInput_Click(object sender, EventArgs e)
+        {
+            if (TextBoxQRread.ReadOnly == false)
+            {
+                MessageBox.Show("入力値は既に編集可能になっています");
+            }
+            else
+            {
+                TextBoxQRread.ReadOnly = false;
+                MessageBox.Show("入力値が編集可能になりました");
+            }
         }
     }
 }

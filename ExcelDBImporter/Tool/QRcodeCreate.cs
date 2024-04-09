@@ -25,7 +25,7 @@ namespace ExcelDBImporter.Tool
         /// </summary>
         public DateTime DateInputDate {  get; set; }
         /// <summary>
-        /// QRコードにJSONが格納されていれば、TRQinputクラスなので、でコードして入れる
+        /// QRコードにJSONが格納されていれば、TRQinputクラスなので、デコードして入れる
         /// </summary>
         public TQRinput? TQRinput { get; set; }
         public string? StrOrderNum { get; set; }
@@ -112,7 +112,20 @@ namespace ExcelDBImporter.Tool
             }
             return DicmemoryStreamWithComment;
         }
-
+        /// <summary>
+        /// Stringを引数にとり、SVG形式のQRコードのMemoryStreamを返す
+        /// </summary>
+        /// <param name="StrQRstring">QRコードにしたい内容のString</param>
+        /// <returns>SVGイメージのQRコードのMemoryStream</returns>
+        internal static MemoryStream GetQR_SVFMemoryStreamFromText(string StrQRstring)
+        {
+            if (StrQRstring is null) { return new MemoryStream(); }
+            BarcodeWriterSvg qrwriter = QRWriterformat();
+            byte[] byteArray = Encoding.UTF8.GetBytes(qrwriter.Write(StrQRstring).Content);
+            MemoryStream ms = new(byteArray);
+            _ = ms.Seek(0,SeekOrigin.Begin);
+            return ms;
+        }
         private static BarcodeWriterSvg QRWriterformat()
         {
             //QRコードのフォーマットを指定
