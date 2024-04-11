@@ -33,8 +33,8 @@ namespace ExcelDBImporter
         /// </summary>
         private void ComboBoxInitialize()
         {
-            //2から10の範囲の数を設定
-            CmbBoxImagesPerPage.DataSource = Enumerable.Range(2, 9).ToArray();
+            //2から16の範囲の数を設定
+            CmbBoxImagesPerPage.DataSource = Enumerable.Range(2, 15).ToArray();
         }
 
         /// <summary>
@@ -107,7 +107,6 @@ namespace ExcelDBImporter
                 SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(keyValuePair.Value);
                 PictBoxArray[IntImageCount].Image = svgDocument.Draw(200, 200);
                 LabelArray[IntImageCount].Text = keyValuePair.Key;
-                keyValuePair.Value.Dispose();
                 IntImageCount++;
             }
         }
@@ -136,7 +135,7 @@ namespace ExcelDBImporter
         private void BtnCreatePDF_Click(object sender, EventArgs e)
         {
             if (CmbBoxImagesPerPage.SelectedIndex == -1) { CmbBoxImagesPerPage.SelectedIndex = 0; }
-            int IntImageContInPage = (int)CmbBoxImagesPerPage.SelectedIndex;
+            int IntImageContInPage = (int)CmbBoxImagesPerPage.SelectedItem!;
             PdfCreator creator = new();
             creator.CreatePdf(DicSVGStream, IntImageContInPage);
         }

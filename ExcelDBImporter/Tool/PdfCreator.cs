@@ -10,9 +10,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using Svg;
+using System.Drawing.Imaging;
+using PdfSharp.Fonts;
 
 class PdfCreator
 {
+    private const double MaerginRate = 0.75;
+
     public void CreatePdf(Dictionary<string, MemoryStream> dicSvgStream, int imagesPerPage)
     {
         using ExcelDbContext dbContext = new();
@@ -37,9 +41,15 @@ class PdfCreator
             MessageBox.Show("キャンセルされました");
             return;
         }
+        if (GlobalFontSettings.FontResolver is null) 
+        {
+            // カスタムフォントリゾルバーを作成
+            CustomFontResolver fontResolver = new CustomFontResolver();
+            // PdfSharp のフォントリゾルバーを設定
+            GlobalFontSettings.FontResolver = fontResolver; 
+        }
         // PDF ドキュメントの作成
-        PdfDocument document = new PdfDocument();
-
+        PdfDocument document = new();
         // ページサイズの設定 (A4)
         XSize pageSize = PageSizeConverter.ToSize(PdfSharp.PageSize.A4);
 
@@ -59,12 +69,9 @@ class PdfCreator
             // イメージの配置領域を計算
             double availableWidth = pageSize.Width - 20; // ページの幅から余白を引く
             double availableHeight = pageSize.Height - 20; // ページの高さから余白を引く
-            double imageAreaWidth = availableWidth / imagesPerPage; // イメージの配置領域の幅
-            double imageAreaHeight = availableHeight / 2; // イメージの配置領域の高さ (2 行)
 
             // イメージのサイズを計算
-            double imageWidth = imageAreaWidth - 10; // イメージの幅
-            double imageHeight = imageAreaHeight - 10; // イメージの高さ
+            double imageSideLength = CalculateSquareSize(imagesPerPage, availableWidth, availableHeight); // イメージの辺の長さ
             double x = 10; // イメージの x 座標
             double y = 10; // イメージの y 座標
 
@@ -78,24 +85,34 @@ class PdfCreator
                 // 画像を取得
                 KeyValuePair<string, MemoryStream> imageEntry = dicSvgStream.ElementAt(imageIndex);
                 MemoryStream svgStream = imageEntry.Value;
+                svgStream.Seek(0, SeekOrigin.Begin);
                 //SVGイメージをビットマップに変換
-                SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(imageEntry.Value);
-
+                SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(svgStream);
                 // 画像を描画
-                var bitmap = svgDocument.Draw((int)imageWidth, (int)imageHeight);
-                XImage image = XImage.FromStream(svgStream);
-                gfx.DrawImage(image, x, y, imageWidth, imageHeight);
+                MemoryStream msPNG = new();
+                //PNG形式のMemoryStreamに保存(透過必要なため)
+                svgDocument.Draw((int)(imageSideLength * MaerginRate), (int)(imageSideLength* MaerginRate)).Save(msPNG, ImageFormat.Png);
+                msPNG.Seek(0, SeekOrigin.Begin);
+                XImage image = XImage.FromStream(msPNG);
+                gfx.DrawImage(image, x, y, imageSideLength * MaerginRate, imageSideLength * MaerginRate);
+
+                // 画像の下にタイトルを表示
+                string title = imageEntry.Key;
+                XFont font = new XFont("源真ゴシック Medium", 10); // フォント設定
+                XSize titleSize = gfx.MeasureString(title, font); // タイトルのサイズを計測
+                double titleX = x + ((imageSideLength * MaerginRate) - titleSize.Width) / 2; // タイトルの x 座標
+                double titleY = y + (imageSideLength * MaerginRate)  + 15; // タイトルの y 座標
+                gfx.DrawString(title, font, XBrushes.Black, titleX, titleY);
 
                 // 次のイメージの座標を計算
-                x += imageAreaWidth; // 次の列に移動
-                if (x + imageAreaWidth > pageSize.Width) // ページの右端を超えたら
+                x += imageSideLength; // 次の列に移動
+                if (x + imageSideLength > pageSize.Width) // ページの右端を超えたら
                 {
                     x = 10; // 次の行の先頭に移動
-                    y += imageAreaHeight; // 次の行に移動
+                    y += imageSideLength + titleSize.Height; // 次の行に移動
                 }
             }
         }
-
         // PDF ファイルに保存
         document.Save(saveFileDialog.FileName);
         //出力ディレクトリを更新
@@ -112,5 +129,18 @@ class PdfCreator
             dbContext.SaveChanges();
         }
         dbContext.Dispose();
+    }
+    static double CalculateSquareSize(int IntnperPages, double maxWidth, double maxHeight)
+    {
+        // 各辺に描画する正方形の数
+        int numPerRow = (int)Math.Floor(Math.Sqrt(IntnperPages));
+        int numPerCol = (int)Math.Ceiling((double)IntnperPages / numPerRow);
+
+        // 正方形のサイズを計算
+        double width = maxWidth / numPerRow;
+        double height = maxHeight / numPerCol;
+
+        // より小さい辺に合わせる
+        return Math.Min(width, height);
     }
 }
