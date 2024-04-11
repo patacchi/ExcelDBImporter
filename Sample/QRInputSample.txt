@@ -21,3 +21,48 @@
 2024/04/10 16:28:48 84PHAC
 2024/04/10 16:48:43 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":8}
 2024/04/10 16:48:44 85BH5B
+2024/04/11 08:49:57 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":4}
+2024/04/11 09:27:41 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":8}
+2024/04/11 09:27:42 85BH9A
+2024/04/11 09:48:43 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 09:50:56 3N3J7AA02630101 20 
+2024/04/11 09:59:27 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 09:59:31 3N387KA85740101  
+2024/04/11 10:00:16 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 10:00:18 3N387KA85750101 5 
+2024/04/11 10:01:45 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 10:01:47 3N3JLAB12130101  
+2024/04/11 10:16:16 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 10:16:19 3N387KA86130101 20 
+2024/04/11 10:22:53 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 10:23:42 3N387KA86150101 20 
+2024/04/11 10:30:09 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 10:30:11 3N387KA85770101 5 
+2024/04/11 10:32:41 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 10:32:43 3N387KA86270101 50 
+2024/04/11 10:50:54 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 10:50:57 3N387KA85760101 10 
+2024/04/11 11:09:41 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 11:10:27 3N3JLAB11650101 100 
+2024/04/11 13:10:14 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 13:10:16 072O01
+2024/04/11 13:17:19 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 13:17:22 3N387KA85730101  
+2024/04/11 13:19:46 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 13:19:49 3N387KA86350101 100
+2024/04/11 13:21:37 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 13:21:40 3N52  
+2024/04/11 13:25:23 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 13:25:24 3N387KA84950102 80 
+2024/04/11 13:57:45 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 13:57:47 3N387KA86110101 50
+2024/04/11 14:16:28 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 14:16:31 3N387KA86100101 50
+2024/04/11 14:36:48 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 14:36:51 3N387KA85870101  
+2024/04/11 14:43:32 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 14:43:35 3N387KA85880101 10 
+2024/04/11 15:00:07 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 15:00:08 3N3JLBA11630101 20 
+2024/04/11 15:13:18 {"TQRinputId":0,"DateInputDate":null,"DateToDate":null,"QROPcode":3}
+2024/04/11 15:14:17 3N3JLBA11640101 10 

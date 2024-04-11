@@ -42,6 +42,9 @@
             Lbl6 = new Label();
             TxtBoxUserString = new TextBox();
             TxtBoxUserDescription = new TextBox();
+            CmbBoxImagesPerPage = new ComboBox();
+            BtnCreatePDF = new Button();
+            label1 = new Label();
             ((System.ComponentModel.ISupportInitialize)PictBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)PictBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)PictBox3).BeginInit();
@@ -53,7 +56,7 @@
             // PictBox1
             // 
             PictBox1.BackColor = Color.White;
-            PictBox1.Location = new Point(12, 12);
+            PictBox1.Location = new Point(15, 36);
             PictBox1.Name = "PictBox1";
             PictBox1.Size = new Size(210, 210);
             PictBox1.SizeMode = PictureBoxSizeMode.CenterImage;
@@ -63,7 +66,7 @@
             // Lbl1
             // 
             Lbl1.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            Lbl1.Location = new Point(12, 273);
+            Lbl1.Location = new Point(15, 297);
             Lbl1.Name = "Lbl1";
             Lbl1.Size = new Size(210, 210);
             Lbl1.TabIndex = 1;
@@ -72,7 +75,7 @@
             // Lbl2
             // 
             Lbl2.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            Lbl2.Location = new Point(273, 273);
+            Lbl2.Location = new Point(276, 297);
             Lbl2.Name = "Lbl2";
             Lbl2.Size = new Size(210, 210);
             Lbl2.TabIndex = 3;
@@ -81,7 +84,7 @@
             // PictBox2
             // 
             PictBox2.BackColor = Color.White;
-            PictBox2.Location = new Point(273, 12);
+            PictBox2.Location = new Point(276, 36);
             PictBox2.Name = "PictBox2";
             PictBox2.Size = new Size(210, 210);
             PictBox2.SizeMode = PictureBoxSizeMode.CenterImage;
@@ -91,7 +94,7 @@
             // PictBox3
             // 
             PictBox3.BackColor = Color.White;
-            PictBox3.Location = new Point(523, 12);
+            PictBox3.Location = new Point(526, 36);
             PictBox3.Name = "PictBox3";
             PictBox3.Size = new Size(210, 210);
             PictBox3.SizeMode = PictureBoxSizeMode.CenterImage;
@@ -101,7 +104,7 @@
             // Lbl3
             // 
             Lbl3.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            Lbl3.Location = new Point(523, 273);
+            Lbl3.Location = new Point(526, 297);
             Lbl3.Name = "Lbl3";
             Lbl3.Size = new Size(210, 210);
             Lbl3.TabIndex = 1;
@@ -110,7 +113,7 @@
             // PictBox4
             // 
             PictBox4.BackColor = Color.White;
-            PictBox4.Location = new Point(12, 563);
+            PictBox4.Location = new Point(15, 587);
             PictBox4.Name = "PictBox4";
             PictBox4.Size = new Size(210, 210);
             PictBox4.SizeMode = PictureBoxSizeMode.CenterImage;
@@ -120,7 +123,7 @@
             // Lbl4
             // 
             Lbl4.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            Lbl4.Location = new Point(12, 824);
+            Lbl4.Location = new Point(15, 848);
             Lbl4.Name = "Lbl4";
             Lbl4.Size = new Size(210, 210);
             Lbl4.TabIndex = 1;
@@ -129,7 +132,7 @@
             // PictBox5
             // 
             PictBox5.BackColor = Color.White;
-            PictBox5.Location = new Point(273, 563);
+            PictBox5.Location = new Point(276, 587);
             PictBox5.Name = "PictBox5";
             PictBox5.Size = new Size(210, 210);
             PictBox5.SizeMode = PictureBoxSizeMode.CenterImage;
@@ -139,7 +142,7 @@
             // Lbl5
             // 
             Lbl5.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            Lbl5.Location = new Point(273, 824);
+            Lbl5.Location = new Point(276, 848);
             Lbl5.Name = "Lbl5";
             Lbl5.Size = new Size(210, 210);
             Lbl5.TabIndex = 1;
@@ -148,7 +151,7 @@
             // PictBox6
             // 
             PictBox6.BackColor = Color.White;
-            PictBox6.Location = new Point(523, 563);
+            PictBox6.Location = new Point(526, 587);
             PictBox6.Name = "PictBox6";
             PictBox6.Size = new Size(210, 210);
             PictBox6.SizeMode = PictureBoxSizeMode.CenterImage;
@@ -158,7 +161,7 @@
             // Lbl6
             // 
             Lbl6.Font = new Font("BIZ UDPゴシック", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            Lbl6.Location = new Point(523, 824);
+            Lbl6.Location = new Point(526, 848);
             Lbl6.Name = "Lbl6";
             Lbl6.Size = new Size(210, 152);
             Lbl6.TabIndex = 1;
@@ -167,7 +170,7 @@
             // TxtBoxUserString
             // 
             TxtBoxUserString.Font = new Font("BIZ UDPゴシック", 9F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            TxtBoxUserString.Location = new Point(523, 456);
+            TxtBoxUserString.Location = new Point(526, 480);
             TxtBoxUserString.Multiline = true;
             TxtBoxUserString.Name = "TxtBoxUserString";
             TxtBoxUserString.Size = new Size(210, 100);
@@ -177,18 +180,48 @@
             // TxtBoxUserDescription
             // 
             TxtBoxUserDescription.Font = new Font("BIZ UDPゴシック", 9F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            TxtBoxUserDescription.Location = new Point(522, 810);
+            TxtBoxUserDescription.Location = new Point(525, 834);
             TxtBoxUserDescription.Multiline = true;
             TxtBoxUserDescription.Name = "TxtBoxUserDescription";
             TxtBoxUserDescription.Size = new Size(211, 180);
             TxtBoxUserDescription.TabIndex = 4;
             TxtBoxUserDescription.Visible = false;
             // 
+            // CmbBoxImagesPerPage
+            // 
+            CmbBoxImagesPerPage.FormattingEnabled = true;
+            CmbBoxImagesPerPage.Location = new Point(152, 7);
+            CmbBoxImagesPerPage.Name = "CmbBoxImagesPerPage";
+            CmbBoxImagesPerPage.Size = new Size(121, 23);
+            CmbBoxImagesPerPage.TabIndex = 5;
+            // 
+            // BtnCreatePDF
+            // 
+            BtnCreatePDF.Location = new Point(297, 7);
+            BtnCreatePDF.Name = "BtnCreatePDF";
+            BtnCreatePDF.Size = new Size(109, 23);
+            BtnCreatePDF.TabIndex = 6;
+            BtnCreatePDF.Text = "PDFファイル作成";
+            BtnCreatePDF.UseVisualStyleBackColor = true;
+            BtnCreatePDF.Click += BtnCreatePDF_Click;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(38, 11);
+            label1.Name = "label1";
+            label1.Size = new Size(87, 15);
+            label1.TabIndex = 7;
+            label1.Text = "1ページのコード数";
+            // 
             // FrmPrintQRCode
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(735, 1027);
+            ClientSize = new Size(735, 1057);
+            Controls.Add(label1);
+            Controls.Add(BtnCreatePDF);
+            Controls.Add(CmbBoxImagesPerPage);
             Controls.Add(TxtBoxUserString);
             Controls.Add(Lbl2);
             Controls.Add(PictBox2);
@@ -233,5 +266,8 @@
         private Label Lbl6;
         private TextBox TxtBoxUserString;
         private TextBox TxtBoxUserDescription;
+        private ComboBox CmbBoxImagesPerPage;
+        private Button BtnCreatePDF;
+        private Label label1;
     }
 }

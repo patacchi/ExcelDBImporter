@@ -160,10 +160,10 @@ namespace ExcelDBImporter
                     serialCommunication.Open(selectedPort);
                     MessageBox.Show($"ポート {selectedPort} が開かれました。\n");
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    TxtBoxQRread.AppendText("エラー発生： " + ex.Message);
-                    MessageBox.Show(ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //MessageBox.Show(ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
             }
         }

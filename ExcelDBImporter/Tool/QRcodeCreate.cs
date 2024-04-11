@@ -95,6 +95,11 @@ namespace ExcelDBImporter.Tool
             }
             return QuememoryStreams;
         }
+        /// <summary>
+        /// keyがコメントのDictionaryを引数にとり、SVG形式のMemoryStreamのDictionaryを返す関数
+        /// </summary>
+        /// <param name="DicJsonWithComment">key はコメント、string value はSVGにしたいString(JSON想定)</param>
+        /// <returns>Dictionary(string,MemoryStream)で、keyがコメント、ValueがSVG画像のMemoryStream(String)</returns>
         internal static Dictionary<string,MemoryStream> GetSVGMemoryStreamWithComment(
             Dictionary<string,string> DicJsonWithComment )
         {

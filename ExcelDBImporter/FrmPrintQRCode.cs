@@ -25,6 +25,16 @@ namespace ExcelDBImporter
             DicSVGStream ??= QRcodeCreate.GetSVGMemoryStreamWithComment(
                 CreateOPcodeJsonDic(GetQROPcodeQue()));
             SetSVGImageToPictbox();
+            ComboBoxInitialize();
+        }
+
+        /// <summary>
+        /// ページ数入力コンボボックスの設定
+        /// </summary>
+        private void ComboBoxInitialize()
+        {
+            //2から10の範囲の数を設定
+            CmbBoxImagesPerPage.DataSource = Enumerable.Range(2, 9).ToArray();
         }
 
         /// <summary>
@@ -116,6 +126,19 @@ namespace ExcelDBImporter
             SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(QRcodeCreate.GetQR_SVFMemoryStreamFromText(TxtBoxUserString.Text));
             //得られたSVGドキュメントを描画
             PictBox6.Image = svgDocument.Draw(200, 200);
+        }
+
+        /// <summary>
+        /// ComboBoxで指定された枚数をもとにPDFを作成する
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnCreatePDF_Click(object sender, EventArgs e)
+        {
+            if (CmbBoxImagesPerPage.SelectedIndex == -1) { CmbBoxImagesPerPage.SelectedIndex = 0; }
+            int IntImageContInPage = (int)CmbBoxImagesPerPage.SelectedIndex;
+            PdfCreator creator = new();
+            creator.CreatePdf(DicSVGStream, IntImageContInPage);
         }
     }
 }
