@@ -300,26 +300,6 @@ namespace ExcelDBImporter
             OpenFolderInExplorer(Strfolderpath);
         }
 
-        private static void OpenFolderInExplorer(string folderPath)
-        {
-            try
-            {
-                // フォルダが存在するかどうか確認
-                if (Directory.Exists(folderPath))
-                {
-                    // 指定のパスのフォルダをエクスプローラーで開く
-                    Process.Start("explorer.exe", folderPath);
-                }
-                else
-                {
-                    MessageBox.Show("指定のフォルダが存在しません。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"エクスプローラーを開く際にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
 
         private void FrmExcelImpoerter_KeyDown(object sender, KeyEventArgs e)
         {
