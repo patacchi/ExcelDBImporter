@@ -20,6 +20,7 @@ namespace ExcelDBImporter.Context
         public DbSet<AppSetting> AppSettings { get; set; }
         public DbSet<TableDBcolumnNameAndExcelFieldName> TableDBcolumnNameAndExcelFieldNames { get; set; }
         public DbSet<TQRinput> TQRinputs { get; set; }
+        public DbSet<TTempQRrowData> TTempQRrows { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -12,6 +12,7 @@ using System.IO;
 using Svg;
 using System.Drawing.Imaging;
 using PdfSharp.Fonts;
+using DocumentFormat.OpenXml.Drawing.Charts;
 
 class PdfCreator
 {
@@ -20,14 +21,14 @@ class PdfCreator
     public void CreatePdf(Dictionary<string, MemoryStream> dicSvgStream, int imagesPerPage)
     {
         using ExcelDbContext dbContext = new();
-        //DBより保存ディレクトリの設定があるかチェック、なければString.Empty
+        //DBより保存ディレクトリ(PDF)の設定があるかチェック、なければString.Empty
+        //アプリ設定そのものがあるかチェック
         AppSetting? appExists = dbContext.AppSettings.FirstOrDefault(a => a.StrAppName == FrmExcelImpoerter.CONST_STR_ExcelDBImporterAppName);
         string StrDBSaveDir = string.Empty;
         if (appExists != null)
         {
-
-            //LastSaveDirに設定値が存在する場合のみ設定
-            StrDBSaveDir = string.IsNullOrEmpty(appExists.StrLastSaveToDir) ? string.Empty : appExists.StrLastSaveToDir;
+            //LastPDFSaveDirに設定値が存在する場合のみ設定
+            StrDBSaveDir = string.IsNullOrEmpty(appExists.StrLastPDFSaveToDir) ? string.Empty : appExists.StrLastPDFSaveToDir;
         }
         //保存ファイル名選択
         SaveFileDialog saveFileDialog = new()
@@ -70,8 +71,11 @@ class PdfCreator
             double availableWidth = pageSize.Width - 20; // ページの幅から余白を引く
             double availableHeight = pageSize.Height - 20; // ページの高さから余白を引く
 
+            //タイトルの行の高さを計測
+            XFont fontTest = new XFont("源真ゴシック Medium", 10); // フォント設定
+            XSize titleSizeTest = gfx.MeasureString("高さ計測用文字列", fontTest);
             // イメージのサイズを計算
-            double imageSideLength = CalculateSquareSize(imagesPerPage, availableWidth, availableHeight); // イメージの辺の長さ
+            double imageSideLength = CalculateSquareSize(imagesPerPage, availableWidth, availableHeight,titleSizeTest.Height); // イメージの辺の長さ
             double x = 10; // イメージの x 座標
             double y = 10; // イメージの y 座標
 
@@ -103,19 +107,23 @@ class PdfCreator
                 double titleX = x + ((imageSideLength * MaerginRate) - titleSize.Width) / 2; // タイトルの x 座標
                 double titleY = y + (imageSideLength * MaerginRate)  + 15; // タイトルの y 座標
                 gfx.DrawString(title, font, XBrushes.Black, titleX, titleY);
-
                 // 次のイメージの座標を計算
-                x += imageSideLength; // 次の列に移動
+                //次のイメージまでの間隔を計算
+                (double Xnext, double Ynext) Spacing = CalculateSquareSpacing(availableWidth,
+                                                                              availableHeight,
+                                                                              imageSideLength,
+                                                                              titleSize.Height);
+                x += Spacing.Xnext; // 次の列に移動
                 if (x + imageSideLength > pageSize.Width) // ページの右端を超えたら
                 {
                     x = 10; // 次の行の先頭に移動
-                    y += imageSideLength + titleSize.Height; // 次の行に移動
+                    y += Spacing.Ynext + titleSize.Height; // 次の行に移動
                 }
             }
         }
         // PDF ファイルに保存
         document.Save(saveFileDialog.FileName);
-        //出力ディレクトリを更新
+        //出力ディレクトリ(PDF)を更新
         AppSetting? appSetting = dbContext.AppSettings.FirstOrDefault(a => a.StrAppName == FrmExcelImpoerter.CONST_STR_ExcelDBImporterAppName);
         if (appSetting == null)
         {
@@ -124,23 +132,58 @@ class PdfCreator
         }
         else
         {
-            //出力ディレクトを更新
-            appSetting.StrLastSaveToDir = Path.GetDirectoryName(saveFileDialog.FileName);
+            //出力ディレクトリ(PDF)を更新
+            appSetting.StrLastPDFSaveToDir = Path.GetDirectoryName(saveFileDialog.FileName);
             dbContext.SaveChanges();
+        }
+        //ディレクトリを開くかどうか聞く
+        DialogResult dialogResult = MessageBox.Show("PDFファイル作成完了しました。出力フォルダを開きますか？", "PDF作成完了 フォルダ開きますか？", MessageBoxButtons.YesNo);
+        if (dialogResult == DialogResult.Yes)
+        {
+            //出力ディレクトリを開く
+            FrmExcelImpoerter.OpenFolderInExplorer(Path.GetDirectoryName(saveFileDialog.FileName) ?? string.Empty);
         }
         dbContext.Dispose();
     }
-    static double CalculateSquareSize(int IntnperPages, double maxWidth, double maxHeight)
+    static double CalculateSquareSize(int IntimagesInPages, double maxWidth, double maxHeight,double DblTitleHeight)
     {
         // 各辺に描画する正方形の数
-        int numPerRow = (int)Math.Floor(Math.Sqrt(IntnperPages));
-        int numPerCol = (int)Math.Ceiling((double)IntnperPages / numPerRow);
+        int numPerRow = (int)Math.Floor(Math.Sqrt(IntimagesInPages));
+        int numPerCol = (int)Math.Ceiling((double)IntimagesInPages / numPerRow);
 
         // 正方形のサイズを計算
         double width = maxWidth / numPerRow;
-        double height = maxHeight / numPerCol;
+        //高さ方向で、タイトルの高さを考慮
+        double height = (maxHeight - (DblTitleHeight*numPerCol)) / numPerCol;
 
         // より小さい辺に合わせる
         return Math.Min(width, height);
+    }
+    static (double horizontalSpacing, double verticalSpacing) CalculateSquareSpacing(double DblAvailableWidth,
+                                                                                     double DblAvailableHeight,
+                                                                                     double imageSideLength,
+                                                                                     double heigtmargin)
+    {
+        //縦方向の余白(タイトル等)を追加した実際の使用領域を計算
+        double DblactualimageHeight = imageSideLength + heigtmargin;
+        //1行あたりの数を計算
+        int squaresPerRow = (int)(DblAvailableWidth / imageSideLength);
+        //行数を計算
+        int totalRows = (int)(DblAvailableHeight / DblactualimageHeight);
+        // 余白を計算
+        double totalMarginX = DblAvailableWidth - (imageSideLength * squaresPerRow);
+        double totalMarginY = DblAvailableHeight - (DblactualimageHeight * totalRows);
+
+        // 各方向の余白を均等に分配
+        double marginX = totalMarginX / (squaresPerRow - 1); // 横方向の余白
+        double marginY = totalMarginY / (totalRows - 1); // 縦方向の余白
+
+        // 横方向の間隔を計算
+        double horizontalSpacing = imageSideLength + marginX;
+
+        // 縦方向の間隔を計算
+        double verticalSpacing = imageSideLength + marginY;
+
+        return (horizontalSpacing, verticalSpacing);
     }
 }
