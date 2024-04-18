@@ -31,6 +31,7 @@ namespace ExcelDBImporter
         }
         private void BtnImputExcelFile_Click(object sender, EventArgs e)
         {
+            //.xls(バイナリ)ファイルだった場合は.xlsx(XML)ファイルに変換する
             ExcelFileComverter ImportExcelFileConverter = new();
             string ImportExcelFilePath = ImportExcelFileConverter.ExcelFileComVerter();
             //空だったら多分キャンセルか何かなのでそのまま静かに抜ける

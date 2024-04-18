@@ -68,37 +68,30 @@ namespace ExcelDBImporter
         }
         private void SerialCommunication_DataReceived(object sender, string data)
         {
-            Invoke(new Action(() => TxtBoxQRread.AppendText(data)));
+            Invoke(() => TxtBoxQRread.AppendText(data));
         }
 
         /// <summary>
-        /// Invokeメソッド用デリゲート
-        /// </summary>
-        private delegate void DelegateDisableInput();
-        private void DisableInput()
-        {
-            TxtBoxQRread.ReadOnly = true;
-        }
-        /// <summary>
-        /// Timerで一定時間経過すると発生するイベント
+        /// QRコード入力待機時間満了
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            // 一定時間経過後の処理をここに記述
+            // 入力待機時間タイムアウト後
             string StrText = TxtBoxQRread.Text ?? string.Empty;
             if (string.IsNullOrEmpty(StrText)) { return; }
             //入力用テキストボックスをReadOnlyに
             if (this.InvokeRequired)
             {
                 //Invokeが必要な場合(メイン(UI)スレッドじゃないのが変更しようとした)
-                this.Invoke(new DelegateDisableInput(DisableInput));
+                this.Invoke(() => TxtBoxQRread.ReadOnly = true);
+                //this.Invoke(new DelegateDisableInput(DisableInput));
             }
             else
             {
                 //メインスレッドから呼ばれた場合
-                DisableInput();
+                TxtBoxQRread.ReadOnly = true;
             }
             //MessageBox.Show(TxtBoxQRread.Text);
             DecordQRstringToTQRinput(StrText);

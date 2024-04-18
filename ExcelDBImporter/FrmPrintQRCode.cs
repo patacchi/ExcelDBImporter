@@ -49,6 +49,10 @@ namespace ExcelDBImporter
             qrOPcodes.Enqueue(QrOPcode.Delivery);
             qrOPcodes.Enqueue(QrOPcode.ShppingDeliverSet);
             qrOPcodes.Enqueue(QrOPcode.MicrowaveDelivary);
+            qrOPcodes.Enqueue(QrOPcode.CutCable);
+            qrOPcodes.Enqueue(QrOPcode.Moving);
+            qrOPcodes.Enqueue(QrOPcode.ChangeLocation);
+            qrOPcodes.Enqueue(QrOPcode.Other);
             return qrOPcodes;
         }
 
@@ -57,7 +61,7 @@ namespace ExcelDBImporter
         /// </summary>
         /// <param name="QueqrOPcode">QROPcodeのQueue</param>
         /// <returns>キーがCommentのDictionary、Commen無い時はプロパティ名そのまま
-        ///  Value はTQRinputにQROPcodeの値がセットされたクラスのJson</returns>
+        ///  Value はTQRinputにQROPcodeの値がセットされたTQRinputクラスのJson</returns>
         public static Dictionary<string, string> CreateOPcodeJsonDic(Queue<QrOPcode> QueqrOPcode)
         {
             Dictionary<string, string> DicJson = [];
@@ -82,7 +86,6 @@ namespace ExcelDBImporter
         private void SetSVGImageToPictbox()
         {
             if (DicSVGStream == null) { return; }
-            int IntImageCount = 0;
             PictureBox[] PictBoxArray =
             [
                 PictBox1,
@@ -101,9 +104,10 @@ namespace ExcelDBImporter
                 Lbl5,
                 Lbl6
             ];
+            int IntImageCount = 0;
             foreach (KeyValuePair<string, MemoryStream> keyValuePair in DicSVGStream)
             {
-                if (IntImageCount > 6) { break; }
+                if (IntImageCount > 5) { break; }
                 SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(keyValuePair.Value);
                 PictBoxArray[IntImageCount].Image = svgDocument.Draw(200, 200);
                 LabelArray[IntImageCount].Text = keyValuePair.Key;
@@ -122,7 +126,7 @@ namespace ExcelDBImporter
             //自由記記述欄と同じ内容をDescriptionにも反映
             TxtBoxUserDescription.Text = TxtBoxUserString.Text;
             //記述された内容のSVGイメージのMemoryStreamを取得し、イメージ表示する
-            SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(QRcodeCreate.GetQR_SVFMemoryStreamFromText(TxtBoxUserString.Text));
+            SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(QRcodeCreate.GetQR_SVGMemoryStreamFromText(TxtBoxUserString.Text));
             //得られたSVGドキュメントを描画
             PictBox6.Image = svgDocument.Draw(200, 200);
         }

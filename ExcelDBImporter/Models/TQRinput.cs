@@ -53,6 +53,16 @@ namespace ExcelDBImporter.Models
         /// マイクロ波関連作業。行程分離のために存在、実際は複合フラグのMicroWaveDelivaryを使う
         /// </summary>
         opMicroWave = 1U << 7,
+        /// <summary>
+        /// ケーブル切断作業
+        /// </summary>
+        [Comment("ケーブル切断作業")]
+        CutCable = 1U << 8,
+        /// <summary>
+        /// その他作業、Enum終端
+        /// </summary>
+        [Comment("その他")]
+        Other = 1U << 31,
         //----------------------------------ここから複合フラグ----------------------
         /// <summary>
         /// 棚入れ準備と棚入れセット
@@ -79,6 +89,11 @@ namespace ExcelDBImporter.Models
         /// </summary>
         [Comment("ロケーション変更作業(移動・Freeway込み)")]
         ChangeLocation = FreewayDataInput | Moving | LabelPrepare,
+        /// <summary>
+        /// 戻入、FreewayDataと棚入れセット
+        /// </summary>
+        [Comment("戻入")]
+        Reinyu = FreewayDataInput | Receive
     }
     [Comment("工程管理用 QRコード記録テーブル")]
     [Table(nameof(TQRinput))]

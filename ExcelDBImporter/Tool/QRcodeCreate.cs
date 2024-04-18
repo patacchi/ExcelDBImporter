@@ -34,7 +34,7 @@ namespace ExcelDBImporter.Tool
     internal class QRcodeCreate
     {
         /// <summary>
-        /// Queue<T>を引数に取り、JSON文字列にシリアライズして返す関数
+        /// クラス T を引数に取り、JSON文字列にシリアライズして返す関数
         /// </summary>
         /// <typeparam name="T">任意のクラス</typeparam>
         /// <returns></returns>
@@ -122,7 +122,7 @@ namespace ExcelDBImporter.Tool
         /// </summary>
         /// <param name="StrQRstring">QRコードにしたい内容のString</param>
         /// <returns>SVGイメージのQRコードのMemoryStream</returns>
-        internal static MemoryStream GetQR_SVFMemoryStreamFromText(string StrQRstring)
+        internal static MemoryStream GetQR_SVGMemoryStreamFromText(string StrQRstring)
         {
             if (StrQRstring is null) { return new MemoryStream(); }
             BarcodeWriterSvg qrwriter = QRWriterformat();

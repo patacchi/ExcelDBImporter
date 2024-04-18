@@ -119,62 +119,69 @@ namespace ExcelDBImporter
             dbContextorigin.SaveChanges();
             dbContextorigin.Dispose();
         }
+        /// <summary>
+        /// 与えられた行1行ごとにUPSertを行う
+        /// </summary>
+        /// <param name="keyValuePairs"> key が Shshukkaクラスのプロパティ名、 valueがExcelシートの列番号</param>
+        /// <param name="row">UPSertを行う row オブジェクト(1行分)</param>
+        /// <param name="dbContext">dbContextは使いまわす</param>
         private static void JudgeUpdateInsert(Dictionary<string, int> keyValuePairs, IXLRangeRow row, ExcelDbContext dbContext)
         {
             //シートから各データを取得する
+            //null許容型については、データ
             //データが日付の物は日付データ以外はDatetime.Minvalueをセット
             //データがテキストの物は、テキスト以外はString.Emptyをセット
             //データが数字の物は、数字以外は0をセット
             ShShukka ShShukkaClass = new();
             //出荷計画
-            DateTime DateShukka = row.Cell(keyValuePairs[nameof(ShShukkaClass.DateShukka)]).Value.IsDateTime ?
+            DateTime? DateShukka = row.Cell(keyValuePairs[nameof(ShShukkaClass.DateShukka)]).Value.IsDateTime ?
                                 row.Cell(keyValuePairs[nameof(ShShukkaClass.DateShukka)]).Value.GetDateTime()
                                 : DateTime.MinValue;
             //機種
-            string StrKishu = row.Cell(keyValuePairs[nameof(ShShukkaClass.StrKishu)]).Value.IsText ?
+            string? StrKishu = row.Cell(keyValuePairs[nameof(ShShukkaClass.StrKishu)]).Value.IsText ?
                                 row.Cell(keyValuePairs[nameof(ShShukkaClass.StrKishu)]).Value.GetText()
-                                : string.Empty;
+                                : null;
 
             //製番
             string StrSeiban = row.Cell(keyValuePairs[nameof(ShShukkaClass.StrSeiban)]).Value.IsText ?
                                 row.Cell(keyValuePairs[nameof(ShShukkaClass.StrSeiban)]).Value.GetText()
                                 : string.Empty;
             //注文主
-            string StrOrderFrom = row.Cell(keyValuePairs[nameof(ShShukkaClass.StrOrderFrom)]).Value.IsText ?
+            string? StrOrderFrom = row.Cell(keyValuePairs[nameof(ShShukkaClass.StrOrderFrom)]).Value.IsText ?
                                 row.Cell(keyValuePairs[nameof(ShShukkaClass.StrOrderFrom)]).Value.GetText() 
-                                : string.Empty;
+                                : null;
             //品名
-            string StrHinmei = row.Cell(keyValuePairs[nameof(ShShukkaClass.StrHinmei)]).Value.IsText ?
+            string? StrHinmei = row.Cell(keyValuePairs[nameof(ShShukkaClass.StrHinmei)]).Value.IsText ?
                                 row.Cell(keyValuePairs[nameof(ShShukkaClass.StrHinmei)]).Value.GetText()
-                                : string.Empty;
+                                : null;
             //発番数量
             int IntAmount = row.Cell(keyValuePairs[nameof(ShShukkaClass.IntAmount)]).Value.IsNumber ?
                                 (int)row.Cell(keyValuePairs[nameof(ShShukkaClass.IntAmount)]).Value.GetNumber() 
                                 : 0;
             //出図
-            DateTime DateShutuzu = row.Cell(keyValuePairs[nameof(ShShukkaClass.DateShutuzu)]).Value.IsDateTime ?
+            DateTime? DateShutuzu = row.Cell(keyValuePairs[nameof(ShShukkaClass.DateShutuzu)]).Value.IsDateTime ?
                                     row.Cell(keyValuePairs[nameof(ShShukkaClass.DateShutuzu)]).Value.GetDateTime() 
-                                    : DateTime.MinValue;
+                                    : null;
             //マーシャリング
-            DateTime DateMarshalling = row.Cell(keyValuePairs[nameof(ShShukkaClass.DateMarshalling)]).Value.IsDateTime ?
+            DateTime? DateMarshalling = row.Cell(keyValuePairs[nameof(ShShukkaClass.DateMarshalling)]).Value.IsDateTime ?
                                     row.Cell(keyValuePairs[nameof(ShShukkaClass.DateMarshalling)]).Value.GetDateTime()
-                                    : DateTime.MinValue;
+                                    : null;
             //組立
-            DateTime DateAssemble = row.Cell(keyValuePairs[nameof(ShShukkaClass.DateAssemble)]).Value.IsDateTime ?
+            DateTime? DateAssemble = row.Cell(keyValuePairs[nameof(ShShukkaClass.DateAssemble)]).Value.IsDateTime ?
                                     row.Cell(keyValuePairs[nameof(ShShukkaClass.DateAssemble)]).Value.GetDateTime()
-                                    :DateTime.MinValue;
+                                    : null;
             //試験
-            DateTime DateFunctionTest = row.Cell(keyValuePairs[nameof(ShShukkaClass.DateFunctionTest)]).Value.IsDateTime ?
+            DateTime? DateFunctionTest = row.Cell(keyValuePairs[nameof(ShShukkaClass.DateFunctionTest)]).Value.IsDateTime ?
                                     row.Cell(keyValuePairs[nameof(ShShukkaClass.DateFunctionTest)]).Value.GetDateTime()
-                                    : DateTime.MinValue;
+                                    : null;
             //出荷準備
-            DateTime DatePrepare = row.Cell(keyValuePairs[nameof(ShShukkaClass.DatePrepare)]).Value.IsDateTime ?
+            DateTime? DatePrepare = row.Cell(keyValuePairs[nameof(ShShukkaClass.DatePrepare)]).Value.IsDateTime ?
                                     row.Cell(keyValuePairs[nameof(ShShukkaClass.DatePrepare)]).Value.GetDateTime() 
-                                    : DateTime.MinValue;
+                                    : null;
             //出荷検査
-            DateTime DateShippingTest = row.Cell(keyValuePairs[nameof(ShShukkaClass.DateShippingTest)]).Value.IsDateTime ?
+            DateTime? DateShippingTest = row.Cell(keyValuePairs[nameof(ShShukkaClass.DateShippingTest)]).Value.IsDateTime ?
                                     row.Cell(keyValuePairs[nameof(ShShukkaClass.DateShippingTest)]).Value.GetDateTime()
-                                    : DateTime.MinValue;
+                                    : null;
             try
             {
                 //既存データか判別する
@@ -241,26 +248,24 @@ namespace ExcelDBImporter
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                if (MessageBox.Show(ex.Message,"エラー発生",MessageBoxButtons.CancelTryContinue) == DialogResult.Cancel)
+                DialogResult result = MessageBox.Show(ex.Message, "エラー発生。処理を継続しますか？", MessageBoxButtons.RetryCancel);
+                if (result == DialogResult.Cancel)
                 {
-                    dbContext.Dispose();
-                    throw;
+                    //キャンセルの場合
+                    //各行の処理しかしてないので、contextのDisposeは呼び出し元で
+                    //次の行も処理続行する
+                    //dbContext.Dispose();
+                    return;
+                }
+                else if(result == DialogResult.Retry)
+                {
+                    //1000ミリ秒後に再試行
+                    System.Threading.Thread.Sleep(1000);
+                    //再帰実行
+                    JudgeUpdateInsert(keyValuePairs, row, dbContext);
                 };
-                //return;
-                //throw;
             }
             //1行処理終了
-            //出荷計画
-            //製番
-            //注文主
-            //品名
-            //発番数量
-            //出図
-            //マーシャリング
-            //組立
-            //試験
-            //出荷準備
-            //出荷検査
         }
     }
 }
