@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ExcelDBImporter.Context;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -22,6 +23,28 @@ namespace ExcelDBImporter.Models
         public DateTime DateInputDate { get; set; }
         [Column(name: nameof(StrRowQRcodeData))]
         [Comment("QR(バーコード)の読み取り結果の生データをそのまま格納する")]
-        public string StrRowQRcodeData { get; set; } = null!;
+        public string StrRowQRcodeData { get; set; } = string.Empty;
+
+        /// <summary>
+        /// TTempQRrowDataテーブルで、重複するレコードかどうかチェックする。重複条件は、日時とQRコード内容が一致する事。
+        /// </summary>
+        /// <param name="context">DbContextの読み取り専用参照</param>
+        /// <param name="tempQRrow"></param>
+        /// <returns></returns>
+        public static bool IsDupe(in ExcelDbContext context,TTempQRrowData tempQRrow)
+        {
+            TTempQRrowData? existing = context.TTempQRrows.FirstOrDefault(t => t.DateInputDate == tempQRrow.DateInputDate
+                                                                               && t.StrRowQRcodeData == tempQRrow.StrRowQRcodeData);
+            if (existing == null) 
+            { 
+                //同じレコードが存在しない
+                return false;
+            }
+            else
+            {
+                //同じレコードが存在する
+                return true;
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO.Ports;
 using System.Linq;
@@ -31,7 +32,7 @@ namespace ExcelDBImporter
         /// 接続状態更新間隔
         /// </summary>
         private const int ConnectionCheckInMilliseconds = 5000;
-
+        private readonly Stopwatch readTimeStopwatch;
         /// <summary>
         /// 定期実行したいタスク(非同期実行)
         /// </summary>
@@ -44,6 +45,8 @@ namespace ExcelDBImporter
         public FrmQRread()
         {
             InitializeComponent();
+            //読み込み時間計測用ストップウォッチ初期化
+            readTimeStopwatch = new();
             //シリアルポートの初期化
             serialCommunication = new SerialCommunication();
             serialCommunication.DataReceived += SerialCommunication_DataReceived!;
@@ -68,6 +71,14 @@ namespace ExcelDBImporter
         }
         private void SerialCommunication_DataReceived(object sender, string data)
         {
+            {
+                
+            }
+            //ストップウォッチ止まっていたら開始する
+            if (!readTimeStopwatch.IsRunning) 
+            {
+                readTimeStopwatch.Start(); 
+            }
             Invoke(() => TxtBoxQRread.AppendText(data));
         }
 
@@ -95,6 +106,11 @@ namespace ExcelDBImporter
             }
             //MessageBox.Show(TxtBoxQRread.Text);
             DecordQRstringToTQRinput(StrText);
+            //デコード処理終了後ストップウォッチ停止
+            readTimeStopwatch.Stop();
+            Invoke(() => MessageBox.Show($"{readTimeStopwatch.Elapsed} ミリ秒で処理完了"));
+            //ストップウォッチの値で何か処理する？
+            readTimeStopwatch.Reset();
         }
         private void TextBoxQRread_TextChanged(object sender, EventArgs e)
         {
@@ -110,6 +126,9 @@ namespace ExcelDBImporter
         private void DecordQRstringToTQRinput(string? text)
         {
             if (string.IsNullOrEmpty(text)) { return; }
+            //デコード、テーブル登録開始
+            ParseDMtextToTQRinput parseDMtext = new ParseDMtextToTQRinput(text);
+            parseDMtext.ParseDMStrToTempTable();
         }
 
         /// <summary>
@@ -221,6 +240,7 @@ namespace ExcelDBImporter
         {
             try
             {
+                readTimeStopwatch.Stop();
                 serialCommunication.Close();
             }
             catch (Exception ex)
