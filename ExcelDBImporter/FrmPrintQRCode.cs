@@ -122,7 +122,7 @@ namespace ExcelDBImporter
             //自由記記述欄と同じ内容をDescriptionにも反映
             TxtBoxUserDescription.Text = TxtBoxUserString.Text;
             //記述された内容のSVGイメージのMemoryStreamを取得し、イメージ表示する
-            SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(QRcodeCreate.GetQR_SVFMemoryStreamFromText(TxtBoxUserString.Text));
+            SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(QRcodeCreate.GetDM_SVGMemoryStreamFromText(TxtBoxUserString.Text));
             //得られたSVGドキュメントを描画
             PictBox6.Image = svgDocument.Draw(200, 200);
         }
