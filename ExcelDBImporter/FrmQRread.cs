@@ -71,15 +71,15 @@ namespace ExcelDBImporter
         }
         private void SerialCommunication_DataReceived(object sender, string data)
         {
-            {
-                
-            }
+            // テキストボックスのテキストが変更されるたびにタイマーを再起動
+            timerInputEnd.Stop();
+            Task.Delay(1);
+            timerInputEnd.Start();
             //ストップウォッチ止まっていたら開始する
             if (!readTimeStopwatch.IsRunning) 
             {
                 readTimeStopwatch.Start(); 
             }
-            Invoke(() => TxtBoxQRread.AppendText(data));
         }
 
         /// <summary>
@@ -90,33 +90,38 @@ namespace ExcelDBImporter
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             // 入力待機時間タイムアウト後
-            string StrText = TxtBoxQRread.Text ?? string.Empty;
-            if (string.IsNullOrEmpty(StrText)) { return; }
+            // SeriaCommunicationのバッファから結果を読み取り、テキストボックスに適用
+            string StrComnBuffer = serialCommunication.ReadAllDatafromQueue() ?? string.Empty;
+            if (string.IsNullOrEmpty(StrComnBuffer)) { return; }
             //入力用テキストボックスをReadOnlyに
             if (this.InvokeRequired)
             {
                 //Invokeが必要な場合(メイン(UI)スレッドじゃないのが変更しようとした)
+                this.Invoke(() =>TxtBoxQRread.Text = StrComnBuffer);
                 this.Invoke(() => TxtBoxQRread.ReadOnly = true);
                 //this.Invoke(new DelegateDisableInput(DisableInput));
             }
             else
             {
                 //メインスレッドから呼ばれた場合
+                TxtBoxQRread.Text = StrComnBuffer;
                 TxtBoxQRread.ReadOnly = true;
             }
             //MessageBox.Show(TxtBoxQRread.Text);
-            DecordQRstringToTQRinput(StrText);
+            DecordQRstringToTQRinput(StrComnBuffer);
             //デコード処理終了後ストップウォッチ停止
             readTimeStopwatch.Stop();
-            Invoke(() => MessageBox.Show($"{readTimeStopwatch.Elapsed} ミリ秒で処理完了"));
+            Invoke(() => LblElsapedTime.Text = ($"{readTimeStopwatch.Elapsed} 秒で処理完了"));
             //ストップウォッチの値で何か処理する？
             readTimeStopwatch.Reset();
         }
         private void TextBoxQRread_TextChanged(object sender, EventArgs e)
         {
+            /*
             // テキストボックスのテキストが変更されるたびにタイマーを再起動
             timerInputEnd.Stop();
             timerInputEnd.Start();
+            */
         }
 
         /// <summary>
@@ -147,8 +152,24 @@ namespace ExcelDBImporter
                 TxtBoxQRread.ReadOnly = false;
                 MessageBox.Show("入力値が編集可能になりました");
             }
+            //手動入力した場合は、DB登録ボタンを有効にする
+            BtnRegistToTempDB.Enabled = true;
         }
 
+        
+        private void BtnRegistToTempDB_Click(object sender,EventArgs e)
+        {
+            if (string.IsNullOrEmpty(TxtBoxQRread.Text))
+            {
+                MessageBox.Show("テキストボックスの内容が空でした。処理を中断します");
+                return;
+            }
+            //DBに現在のQRread テキストボックスの内容を登録する
+            DecordQRstringToTQRinput(TxtBoxQRread.Text);
+            //完了したらまた登録ボタンのEnabledをfalseにする
+            BtnRegistToTempDB.Enabled = false;
+            TxtBoxQRread.ReadOnly = true;
+        }
         private void BtnPortOpen_Click(object sender, EventArgs e)
         {
             if (CmbBoxPortNum.Items.Count == 0)

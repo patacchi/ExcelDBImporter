@@ -31,9 +31,11 @@
             TxtBoxQRread = new TextBox();
             BtnEditInput = new Button();
             CmbBoxPortNum = new ComboBox();
-            BtnPortOpen = new Button();
+            BtnOpenPort = new Button();
             BtnPortClose = new Button();
             LblConnectionStatus = new Label();
+            BtnRegistToTempDB = new Button();
+            LblElsapedTime = new Label();
             SuspendLayout();
             // 
             // TxtBoxQRread
@@ -43,7 +45,7 @@
             TxtBoxQRread.Location = new Point(16, 86);
             TxtBoxQRread.Multiline = true;
             TxtBoxQRread.Name = "TxtBoxQRread";
-            TxtBoxQRread.Size = new Size(455, 352);
+            TxtBoxQRread.Size = new Size(598, 352);
             TxtBoxQRread.TabIndex = 0;
             TxtBoxQRread.TextChanged += TextBoxQRread_TextChanged;
             // 
@@ -65,15 +67,15 @@
             CmbBoxPortNum.Size = new Size(133, 23);
             CmbBoxPortNum.TabIndex = 2;
             // 
-            // BtnPortOpen
+            // BtnOpenPort
             // 
-            BtnPortOpen.Location = new Point(16, 41);
-            BtnPortOpen.Name = "BtnPortOpen";
-            BtnPortOpen.Size = new Size(133, 30);
-            BtnPortOpen.TabIndex = 1;
-            BtnPortOpen.Text = "ポートを開く";
-            BtnPortOpen.UseVisualStyleBackColor = true;
-            BtnPortOpen.Click += BtnPortOpen_Click;
+            BtnOpenPort.Location = new Point(16, 41);
+            BtnOpenPort.Name = "BtnOpenPort";
+            BtnOpenPort.Size = new Size(133, 30);
+            BtnOpenPort.TabIndex = 1;
+            BtnOpenPort.Text = "ポートを開く";
+            BtnOpenPort.UseVisualStyleBackColor = true;
+            BtnOpenPort.Click += BtnPortOpen_Click;
             // 
             // BtnPortClose
             // 
@@ -93,15 +95,36 @@
             LblConnectionStatus.Size = new Size(0, 15);
             LblConnectionStatus.TabIndex = 3;
             // 
+            // BtnRegistToTempDB
+            // 
+            BtnRegistToTempDB.Enabled = false;
+            BtnRegistToTempDB.Location = new Point(281, 459);
+            BtnRegistToTempDB.Name = "BtnRegistToTempDB";
+            BtnRegistToTempDB.Size = new Size(190, 30);
+            BtnRegistToTempDB.TabIndex = 1;
+            BtnRegistToTempDB.Text = "データベースに登録する";
+            BtnRegistToTempDB.UseVisualStyleBackColor = true;
+            BtnRegistToTempDB.Click += BtnRegistToTempDB_Click;
+            // 
+            // LblElsapedTime
+            // 
+            LblElsapedTime.AutoSize = true;
+            LblElsapedTime.Location = new Point(483, 465);
+            LblElsapedTime.Name = "LblElsapedTime";
+            LblElsapedTime.Size = new Size(0, 15);
+            LblElsapedTime.TabIndex = 4;
+            // 
             // FrmQRread
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(529, 501);
+            ClientSize = new Size(672, 501);
+            Controls.Add(LblElsapedTime);
             Controls.Add(LblConnectionStatus);
             Controls.Add(CmbBoxPortNum);
             Controls.Add(BtnPortClose);
-            Controls.Add(BtnPortOpen);
+            Controls.Add(BtnOpenPort);
+            Controls.Add(BtnRegistToTempDB);
             Controls.Add(BtnEditInput);
             Controls.Add(TxtBoxQRread);
             Name = "FrmQRread";
@@ -116,8 +139,10 @@
         private TextBox TxtBoxQRread;
         private Button BtnEditInput;
         private ComboBox CmbBoxPortNum;
-        private Button BtnPortOpen;
+        private Button BtnOpenPort;
         private Button BtnPortClose;
         private Label LblConnectionStatus;
+        private Button BtnRegistToTempDB;
+        private Label LblElsapedTime;
     }
 }

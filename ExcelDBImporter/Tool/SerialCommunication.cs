@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO.Ports;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -8,9 +9,16 @@ namespace ExcelDBImporter.Tool
     public class SerialCommunication
     {
         private readonly SerialPort serialPort;
-
-        //無通信自動切断のためのメンバ変数
+        /// <summary>
+        /// 受信データをバッファリングしておくQueue
+        /// </summary>
+        private ConcurrentQueue<string> cqStrSerialBuffer = new();
+        private ConcurrentQueue<string> CqStrSerialBuffer { get => cqStrSerialBuffer; set => cqStrSerialBuffer = value; }
+        /// <summary>
+        /// 無通信自動切断のためのメンバ変数
+        /// </summary>
         private DateTime lastDataReceivedTime;
+        
         private readonly System.Timers.Timer disconnectTimer;
         private const int disconnectTimeout = 110000; // 110 seconds timeout
 
@@ -24,7 +32,7 @@ namespace ExcelDBImporter.Tool
         {
             serialPort = new()
             {
-                BaudRate = 9600,
+                BaudRate = 38400,
                 NewLine = "\r\n"
             };
             serialPort.DataReceived += SerialPort_DataReceivedAsync;
@@ -61,15 +69,48 @@ namespace ExcelDBImporter.Tool
             if (serialPort.IsOpen)
             {
                 string data = await ReadFromSerialPortAsync();
+                if (data.Length > 0) 
+                {
+                    //バッファに現在のデータ追加
+                    CqStrSerialBuffer.Enqueue(data);
+                }
                 DataReceived?.Invoke(this, data);
                 //最終受信時刻更新
                 UpdateLastDataReceivedTime();
             }
         }
 
-        private Task<string> ReadFromSerialPortAsync()
+        /// <summary>
+        /// 受信バッファに存在している全てのデータを返す
+        /// </summary>
+        /// <returns>通信内容のString</returns>
+        public string? ReadAllDatafromQueue()
         {
-            return Task.Run(() =>
+            //呼ばれた時点でデータが無かったら
+            if (CqStrSerialBuffer.IsEmpty) { return null; }
+            //結果格納文字列構築用StringBuilder
+            System.Text.StringBuilder sb = new();
+            //残り要素数、スタートは現時点での総要素数
+            int IntCountRemain = cqStrSerialBuffer.Count;
+            while(IntCountRemain > 0)
+            {
+                if (cqStrSerialBuffer.TryDequeue(out string? StrResut))
+                {
+                    //Dequeue成功したらSBに追加
+                    sb.Append(StrResut);
+                    IntCountRemain--;
+                }
+            }
+            if (sb.Length > 0) 
+            {
+                //ループ抜けてSBにデータがあったらStringにして返す
+                return sb.ToString();
+            }
+            else { return null; }
+    }
+        private async Task<string> ReadFromSerialPortAsync()
+        {
+            return await Task.Run(() =>
             {
                 try 
                 {

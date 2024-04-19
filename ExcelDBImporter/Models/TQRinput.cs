@@ -95,6 +95,10 @@ namespace ExcelDBImporter.Models
         [Comment("戻入")]
         Reinyu = FreewayDataInput | Receive
     }
+    public enum ScanCode : UInt32
+    {
+
+    }
     [Comment("工程管理用 QRコード記録テーブル")]
     [Table(nameof(TQRinput))]
     public class TQRinput()
@@ -114,5 +118,11 @@ namespace ExcelDBImporter.Models
         [Column(nameof(QROPcode))]
         [Comment("行程種別のenum。初期値 None")]
         public QrOPcode QROPcode { get => qROPcode; set => qROPcode = value; }
+        [Column(nameof(StrOrderNum))]
+        [Comment("オーダーNo 主に入庫の時に使う")]
+        public string? StrOrderNum { get; set; }
+        [Column(nameof(StrTagBarcode))]
+        [Comment("TAGの下にあるバーコード。とりあえず読み取った結果そのまま格納する")]
+        public string? StrTagBarcode { get; set; }
     }
 }
