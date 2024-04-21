@@ -14,24 +14,6 @@ using ZXing.Datamatrix;
 namespace ExcelDBImporter.Tool
 {
     
-    /// <summary>
-    /// QRコード読み取りの結果を一時格納しておくクラス。
-    /// 後に、TQRinputテーブルに入れれるように処理をする。
-    /// </summary>
-    public class OPcodeList
-    
-    {
-        /// <summary>
-        /// QRコード読み取り時の日時、スキャナ側から入力なければ現在時刻
-        /// </summary>
-        public DateTime DateInputDate {  get; set; }
-        /// <summary>
-        /// QRコードにJSONが格納されていれば、TRQinputクラスなので、デコードして入れる
-        /// </summary>
-        public TQRinput? TQRinput { get; set; }
-        public string? StrOrderNum { get; set; }
-        public string? Description { get; set; }
-    }
     internal class QRcodeCreate
     {
         /// <summary>

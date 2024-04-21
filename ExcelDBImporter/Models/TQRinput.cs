@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using ExcelDBImporter.Tool;
+using ExcelDBImporter.Context;
 namespace ExcelDBImporter.Models
 {
     /// <summary>
@@ -124,5 +125,27 @@ namespace ExcelDBImporter.Models
         [Column(nameof(StrTagBarcode))]
         [Comment("TAGの下にあるバーコード。とりあえず読み取った結果そのまま格納する")]
         public string? StrTagBarcode { get; set; }
+
+        /// <summary>
+        /// 重複データがあるかどうかチェック。重複条件は、InputDateとQROpcodeが一致するものとする
+        /// </summary>
+        /// <param name="dbContext"></param>
+        /// <param name="tqrinput">比較するTQRinputインスタンス</param>
+        /// <returns>重複有りの場合はtrue、無しの場合はfalse</returns>
+        public static bool IsDupe(in ExcelDbContext dbContext,TQRinput tqrinput)
+        {
+            TQRinput? existing = dbContext.TQRinputs.FirstOrDefault(t => t.DateInputDate == tqrinput.DateInputDate
+                                                                    && t.QROPcode == tqrinput.QROPcode);
+            if (existing == null) 
+            {
+                //重複無し
+                return false;
+            }
+            else
+            {
+                //重複あり
+                return true;
+            }
+        }
     }
 }

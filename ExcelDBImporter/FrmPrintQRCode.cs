@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ExcelDBImporter.Tool;
 using ExcelDBImporter.Models;
+using ExcelDBImporter.Models.ToInput;
 using Svg;
 
 namespace ExcelDBImporter
@@ -74,7 +75,7 @@ namespace ExcelDBImporter
                     GetAllProperty.GetEnumComment<QrOPcode>(qrOPcode),
                     //ValueはTQRinputクラスのJson
                     QRcodeCreate.GeneratetJsonFromClass(
-                    new TQRinput() { QROPcode = qrOPcode })
+                    new DMInputOPcode() { QROPcode = qrOPcode })
                     );
             }
             return DicJson;

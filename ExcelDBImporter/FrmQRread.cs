@@ -49,7 +49,15 @@ namespace ExcelDBImporter
             readTimeStopwatch = new();
             //シリアルポートの初期化
             serialCommunication = new SerialCommunication();
+            //データ受信途中のイベント
+            serialCommunication.NeedNextDataReceived += SerialCommunication_DataReceived!;
+            //通常JSONデータ受信時のイベント
             serialCommunication.DataReceived += SerialCommunication_DataReceived!;
+            //受信完了時のイベント
+            serialCommunication.CompleteReceive += SerialCommunication_CompReceive!;
+            //制御コマンド受信時のイベント
+            serialCommunication.ControlMsgReceived += SerialCommunication_ControlReceived!;
+            
             //ポート番号コンボボックスの設定
             InitializePotNumCmbBox();
             timerInputEnd = new System.Timers.Timer
@@ -69,9 +77,14 @@ namespace ExcelDBImporter
                 CmbBoxPortNum.Items.Add(portName);
             }
         }
-        private void SerialCommunication_DataReceived(object sender, string data)
+        /// <summary>
+        /// 通常JSONデータ受信時、追加データある可能性あり
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="Strdata">今回の受信データ</param>
+        private void SerialCommunication_DataReceived(object sender, string Strdata)
         {
-            // テキストボックスのテキストが変更されるたびにタイマーを再起動
+            // データ受信する度にタイマー再起動
             timerInputEnd.Stop();
             Task.Delay(1);
             timerInputEnd.Start();
@@ -79,6 +92,81 @@ namespace ExcelDBImporter
             if (!readTimeStopwatch.IsRunning) 
             {
                 readTimeStopwatch.Start(); 
+            }
+            //入力用テキストボックスをReadOnlyに
+            if (this.InvokeRequired)
+            {
+                //Invokeが必要な場合(メイン(UI)スレッドじゃないのが変更しようとした)
+                this.Invoke(() => TxtBoxQRread.Text = Strdata);
+                this.Invoke(() => TxtBoxQRread.ReadOnly = true);
+            }
+            else
+            {
+                //メインスレッドから呼ばれた場合
+                //TxtBoxQRread.Text = Strdata;
+                TxtBoxQRread.ReadOnly = true;
+            }
+            //処理時間ラベルの更新のみ行う、デコードはCompReceiveしてから
+            Invoke(() => LblElsapedTime.Text = ($"受信処理中 {readTimeStopwatch.ElapsedMilliseconds} ミリ秒経過"));
+        }
+        /// <summary>
+        /// データ受信完了時(タイマー使用)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="Strdata">受信した結果Queueを全て統合したもの</param>
+        private void SerialCommunication_CompReceive(object sender, string Strdata)
+        {
+            // データ受信する度にタイマー再起動
+            timerInputEnd.Stop();
+            Task.Delay(1);
+            timerInputEnd.Start();
+            //ストップウォッチ止まっていたら開始する
+            if (!readTimeStopwatch.IsRunning)
+            {
+                readTimeStopwatch.Start();
+            }
+            //入力用テキストボックスをReadOnlyに
+            if (this.InvokeRequired)
+            {
+                //Invokeが必要な場合(メイン(UI)スレッドじゃないのが変更しようとした)
+                this.Invoke(() => TxtBoxQRread.Text = Strdata);
+                this.Invoke(() => TxtBoxQRread.ReadOnly = true);
+            }
+            else
+            {
+                //メインスレッドから呼ばれた場合
+                TxtBoxQRread.Text = Strdata;
+                TxtBoxQRread.ReadOnly = true;
+            }
+            DecordQRstringToTQRinput(Strdata);
+            //デコード処理終了後ストップウォッチ停止
+            readTimeStopwatch.Stop();
+            Invoke(() => LblElsapedTime.Text = ($"{readTimeStopwatch.ElapsedMilliseconds} ミリ秒で処理完了"));
+            readTimeStopwatch.Reset();
+        }
+
+        /// <summary>
+        /// 制御コマンド受信時
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="StrData">今回の受信データのみ</param>
+        private void SerialCommunication_ControlReceived(object sender,string Strdata)
+        {
+            //テキストボックスの表示を更新するのみで終了
+            //入力用テキストボックスをReadOnlyに
+            if (this.InvokeRequired)
+            {
+                //Invokeが必要な場合(メイン(UI)スレッドじゃないのが変更しようとした)
+                this.Invoke(() => TxtBoxQRread.Text = Strdata);
+                this.Invoke(() => TxtBoxQRread.ReadOnly = true);
+                Invoke(() => LblElsapedTime.Text = ($"{DateTime.Now} に制御データ受信"));
+                //this.Invoke(new DelegateDisableInput(DisableInput));
+            }
+            else
+            {
+                //メインスレッドから呼ばれた場合
+                TxtBoxQRread.Text = Strdata;
+                TxtBoxQRread.ReadOnly = true;
             }
         }
 
@@ -93,27 +181,6 @@ namespace ExcelDBImporter
             // SeriaCommunicationのバッファから結果を読み取り、テキストボックスに適用
             string StrComnBuffer = serialCommunication.ReadAllDatafromQueue() ?? string.Empty;
             if (string.IsNullOrEmpty(StrComnBuffer)) { return; }
-            //入力用テキストボックスをReadOnlyに
-            if (this.InvokeRequired)
-            {
-                //Invokeが必要な場合(メイン(UI)スレッドじゃないのが変更しようとした)
-                this.Invoke(() =>TxtBoxQRread.Text = StrComnBuffer);
-                this.Invoke(() => TxtBoxQRread.ReadOnly = true);
-                //this.Invoke(new DelegateDisableInput(DisableInput));
-            }
-            else
-            {
-                //メインスレッドから呼ばれた場合
-                TxtBoxQRread.Text = StrComnBuffer;
-                TxtBoxQRread.ReadOnly = true;
-            }
-            //MessageBox.Show(TxtBoxQRread.Text);
-            DecordQRstringToTQRinput(StrComnBuffer);
-            //デコード処理終了後ストップウォッチ停止
-            readTimeStopwatch.Stop();
-            Invoke(() => LblElsapedTime.Text = ($"{readTimeStopwatch.Elapsed} 秒で処理完了"));
-            //ストップウォッチの値で何か処理する？
-            readTimeStopwatch.Reset();
         }
         private void TextBoxQRread_TextChanged(object sender, EventArgs e)
         {
@@ -134,6 +201,8 @@ namespace ExcelDBImporter
             //デコード、テーブル登録開始
             ParseDMtextToTQRinput parseDMtext = new ParseDMtextToTQRinput(text);
             parseDMtext.ParseDMStrToTempTable();
+            //TempテーブルからTQRinputテーブルに登録する作業へ
+            MessageBox.Show($"{parseDMtext.RegistToTQRinput()} 件のデータを処理しました");
         }
 
         /// <summary>

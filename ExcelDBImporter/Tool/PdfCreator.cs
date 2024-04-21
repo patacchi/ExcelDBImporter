@@ -35,7 +35,7 @@ class PdfCreator
         {
             InitialDirectory = StrDBSaveDir,
             Filter = "PDF files (*.pdf)|*.pdf",
-            FileName = "入力用QRコード" + DateTime.Now.ToString("yyyy-MM-ddTHH-mm-ss")
+            FileName = "入力用DMコード" + DateTime.Now.ToString("yyyy-MM-ddTHH-mm-ss")
         };
         if (saveFileDialog.ShowDialog() != DialogResult.OK)
         {
