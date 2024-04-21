@@ -34,6 +34,7 @@
             DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
             dgvUpdater = new DataGridView();
             BtnSaveChanges = new Button();
+            CmbBoxSelectClass = new ComboBox();
             ((System.ComponentModel.ISupportInitialize)dgvUpdater).BeginInit();
             SuspendLayout();
             // 
@@ -61,7 +62,7 @@
             dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
             dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
             dgvUpdater.DefaultCellStyle = dataGridViewCellStyle2;
-            dgvUpdater.Location = new Point(50, 28);
+            dgvUpdater.Location = new Point(88, 68);
             dgvUpdater.Name = "dgvUpdater";
             dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle3.BackColor = SystemColors.Control;
@@ -90,11 +91,21 @@
             BtnSaveChanges.UseVisualStyleBackColor = true;
             BtnSaveChanges.Click += BtnSaveChanges_Click;
             // 
+            // CmbBoxSelectClass
+            // 
+            CmbBoxSelectClass.FormattingEnabled = true;
+            CmbBoxSelectClass.Location = new Point(20, 20);
+            CmbBoxSelectClass.Name = "CmbBoxSelectClass";
+            CmbBoxSelectClass.Size = new Size(239, 23);
+            CmbBoxSelectClass.TabIndex = 3;
+            CmbBoxSelectClass.SelectionChangeCommitted += this.CmbBoxSelectClass_SelectionChangeCommitted;
+            // 
             // FrmDataViewer
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(882, 512);
+            Controls.Add(CmbBoxSelectClass);
             Controls.Add(BtnSaveChanges);
             Controls.Add(dgvUpdater);
             Name = "FrmDataViewer";
@@ -108,5 +119,6 @@
 
         private DataGridView dgvUpdater;
         private Button BtnSaveChanges;
+        private ComboBox CmbBoxSelectClass;
     }
 }

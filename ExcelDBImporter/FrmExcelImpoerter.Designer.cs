@@ -43,6 +43,7 @@
             BtnUnsetOutputFlag = new Button();
             BtnShowQRForm = new Button();
             btnQRread = new Button();
+            BtnInOutCSVInclude = new Button();
             SuspendLayout();
             // 
             // textBoxInputFilename
@@ -197,6 +198,16 @@
             btnQRread.UseVisualStyleBackColor = true;
             btnQRread.Click += BtnfrmShowQR_Read_Click;
             // 
+            // BtnInOutCSVInclude
+            // 
+            BtnInOutCSVInclude.Location = new Point(500, 192);
+            BtnInOutCSVInclude.Name = "BtnInOutCSVInclude";
+            BtnInOutCSVInclude.Size = new Size(141, 48);
+            BtnInOutCSVInclude.TabIndex = 2;
+            BtnInOutCSVInclude.Text = "入出庫履歴取込";
+            BtnInOutCSVInclude.UseVisualStyleBackColor = true;
+            BtnInOutCSVInclude.Click += BtnInOutCSVInclude_Click;
+            // 
             // FrmExcelImpoerter
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -209,6 +220,7 @@
             Controls.Add(DtpickStart);
             Controls.Add(btnQRread);
             Controls.Add(BtnShowQRForm);
+            Controls.Add(BtnInOutCSVInclude);
             Controls.Add(BtnFieldNamAlias);
             Controls.Add(BtnOutpuToxlsx);
             Controls.Add(btnImputExcelFile);
@@ -244,5 +256,6 @@
         private Button BtnUnsetOutputFlag;
         private Button BtnShowQRForm;
         private Button btnQRread;
+        private Button BtnInOutCSVInclude;
     }
 }

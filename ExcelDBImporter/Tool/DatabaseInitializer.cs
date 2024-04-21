@@ -41,6 +41,9 @@ namespace ExcelDBImporter.Tool
                 return;
             }
             UpsertProperty(dbContext, listProperty);
+            //ShInOut
+            List<ClassAndProperty> listInout = getAllProperty.GetPropertyByClassNameAndNamespace(typeof(ShInOut).Namespace, nameof(ShInOut));
+            UpsertProperty(dbContext,listInout);
             //DBに変更適用
             dbContext.SaveChanges();
         }

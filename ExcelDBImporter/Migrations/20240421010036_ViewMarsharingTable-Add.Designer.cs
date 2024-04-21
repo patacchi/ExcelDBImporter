@@ -3,6 +3,7 @@ using System;
 using ExcelDBImporter.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,12 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExcelDBImporter.Migrations
 {
     [DbContext(typeof(ExcelDbContext))]
-    partial class ExcelDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240421010036_ViewMarsharingTable-Add")]
+    partial class ViewMarsharingTableAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.0-preview.3.24172.4");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.0-preview.1.24081.2");
 
             modelBuilder.Entity("ExcelDBImporter.Models.AppSetting", b =>
                 {
@@ -55,67 +58,6 @@ namespace ExcelDBImporter.Migrations
                     b.ToTable("AppSetting", t =>
                         {
                             t.HasComment("各アプリの設定を格納する。1アプリ１レコード");
-                        });
-                });
-
-            modelBuilder.Entity("ExcelDBImporter.Models.ShInOut", b =>
-                {
-                    b.Property<int>("ShInOutID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("ShInOutID");
-
-                    b.Property<DateTime?>("DateInOut")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("DateInOut")
-                        .HasComment("入出庫日");
-
-                    b.Property<double?>("DblDeliverNum")
-                        .HasColumnType("REAL")
-                        .HasColumnName("DblDeliverNum")
-                        .HasComment("出庫個数");
-
-                    b.Property<double?>("DblInputNum")
-                        .HasColumnType("REAL")
-                        .HasColumnName("DblInputNum")
-                        .HasComment("入庫個数");
-
-                    b.Property<double?>("DblRemainAmount")
-                        .HasColumnType("REAL")
-                        .HasColumnName("DblRemainAmount")
-                        .HasComment("在庫数量");
-
-                    b.Property<string>("StrKanriKa")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("StrKanriKa")
-                        .HasComment("管理課");
-
-                    b.Property<string>("StrKishu")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("StrKishu")
-                        .HasComment("手配機種");
-
-                    b.Property<string>("StrOrderOrSeiban")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("StrOrderOrSeiban")
-                        .HasComment("オーダーか製番、役に立たなそう");
-
-                    b.Property<string>("StrStockCode")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("StrStockCode")
-                        .HasComment("手配機種");
-
-                    b.Property<string>("StrTehaiCode")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("StrTehaiCode")
-                        .HasComment("手配コード");
-
-                    b.HasKey("ShInOutID");
-
-                    b.ToTable("ShInOut", t =>
-                        {
-                            t.HasComment("入出庫履歴を格納するテーブル");
                         });
                 });
 
@@ -218,6 +160,11 @@ namespace ExcelDBImporter.Migrations
                         .HasColumnName("DateToDate")
                         .HasComment("終了日時、基本的に自動計算で入力する");
 
+                    b.Property<bool>("IsCompiled")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("IsCompiled")
+                        .HasComment("集計されたかどうかを示す");
+
                     b.Property<uint>("QROPcode")
                         .HasColumnType("INTEGER")
                         .HasColumnName("QROPcode")
@@ -290,12 +237,6 @@ namespace ExcelDBImporter.Migrations
                         .HasColumnName("StrDBColumnName")
                         .HasColumnOrder(2)
                         .HasComment("モデルクラスのオリジナルDBColumn名");
-
-                    b.Property<string>("StrShInOutFieldName")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("StrShInOutFieldName")
-                        .HasColumnOrder(5)
-                        .HasComment("入出庫履歴(CSV)のフィールド名");
 
                     b.Property<string>("StrshProcessManagementFieldName")
                         .HasColumnType("TEXT")
@@ -399,14 +340,6 @@ namespace ExcelDBImporter.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("IntShipping")
                         .HasComment("支給品準備・払出");
-
-                    b.Property<bool>("IsCompiled")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("IsCompiled")
-                        .HasComment("集計されたかどうかを示す");
-
-                    b.Property<string>("StrTagBarcode")
-                        .HasColumnType("TEXT");
 
                     b.HasKey("ViewMarsharingID");
 
