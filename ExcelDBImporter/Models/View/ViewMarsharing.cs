@@ -19,19 +19,19 @@ namespace ExcelDBImporter.Models.View
         [Column(nameof(ViewMarsharingID))]
         public int ViewMarsharingID { get; set; }
         [Column(nameof(DatePerDay))]
-        [Comment("集計した日付")]
+        [Comment("日付")]
         public DateTime? DatePerDay { get; set; }
         /// <summary>
         /// PrepareReveiveSet
         /// </summary>
         [Column(nameof(IntPrepareReceive))]
-        [Comment("棚入れ前準備作業")]
+        [Comment("棚入れ前\r\n準備作業")]
         public int? IntPrepareReceive { get; set; }
         /// <summary>
         /// FreewayDataInput
         /// </summary>
         [Column(nameof(IntFreewayData))]
-        [Comment("Freewayデータ処理")]
+        [Comment("Freeway\r\nデータ処理")]
         public int? IntFreewayData { get; set; }
         /// <summary>
         /// Delivery
@@ -43,25 +43,25 @@ namespace ExcelDBImporter.Models.View
         /// PrepareShpping
         /// </summary>
         [Column(nameof(IntShipping))]
-        [Comment("支給品準備・払出")]
+        [Comment("支給品準備\r\n払出")]
         public int? IntShipping { get; set; }
         /// <summary>
         /// opMicroWave
         /// </summary>
         [Column(nameof(IntMicroWave))]
-        [Comment("マイクロ波払出")]
+        [Comment("マイクロ波\r\n払出")]
         public int? IntMicroWave { get; set; }
         /// <summary>
         /// CutCable
         /// </summary>
         [Column(nameof(IntCableCut))]
-        [Comment("ケーブル切断作業")]
+        [Comment("ケーブル\r\n切断作業")]
         public int? IntCableCut { get; set; }
         /// <summary>
         /// Moving
         /// </summary>
         [Column(nameof(IntMoving))]
-        [Comment("倉庫内移動")]
+        [Comment("運搬回数\r\n倉庫内移動")]
         public int? IntMoving { get; set; }
         /// <summary>
         /// Other

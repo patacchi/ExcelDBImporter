@@ -17,6 +17,13 @@ namespace ExcelDBImporter
 {
     public partial class FrmExcelImpoerter : Form
     {
+        /// <summary>
+        /// 出力Excelファイルの横幅
+        /// </summary>
+        private const Single Const_Outpu_Title_Width = 9;
+        private const int Const_DataTable_Header_Row = 4;
+        private const int Const_MainTitle_Row = 2;
+
         public FrmExcelImpoerter()
         {
             try
@@ -130,6 +137,10 @@ namespace ExcelDBImporter
                 {
                     options.ColumnPrimaryKeyExpression = c => c.DatePerDay;
                     options.Log = s => sbLog.AppendLine(s);
+                    options.IgnoreOnMergeUpdateExpression = ig => new
+                    {
+                        ig.IsCompiled
+                    };
                 }
                 );
                 dbContext.BulkSaveChanges(options =>
@@ -247,19 +258,19 @@ namespace ExcelDBImporter
                 {
                     InitialDirectory = StrDBSaveDir,
                     Filter = "Excel files (*.xlsx)|*.xlsx",
-                    FileName = "5D8B4869P002_マーシャリング実績集計" + DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月"
+                    FileName = "5D8B4869P002_電磁・マイクロ波資材管理実績集計" + DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月"
                 };
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    int IntTableHeaderRow = 4;
-                    int IntTitleRow = 2;
+                    int IntTableHeaderRow = Const_DataTable_Header_Row;
+                    int IntTitleRow = Const_MainTitle_Row;
                     double DblTitleFontSize = 13;
                     XLWorkbook wb = new();
                     //デフォルトのフォントとフォントサイズを設定
                     XLWorkbook.DefaultStyle.Font.FontName = "BIZ UDゴシック";
                     wb.Style.Font.FontName = "BIZ UDゴシック";
                     wb.Style.Font.FontSize = 9;
-                    IXLWorksheet xlworksheet = wb.AddWorksheet("マーシャリング実績集計" + DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月");
+                    IXLWorksheet xlworksheet = wb.AddWorksheet("電磁・マイクロ波資材管理実績集計" + DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月");
                     //リストをシートに挿入
                     xlworksheet.Cell(IntTableHeaderRow, 1).InsertTable(views);
                     var CellsTitle = xlworksheet.Row(IntTableHeaderRow).CellsUsed();
@@ -273,17 +284,23 @@ namespace ExcelDBImporter
                                                 t.StrColumnName == cell.Value.ToString())*/
                                                 .FirstOrDefault();
                         cell.Value = GetAllProperty.GetPropertyComment<ViewMarsharing>
-                                (cell.Value.ToString())
-                                ?? cell.Value;
-                        if (aliasName != null)
-                        {
-                            //cell.Value = aliasName.StrColnmnAliasName ?? cell.Value;
-                        }
+                                    (cell.Value.ToString())
+                                    ?? cell.Value;
+                        //各セルの横幅を設定
+                        xlworksheet.Column(cell.Address.ColumnNumber).Width = Const_Outpu_Title_Width;
+                        //上下左右方向中央揃え
+                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     }
-                    xlworksheet.ColumnsUsed().AdjustToContents();
-                    foreach (IXLCell cell1 in CellsTitle) { xlworksheet.Column(cell1.Address.ColumnNumber).Width *= 1.30; }
+                    //上下左右に罫線を引く
+                    xlworksheet.Range(xlworksheet.Cell(IntTableHeaderRow, 1), (xlworksheet.LastCellUsed())).Style
+                        .Border.SetInsideBorder(XLBorderStyleValues.Thin)
+                        .Border.SetOutsideBorder(XLBorderStyleValues.Thin);
+                    //とりあえず幅の自動調整はなしで
+                    //xlworksheet.ColumnsUsed().AdjustToContents();
+                    //foreach (IXLCell cell1 in CellsTitle) { xlworksheet.Column(cell1.Address.ColumnNumber).Width *= 1.30; }
                     //タイトルの入力
-                    xlworksheet.Cell(IntTitleRow, 1).Value = DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月  マーシャリング実績    5D8B4869P002";
+                    xlworksheet.Cell(IntTitleRow, 1).Value = DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月 (MS)  電磁・マイクロ波資材管理実績    5D8B4869P002";
                     xlworksheet.Cell(IntTitleRow, 1).Style.Font.FontSize = DblTitleFontSize;
                     //選択範囲で中央(上手くいくかな？)
                     xlworksheet.Range(IntTitleRow, 1, IntTitleRow, xlworksheet.Row(IntTableHeaderRow).LastCellUsed().Address.ColumnNumber)
@@ -406,6 +423,9 @@ namespace ExcelDBImporter
         private void BtnInOutCSVInclude_Click(object sender, EventArgs e)
         {
             IncludeInOutCSV();
+            //ShInOutをTQRに反映させる
+            ShInOutToTQR();
+
         }
     }
 }

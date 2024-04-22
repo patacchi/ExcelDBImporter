@@ -199,7 +199,7 @@ namespace ExcelDBImporter
         {
             if (string.IsNullOrEmpty(text)) { return; }
             //デコード、テーブル登録開始
-            ParseDMtextToTQRinput parseDMtext = new ParseDMtextToTQRinput(text);
+            ParseDMtextToTQRinput parseDMtext = new(text);
             parseDMtext.ParseDMStrToTempTable();
             //TempテーブルからTQRinputテーブルに登録する作業へ
             MessageBox.Show($"{parseDMtext.RegistToTQRinput()} 件のデータを処理しました");

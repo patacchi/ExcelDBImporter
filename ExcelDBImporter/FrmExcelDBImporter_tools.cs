@@ -15,6 +15,7 @@ using CsvHelper;
 using System.Configuration;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using System.Drawing.Text;
 
 namespace ExcelDBImporter
 {
@@ -135,7 +136,7 @@ namespace ExcelDBImporter
             //CSVファイルを読み込み、ヘッダーのListを得る
             var header = GetCsvHeaders(StrInOutFilePath);
             //CSVファイルを読み込み、モデルクラスとマッピングする
-            List<ShInOut> listModeles = ReadCsvFile<ShInOut>(StrInOutFilePath, header);
+            List<ShInOut> listModeles = ReadCsvFile(StrInOutFilePath, header);
             //DBにUPSertする
             using ExcelDbContext context = new();
             context.BulkMerge(listModeles,
@@ -150,13 +151,67 @@ namespace ExcelDBImporter
             );
             context.BulkSaveChanges();
         }
+        public void ShInOutToTQR()
+        {
+            const int Const_Plus_Milliseccond = 100;
+            //まずはShInOutからデータをとってきて、日付に加算する処理をしないとだめ(同じ日の組み合わせが多発するため)
+            //条件は機種がJLかJ7
+            //日付順でソート
+            using ExcelDbContext dbContext = new();
+            List<ShInOut> inoutList = dbContext.ShInOuts
+                                        .Where(w => 
+                                        w.StrKishu == "J7"
+                                        || w.StrKishu == "JL")
+                                        .OrderBy(o => o.DateInOut)
+                                        .ToList();
+            //foreachで回して、日付が変わるまで一定の秒数を足し続ける
+            //基準日、日付が変わったら更新
+            //ついでに中でTQRのリストも作っちゃう？
+            //QrOPcode.FreewayDataInputと日付を入れる
+            List<TQRinput> TQRinputList = new();
+            //登録する日付
+            DateTime DateToRegist = new();
+            foreach (ShInOut inout in inoutList)
+            {
+                //nullだったらとりあえず次のループへ
+                if (inout.DateInOut == null) { continue; }
+                //基準日と今回の日付が違ったら、基準日を更新だけして次のループへ
+                if (inout.DateInOut.Value.Date != DateToRegist.Date)
+                {
+                    //登録日を現在の要素の日付に
+                    DateToRegist = inout.DateInOut.Value;
+                }
+                else 
+                {
+                    //基準日と今回の日付が同じだった
+                    //登録日に秒数加算
+                    DateToRegist = DateToRegist.AddMicroseconds(Const_Plus_Milliseccond);
+                }
+                //TQRリストに追加する
+                TQRinputList.Add(new TQRinput
+                {
+                    DateInputDate = DateToRegist,
+                    QROPcode = QrOPcode.FreewayDataInput
+                });
+                //次のループへ
+                continue;
+            }
+            //出来上がったListをDBに登録
+            dbContext.BulkMerge(TQRinputList,options =>
+            options.ColumnPrimaryKeyExpression = key => new 
+            {
+                key.DateInputDate,
+                key.QROPcode
+            });
+            dbContext.BulkSaveChanges();
+        }
         private List<string> GetCsvHeaders(string StrfilePath)
         {
             try
             {
                 using FileStream straem = File.OpenRead(StrfilePath);
                 DetectionResult CharSet = CharsetDetector.DetectFromStream(straem);
-                using (StreamReader reader = new StreamReader(StrfilePath,CharSet.Detected.Encoding))
+                using (StreamReader reader = new(StrfilePath,CharSet.Detected.Encoding))
                 {
                     
                     List<string> headers = reader.ReadLine()!.Split(',').ToList();
@@ -169,17 +224,16 @@ namespace ExcelDBImporter
                 return new List<string>();
             }
         }
-        private List<T> ReadCsvFile<T>(string StrfilePath, List<string> Listheaders) where T : class
+        private List<ShInOut> ReadCsvFile(string StrfilePath, List<string> Listheaders)
         {
-            List<T> models = new();
             using FileStream stream = File.OpenRead(StrfilePath);
             DetectionResult CharCode = CharsetDetector.DetectFromStream(stream);
-            using (var reader = new StreamReader(StrfilePath,CharCode.Detected.Encoding))
+            using (var reader = new StreamReader(StrfilePath, CharCode.Detected.Encoding))
             {
                 stream.Position = 0;
                 string StrCsvAll = reader.ReadToEnd();
                 //ダブルクォーテーション取っちゃえ・・・
-                string StrNoEq = StrCsvAll.Replace("=","");
+                string StrNoEq = StrCsvAll.Replace("=", "");
                 string StrNoDQ = StrCsvAll.Replace("\"", "");
                 stream.Dispose();
                 Encoding encoding = Encoding.UTF8;
@@ -200,61 +254,20 @@ namespace ExcelDBImporter
                             Debug.WriteLine(x);
                             return true;
                         }
-
                     };
-                    CsvConfiguration configulation = CsvConfiguration.FromAttributes<T>();
-                    using StreamReader readerMS = new StreamReader(ms);
+                    CsvConfiguration configulation = CsvConfiguration.FromAttributes<ShInOut>();
+                    using StreamReader readerMS = new(ms);
                     ms.Position = 0;
                     using var csv = new CsvReader(readerMS, configulation);
-                    //csv.Read();
-                    //csv.ReadHeader();
-                    List<T> list = csv.GetRecords<T>().ToList();
-                    /*
-                    List<T> list = new List<T>();
-                    while (csv.Read())
-                    {
-                        var record = csv.GetRecord<T>();
-                        list.Add(record);
-                    }
-                    */
+                    List<ShInOut> list = csv.GetRecords<ShInOut>().ToList();
                     return list;
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"{ex.Message}");
                 }
-                return new List<T>() ;
-                
-                // ヘッダー行を読み飛ばす
-
-                while (!reader.EndOfStream)
-                {
-                    var line = reader.ReadLine();
-                    if (line == null) {  continue; }
-                    var values = line.Split(',');
-
-                    // ヘッダーを使用して各フィールドの値を取得し、プロパティにマッピングする
-                    var model = Activator.CreateInstance<T>();
-                    var properties = typeof(T).GetProperties();
-                    //DBとファイルFieldのDictionaryを得る
-                    GetAllProperty getprop = new();
-                    Dictionary<string, string> DicDBandField = getprop.GetDBandFileFieldNamePair(typeof(ShInOut).Namespace!,
-                                                                                                 nameof(ShInOut),
-                                                                                                 nameof(TableDBcolumnNameAndExcelFieldName.StrShInOutFieldName));
-
-                    for (int i = 0; i < Listheaders.Count; i++)
-                    {
-                        var property = properties.FirstOrDefault(p =>DicDBandField[p.Name].Equals(Listheaders[i], StringComparison.OrdinalIgnoreCase));
-                        if (property != null)
-                        {
-                            property.SetValue(model, Convert.ChangeType(values[i], property.PropertyType));
-                        }
-                    }
-                    models.Add(model);
-                }
-            }
-
-            return models;
+                return new List<ShInOut>();
+            }   
         }
     }
 }
