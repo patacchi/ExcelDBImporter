@@ -36,6 +36,7 @@
             LblConnectionStatus = new Label();
             BtnRegistToTempDB = new Button();
             LblElsapedTime = new Label();
+            ChkBoxOnlyPrintMsg = new CheckBox();
             SuspendLayout();
             // 
             // TxtBoxQRread
@@ -114,11 +115,24 @@
             LblElsapedTime.Size = new Size(0, 15);
             LblElsapedTime.TabIndex = 4;
             // 
+            // ChkBoxOnlyPrintMsg
+            // 
+            ChkBoxOnlyPrintMsg.AutoSize = true;
+            ChkBoxOnlyPrintMsg.Location = new Point(294, 14);
+            ChkBoxOnlyPrintMsg.Name = "ChkBoxOnlyPrintMsg";
+            ChkBoxOnlyPrintMsg.Size = new Size(146, 19);
+            ChkBoxOnlyPrintMsg.TabIndex = 6;
+            ChkBoxOnlyPrintMsg.Text = "表示のみ、DB登録しない";
+            ChkBoxOnlyPrintMsg.TextAlign = ContentAlignment.MiddleCenter;
+            ChkBoxOnlyPrintMsg.UseVisualStyleBackColor = true;
+            ChkBoxOnlyPrintMsg.Visible = false;
+            // 
             // FrmQRread
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(672, 501);
+            Controls.Add(ChkBoxOnlyPrintMsg);
             Controls.Add(LblElsapedTime);
             Controls.Add(LblConnectionStatus);
             Controls.Add(CmbBoxPortNum);
@@ -127,9 +141,12 @@
             Controls.Add(BtnRegistToTempDB);
             Controls.Add(BtnEditInput);
             Controls.Add(TxtBoxQRread);
+            KeyPreview = true;
             Name = "FrmQRread";
             Text = "QRコード入力";
             Load += FrmQRread_Load;
+            KeyDown += FrmQRread_KeyDown;
+            KeyUp += FrmQRread_KeyUp;
             ResumeLayout(false);
             PerformLayout();
         }
@@ -144,5 +161,6 @@
         private Label LblConnectionStatus;
         private Button BtnRegistToTempDB;
         private Label LblElsapedTime;
+        private CheckBox ChkBoxOnlyPrintMsg;
     }
 }

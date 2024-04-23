@@ -57,7 +57,7 @@ namespace ExcelDBImporter
             serialCommunication.CompleteReceive += SerialCommunication_CompReceive!;
             //制御コマンド受信時のイベント
             serialCommunication.ControlMsgReceived += SerialCommunication_ControlReceived!;
-            
+
             //ポート番号コンボボックスの設定
             InitializePotNumCmbBox();
             timerInputEnd = new System.Timers.Timer
@@ -89,9 +89,9 @@ namespace ExcelDBImporter
             Task.Delay(1);
             timerInputEnd.Start();
             //ストップウォッチ止まっていたら開始する
-            if (!readTimeStopwatch.IsRunning) 
+            if (!readTimeStopwatch.IsRunning)
             {
-                readTimeStopwatch.Start(); 
+                readTimeStopwatch.Start();
             }
             //入力用テキストボックスをReadOnlyに
             if (this.InvokeRequired)
@@ -138,7 +138,11 @@ namespace ExcelDBImporter
                 TxtBoxQRread.Text = Strdata;
                 TxtBoxQRread.ReadOnly = true;
             }
-            DecordQRstringToTQRinput(Strdata);
+            //OnlyPrintチェックボックスがfalseの場合のみ実行
+            if (!ChkBoxOnlyPrintMsg.Checked)
+            {
+                DecordQRstringToTQRinput(Strdata);
+            }
             //デコード処理終了後ストップウォッチ停止
             readTimeStopwatch.Stop();
             Invoke(() => LblElsapedTime.Text = ($"{readTimeStopwatch.ElapsedMilliseconds} ミリ秒で処理完了"));
@@ -150,7 +154,7 @@ namespace ExcelDBImporter
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="StrData">今回の受信データのみ</param>
-        private void SerialCommunication_ControlReceived(object sender,string Strdata)
+        private void SerialCommunication_ControlReceived(object sender, string Strdata)
         {
             //テキストボックスの表示を更新するのみで終了
             //入力用テキストボックスをReadOnlyに
@@ -225,8 +229,8 @@ namespace ExcelDBImporter
             BtnRegistToTempDB.Enabled = true;
         }
 
-        
-        private void BtnRegistToTempDB_Click(object sender,EventArgs e)
+
+        private void BtnRegistToTempDB_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(TxtBoxQRread.Text))
             {
@@ -295,9 +299,9 @@ namespace ExcelDBImporter
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(ConnectionCheckInMilliseconds,cancellationToken); // 待機秒数は定数で定義
+                await Task.Delay(ConnectionCheckInMilliseconds, cancellationToken); // 待機秒数は定数で定義
 
-                if (!cancellationToken.IsCancellationRequested ) 
+                if (!cancellationToken.IsCancellationRequested)
                 {
                     // UIスレッドでラベルの更新を行う
                     Invoke(new Action(() =>
@@ -342,5 +346,47 @@ namespace ExcelDBImporter
             base.OnFormClosing(e);
         }
 
+        /// <summary>
+        /// フォームでキーが押されたときに行う
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FrmQRread_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.ControlKey:
+                    //Ctrlキーが押された時
+                    //OnlyPrintチェックボックスを表示する
+                    ChkBoxOnlyPrintMsg.Visible = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// フォームでキーが離された時に行う
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FrmQRread_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.ControlKey:
+                    //Ctrlキーが離された時
+                    //OnlyPrintチェックボックスを非表示に
+                    //OnlyPrintがチェックされていなければ非表示にする、チェックされていたら表示したまま
+                    if (!ChkBoxOnlyPrintMsg.Checked)
+                    {
+                        //チェックされていない場合のみ非表示にする
+                        ChkBoxOnlyPrintMsg.Visible = false;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }

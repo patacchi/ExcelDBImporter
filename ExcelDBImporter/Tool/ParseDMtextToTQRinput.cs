@@ -25,6 +25,10 @@ namespace ExcelDBImporter.Tool
         /// </summary>
         private const int Int_MAX_TagNo_Length = 10;
         /// <summary>
+        /// タグNo文字列長の最小値
+        /// </summary>
+        private const int Int_MIN_TagNo_Length = 4;
+        /// <summary>
         /// データの種類を表すEnum
         /// </summary>
         private enum EnumDataKind
@@ -59,6 +63,16 @@ namespace ExcelDBImporter.Tool
             /// </summary>
             [Comment("DMInputScanCode JSON")]
             JSON_DM_ScanCode = 6,
+            /// <summary>
+            /// 手配コード
+            /// </summary>
+            [Comment("手配コード")]
+            TehaiCode = 7,
+            /// <summary>
+            /// 数量
+            /// </summary>
+            [Comment("数量")]
+            Amount = 8,
             /// <summary>
             /// 不明データ
             /// </summary>
@@ -189,7 +203,7 @@ namespace ExcelDBImporter.Tool
                     //JSONに変換できる場合
                     JsonDocument jsonDocument = JsonDocument.Parse(StrCheckData);
                     JsonElement root = jsonDocument.RootElement;
-                    if(!root.TryGetProperty(nameof(DMInputOPcode.StrClassName),out JsonElement element))
+                    if (!root.TryGetProperty(nameof(DMInputOPcode.StrClassName), out JsonElement element))
                     {
                         //JsonにStrClassName要素が無い場合はTQRinputとする
                         return EnumDataKind.JSON_TQR;
@@ -216,9 +230,19 @@ namespace ExcelDBImporter.Tool
                         //3n3で始まる時はオーダーNo
                         return EnumDataKind.OrderNumber;
                     }
-                    if (StrCheckData.Length <= Int_MAX_TagNo_Length)
+                    if (StrCheckData[..3].Equals("3n4", StringComparison.OrdinalIgnoreCase))
                     {
-                        //TagNoの最高文字列長を超えていなかったらTagNoとする
+                        //3n4で始まるのは手配コード
+                        return EnumDataKind.TehaiCode;
+                    }
+                    if (StrCheckData[..3].Equals("3n5",StringComparison.OrdinalIgnoreCase))
+                    {
+                        //3n5で始まるのは数量、ただし無いのも多い
+                        return EnumDataKind.Amount;
+                    }
+                    if (StrCheckData.Length <= Int_MAX_TagNo_Length && StrCheckData.Length >= Int_MIN_TagNo_Length)
+                    {
+                        //TagNoの文字列長が範囲内の場合はTagNoとする
                         return EnumDataKind.TAGNumber;
                     }
                     //ここまで来たら未定義なので、UnKnownとする
@@ -333,6 +357,9 @@ namespace ExcelDBImporter.Tool
                             continue;
                         case EnumDataKind.UnKnownData:
                             //未定義データだった場合
+                            continue;
+                        default:
+                            //それ以外の値が返ってきたら
                             continue;
                     }
                 }

@@ -69,7 +69,6 @@ namespace ExcelDBImporter.Models.View
         [Column(nameof(IntOther))]
         [Comment("その他作業")]
         public int? IntOther { get; set; }
-        public string? StrTagBarcode { get; set; }
         [Column(nameof(IsCompiled))]
         [Comment("集計されたかどうかを示す")]
         public bool IsCompiled { get; set; } = false;

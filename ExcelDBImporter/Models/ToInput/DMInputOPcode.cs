@@ -11,6 +11,6 @@ namespace ExcelDBImporter.Models.ToInput
     {
         public string StrClassName { get;} = nameof(DMInputOPcode)!;
         public QrOPcode QROPcode { get; set; }
-        public String? StrDummyField { get; set; } = "Dummy123";
+
     }
 }

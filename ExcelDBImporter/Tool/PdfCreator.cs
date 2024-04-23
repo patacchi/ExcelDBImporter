@@ -17,6 +17,11 @@ using DocumentFormat.OpenXml.Drawing.Charts;
 class PdfCreator
 {
     private const double MaerginRate = 0.75;
+    //PDF出力時の左右の余白の合計
+    private const int Const_PDF_Width_Margin_Sum = 60;
+    //PDF出力時の上下の余白の合計
+    private const int Const_PDF_Heigt_Margin_Sum = 40;
+    private const int Const_Image_To_TItle_Vertical_Maergin = 15;
 
     public void CreatePdf(Dictionary<string, MemoryStream> dicSvgStream, int imagesPerPage)
     {
@@ -68,16 +73,16 @@ class PdfCreator
             XGraphics gfx = XGraphics.FromPdfPage(page);
 
             // イメージの配置領域を計算
-            double availableWidth = pageSize.Width - 20; // ページの幅から余白を引く
-            double availableHeight = pageSize.Height - 20; // ページの高さから余白を引く
+            double availableWidth = pageSize.Width - Const_PDF_Width_Margin_Sum; // ページの幅から余白を引く
+            double availableHeight = pageSize.Height - Const_PDF_Heigt_Margin_Sum; // ページの高さから余白を引く
 
             //タイトルの行の高さを計測
             XFont fontTest = new XFont("源真ゴシック Medium", 10); // フォント設定
             XSize titleSizeTest = gfx.MeasureString("高さ計測用文字列", fontTest);
             // イメージのサイズを計算
             double imageSideLength = CalculateSquareSize(imagesPerPage, availableWidth, availableHeight,titleSizeTest.Height); // イメージの辺の長さ
-            double x = 10; // イメージの x 座標
-            double y = 10; // イメージの y 座標
+            double x = Const_PDF_Width_Margin_Sum/2; // イメージの x 座標  余白合計の半分
+            double y = Const_PDF_Heigt_Margin_Sum/2; // イメージの y 座標 余白合計の半分
 
             // １ページに画像を配置
             for (int i = 0; i < imagesPerPage; i++)
@@ -104,9 +109,10 @@ class PdfCreator
                 string title = imageEntry.Key;
                 XFont font = new XFont("源真ゴシック Medium", 10); // フォント設定
                 XSize titleSize = gfx.MeasureString(title, font); // タイトルのサイズを計測
-                double titleX = x + ((imageSideLength * MaerginRate) - titleSize.Width) / 2; // タイトルの x 座標
-                double titleY = y + (imageSideLength * MaerginRate)  + 15; // タイトルの y 座標
+                double titleX = x + ((imageSideLength * MaerginRate) - titleSize.Width) / 2; // タイトルの x 座標 センターに配置するため /2がある
+                double titleY = y + (imageSideLength * MaerginRate)  + Const_Image_To_TItle_Vertical_Maergin; // タイトルの y 座標
                 gfx.DrawString(title, font, XBrushes.Black, titleX, titleY);
+                //gfx.DrawString(title, font, XBrushes.Black, new XRect (titleX,titleY,titleSize.Width,titleSize.Height),XStringFormats.TopLeft);
                 // 次のイメージの座標を計算
                 //次のイメージまでの間隔を計算
                 (double Xnext, double Ynext) Spacing = CalculateSquareSpacing(availableWidth,
@@ -116,7 +122,7 @@ class PdfCreator
                 x += Spacing.Xnext; // 次の列に移動
                 if (x + imageSideLength > pageSize.Width) // ページの右端を超えたら
                 {
-                    x = 10; // 次の行の先頭に移動
+                    x = Const_PDF_Width_Margin_Sum/2; // 次の行の先頭に移動
                     y += Spacing.Ynext + titleSize.Height; // 次の行に移動
                 }
             }
