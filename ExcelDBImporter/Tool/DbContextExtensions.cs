@@ -17,6 +17,20 @@ public static class DbContextExtensions
     /// <param name="context"></param>
     /// <param name="entities">UPSert対象のList<TEntity></param>
     /// <returns>UpsertOprationのインスタンス、このインスタンスに対してメソッドチェーンを実行する</returns>
+    /*
+    使用例:
+
+    context.UpsertEntities(entitiesList)
+        .WithKeys(key => new
+        {
+            key.DateInOut,
+            key.StrOrderOrSeiban,
+            key.DblInputNum,
+            key.DblDeliverNum,
+            key.StrTehaiCode
+        })
+        .WithExcludedFields(ex => ex.StrDummy!)
+     */
     public static UpsertOperation<TEntity> UpsertEntities<TEntity>(this DbContext context, List<TEntity> entities)
         where TEntity : class
     {
