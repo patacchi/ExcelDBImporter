@@ -16,6 +16,7 @@ using System.Configuration;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using System.Drawing.Text;
+using Microsoft.Extensions.Options;
 
 namespace ExcelDBImporter
 {
@@ -139,6 +140,18 @@ namespace ExcelDBImporter
             List<ShInOut> listModeles = ReadCsvFile(StrInOutFilePath, header);
             //DBにUPSertする
             using ExcelDbContext context = new();
+            context.UpsertEntities(listModeles)
+                .WithKeys(key => new
+                {
+                    key.DateInOut,
+                    key.StrOrderOrSeiban,
+                    key.DblInputNum,
+                    key.DblDeliverNum,
+                    key.StrTehaiCode
+                })
+                .WithExcludedFields(ex => ex.StrDummy!)
+                .Execute();
+                
             context.BulkMerge(listModeles,
                 options => options.ColumnPrimaryKeyExpression = ShInOut => new
                 {
