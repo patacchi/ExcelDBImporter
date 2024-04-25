@@ -109,7 +109,7 @@ namespace ExcelDBImporter
             {
                 //TQRinputテーブルより、ViewMarsharingテーブルに集計を行う
                 List<ViewMarsharing>? views = dbContext.TQRinputs
-                                            .GroupBy(tqr => tqr.DateInputDate!.Value.Date)
+                                            .GroupBy(tqr => tqr.DateInputDate.Date)
                                             .Select(g => new ViewMarsharing
                                             {
                                                 DatePerDay = g.Key,

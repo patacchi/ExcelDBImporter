@@ -112,7 +112,7 @@ namespace ExcelDBImporter.Models
         public int TQRinputId { get; set; }
         [Column(nameof(DateInputDate))]
         [Comment("入力日時、作業開始日時として使用")]
-        public DateTime? DateInputDate { get; set; }
+        public DateTime DateInputDate { get; set; }
         [Column(nameof(DateToDate))]
         [Comment("終了日時、基本的に自動計算で入力する")]
         public DateTime? DateToDate { get; set; }
@@ -125,18 +125,44 @@ namespace ExcelDBImporter.Models
         [Column(nameof(StrTagBarcode))]
         [Comment("TAGの下にあるバーコード。とりあえず読み取った結果そのまま格納する")]
         public string? StrTagBarcode { get; set; }
+        [Column(nameof(IsCompiled))]
+        [Comment("ViewMarsharingテーブルに登録済みフラグ")]
+        public bool IsCompiled { get; set; } = false;
 
         /// <summary>
         /// 重複データがあるかどうかチェック。重複条件は、InputDateとQROpcodeが一致するものとする
+        /// もしくは、StrOrderNumかStrTagBarcodeに値が入っていて、この二つと、OPcode、InputDateのYear,Month,Dayまで同じ物が有れば重複とする
+        /// (同じタグ、現品票の物を同じOPCodeで同日に複数回読んだ)
         /// </summary>
         /// <param name="dbContext"></param>
         /// <param name="tqrinput">比較するTQRinputインスタンス</param>
         /// <returns>重複有りの場合はtrue、無しの場合はfalse</returns>
         public static bool IsDupe(in ExcelDbContext dbContext,TQRinput tqrinput)
         {
-            TQRinput? existing = dbContext.TQRinputs.FirstOrDefault(t => t.DateInputDate == tqrinput.DateInputDate
+            if (!(string.IsNullOrEmpty(tqrinput.StrOrderNum)
+                &&string.IsNullOrEmpty(tqrinput.StrTagBarcode)))
+            {
+                //付加情報どちらかに値が入っている場合
+                //付加情報、OPcode、DateInputのYear、Month,Dayまで同じデータが有れば重複とみなす
+                TQRinput? ExistStrAndSameDay = dbContext.TQRinputs
+                                                .FirstOrDefault(tqr => 
+                                                tqr.QROPcode == tqrinput.QROPcode 
+                                                && tqr.StrOrderNum == tqrinput.StrOrderNum
+                                                && tqr.StrTagBarcode == tqrinput.StrTagBarcode
+                                                && tqr.DateInputDate.Year == tqrinput.DateInputDate.Year
+                                                && tqr.DateInputDate.Month == tqrinput.DateInputDate.Month
+                                                && tqr.DateInputDate.Day == tqrinput.DateInputDate.Day);
+                if (ExistStrAndSameDay != null) 
+                {
+                    //同日に同じタグ、現品票を同じOPコードで読んだ場合
+                    //重複とみなす
+                    return true;
+                }
+            }
+            //残りは、DateInputとOPCodeが一致すれば重複とみなす
+            TQRinput? NoStrSameDayCode = dbContext.TQRinputs.FirstOrDefault(t => t.DateInputDate == tqrinput.DateInputDate
                                                                     && t.QROPcode == tqrinput.QROPcode);
-            if (existing == null) 
+            if (NoStrSameDayCode == null) 
             {
                 //重複無し
                 return false;
