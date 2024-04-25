@@ -141,6 +141,7 @@ namespace ExcelDBImporter
             //DBにUPSertする
             using ExcelDbContext context = new();
             context.UpsertEntities(listModeles)
+                /*
                 .WithKeys(key => new
                 {
                     key.DateInOut,
@@ -150,8 +151,10 @@ namespace ExcelDBImporter
                     key.StrTehaiCode
                 })
                 .WithExcludedFields(ex => ex.StrDummy!)
+                */
                 .Execute();
                 
+            /*
             context.BulkMerge(listModeles,
                 options => options.ColumnPrimaryKeyExpression = ShInOut => new
                 {
@@ -163,6 +166,8 @@ namespace ExcelDBImporter
                 }
             );
             context.BulkSaveChanges();
+            */
+            context.SaveChanges();
         }
         public void ShInOutToTQR()
         {

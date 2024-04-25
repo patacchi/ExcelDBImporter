@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using CsvHelper;
 using CsvHelper.Configuration.Attributes;
 using DocumentFormat.OpenXml.Office.CoverPageProps;
+using ExcelDBImporter.Tool;
 namespace ExcelDBImporter.Models
 {
     [Table(nameof(ShInOut))]
@@ -19,7 +20,7 @@ namespace ExcelDBImporter.Models
     [CultureInfo("ja-JP")]
     [LineBreakInQuotedFieldIsBadData(true)]
     [CsvHelper.Configuration.Attributes.ExceptionMessagesContainRawData(true)]
-    public class ShInOut
+    public class ShInOut : IHaveDefaultPattern<ShInOut>
     {
         [Column(nameof(ShInOutID))]
         [Ignore]
@@ -87,6 +88,39 @@ namespace ExcelDBImporter.Models
                 //重複あり
                 return true;
             }
+        }
+
+        Func<ShInOut, object>[] IHaveDefaultPattern<ShInOut>.DefaultExcludedFieldsPattern()
+        {
+            return
+            [
+                e =>
+                {
+                    return new
+                    {
+                        e.StrStockCode
+                    };
+                }
+            ];
+        }
+
+        Func<ShInOut, object>[] IHaveDefaultPattern<ShInOut>.DefaultKeyPattern()
+        {
+            return
+            [
+                key =>
+                {
+                    return new
+                    {
+                        key.ShInOutID/*,
+                        key.DateInOut,
+                        key.StrOrderOrSeiban,
+                        key.DblInputNum,
+                        key.DblDeliverNum,
+                        key.StrTehaiCode*/
+                   };
+                }
+            ];
         }
     }
 }
