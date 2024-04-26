@@ -17,6 +17,7 @@ using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using System.Drawing.Text;
 using Microsoft.Extensions.Options;
+using DocumentFormat.OpenXml.InkML;
 
 namespace ExcelDBImporter
 {
@@ -168,7 +169,10 @@ namespace ExcelDBImporter
             context.BulkSaveChanges();
             */
             context.SaveChanges();
+            ShInOut newEntity = listModeles[0];
+            ShInOut? existing = context.ShInOuts.FirstOrDefault(s => s.StrKanriKa == newEntity.StrKanriKa && s.StrKishu == newEntity.StrKishu);
         }
+        
         public void ShInOutToTQR()
         {
             const int Const_Plus_Milliseccond = 100;

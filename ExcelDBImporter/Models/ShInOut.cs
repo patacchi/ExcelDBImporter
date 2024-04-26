@@ -12,6 +12,7 @@ using CsvHelper;
 using CsvHelper.Configuration.Attributes;
 using DocumentFormat.OpenXml.Office.CoverPageProps;
 using ExcelDBImporter.Tool;
+using System.Linq.Expressions;
 namespace ExcelDBImporter.Models
 {
     [Table(nameof(ShInOut))]
@@ -68,6 +69,14 @@ namespace ExcelDBImporter.Models
         [Optional]
         public string? StrDummy { get; set; }
 
+        [NotMapped]
+        [Optional]
+        [Ignore]
+        public Expression<Func<ShInOut, object>> DefauldExcludePattern { get; } = exclude => new
+                                                {
+                                                    exclude.StrStockCode
+                                                };
+
         public static bool IsDupe(ExcelDbContext dbContext,ShInOut shInOut,out ShInOut? outExisting)
         {
             outExisting = dbContext.ShInOuts
@@ -90,19 +99,17 @@ namespace ExcelDBImporter.Models
             }
         }
 
-        Func<ShInOut, object>[] IHaveDefaultPattern<ShInOut>.DefaultExcludedFieldsPattern()
+        /*
+        Expression<Func<ShInOut, object>> IHaveDefaultPattern<ShInOut>.DefaultExcludedFieldsPattern
         {
-            return
-            [
-                e =>
-                {
-                    return new
-                    {
-                        e.StrStockCode
-                    };
-                }
-            ];
+            e => new
+            {
+                e => e.StrStockCode
+            };
+
+
         }
+        */
 
         Func<ShInOut, object>[] IHaveDefaultPattern<ShInOut>.DefaultKeyPattern()
         {
@@ -111,13 +118,13 @@ namespace ExcelDBImporter.Models
                 key =>
                 {
                     return new
+
                     {
-                        key.ShInOutID/*,
                         key.DateInOut,
                         key.StrOrderOrSeiban,
                         key.DblInputNum,
                         key.DblDeliverNum,
-                        key.StrTehaiCode*/
+                        key.StrTehaiCode
                    };
                 }
             ];

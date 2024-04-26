@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -15,7 +17,7 @@ namespace ExcelDBImporter.Tool
     public interface IHaveDefaultPattern<TEntity> where TEntity : class
     {
         Func<TEntity, object>[] DefaultKeyPattern();
-        Func<TEntity, object>[] DefaultExcludedFieldsPattern();
+        Expression<Func<TEntity, object>> DefauldExcludePattern { get; }
     }
 
     /// <summary>
@@ -72,6 +74,55 @@ namespace ExcelDBImporter.Tool
                 }
             }
         }
+        public static TEntity? GetEntityByFields<TEntity>(
+      this DbContext context,
+      TEntity entity1,
+      Expression<Func<TEntity, object>> fieldSelector) where TEntity : class
+        {
+            // フィールド名を取得
+            var fieldNames = GetFieldNames(fieldSelector);
+            // 比較関数を自動的に生成
+            var equalityComparer = GenerateEqualityComparer<TEntity>(fieldNames);
+
+            // 比較関数を使用してエンティティを取得
+            var existingEntity = context.Set<TEntity>().FirstOrDefault(origin => equalityComparer(origin, entity1));
+            return existingEntity;
+        }
+
+        // ラムダ式からフィールド名を取得するメソッド
+        private static string[] GetFieldNames<TEntity>(Expression<Func<TEntity, object>> fieldSelector)
+        {
+            var body = fieldSelector.Body;
+            if (body is NewExpression newExpression)
+            {
+                return newExpression.Members.Select(m => m.Name).ToArray();
+            }
+            throw new ArgumentException("Invalid field selector expression.");
+        }
+
+        // 比較関数を自動的に生成するメソッド
+        private static Func<TEntity, TEntity, bool> GenerateEqualityComparer<TEntity>(string[] propertyNames)
+        {
+            var entityType = typeof(TEntity);
+            var parameter1 = Expression.Parameter(entityType, "entity1");
+            var parameter2 = Expression.Parameter(entityType, "entity2");
+
+            var expressions = propertyNames.Select(propertyName =>
+            {
+                var property = entityType.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                if (property == null)
+                    throw new ArgumentException($"Property '{propertyName}' not found in entity '{entityType.Name}'.");
+
+                var property1 = Expression.Property(parameter1, property);
+                var property2 = Expression.Property(parameter2, property);
+                return Expression.Equal(property1, property2);
+            });
+
+            var body = expressions.Aggregate(Expression.AndAlso);
+
+            var lambda = Expression.Lambda<Func<TEntity, TEntity, bool>>(body, parameter1, parameter2);
+            return lambda.Compile();
+        }
 
 
         public class UpsertOperation<TEntity> where TEntity : class
@@ -79,12 +130,17 @@ namespace ExcelDBImporter.Tool
             private readonly DbContext _context;
             private readonly List<TEntity> _entities;
             private Func<TEntity, object>[] _keySelectors = null!;
-            private Func<TEntity, object>[] _excludedFields = null!;
+            private Expression<Func<TEntity, object>> _excludedFields;
 
             public UpsertOperation(DbContext context, List<TEntity> entities)
             {
                 _context = context;
                 _entities = entities;
+                GetDefaultPattern(context, entities);
+            }
+
+            private void GetDefaultPattern(DbContext context, List<TEntity> entities)
+            {
                 // モデルクラスが IHaveDefaultPattern インターフェイスを実装している場合、デフォルトのパターンを自動的に適用する
                 if (typeof(IHaveDefaultPattern<TEntity>).IsAssignableFrom(typeof(TEntity)))
                 {
@@ -93,7 +149,7 @@ namespace ExcelDBImporter.Tool
                     if (defaultPattern != null)
                     {
                         _keySelectors = defaultPattern.DefaultKeyPattern();
-                        _excludedFields = defaultPattern.DefaultExcludedFieldsPattern();
+                        _excludedFields = defaultPattern.DefauldExcludePattern;
                     }
                 }
             }
@@ -114,13 +170,25 @@ namespace ExcelDBImporter.Tool
             /// </summary>
             /// <param name="excludedFields">Func<TEntity, object>[](のラムダ式)</param>
             /// <returns>メソッドチェーンのために自分自身のクラスを返す</returns>
-            public UpsertOperation<TEntity> WithExcludedFields(params Func<TEntity, object>[] excludedFields)
+            public UpsertOperation<TEntity> WithExcludedFields(Expression<Func<TEntity, object>> excludedFields)
             {
                 _excludedFields = excludedFields;
                 return this;
             }
 
+            //private static bool IsNewEntity(DbContext dbContext, TEntity entity, Func<TEntity, object>[] keySelectors,out TEntity? existingEntity)
+            private static bool IsNewEntity(DbContext dbContext, TEntity entity, Func<TEntity, object>[] keySelectors)
+            {
+                var existingEntitiesQuery = dbContext.Set<TEntity>().AsQueryable();
 
+                foreach (var keySelector in keySelectors)
+                {
+                    var keyFieldValue = keySelector(entity);
+                    existingEntitiesQuery = existingEntitiesQuery.Where(existingEntity => keySelector(existingEntity).Equals(keyFieldValue));
+                }
+                
+                return existingEntitiesQuery.FirstOrDefault() == null;
+            }
             /// <summary>
             /// UPSertを実行する
             /// </summary>
@@ -142,7 +210,7 @@ namespace ExcelDBImporter.Tool
                     else
                     {
                         var entry = _context.Entry(entity);
-                        var entityType = _context.Model.FindEntityType(typeof(TEntity));
+                        IEntityType? entityType = _context.Model.FindEntityType(typeof(TEntity));
                         if (entityType != null)
                         {
                             var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
@@ -165,7 +233,7 @@ namespace ExcelDBImporter.Tool
                             throw new ArgumentException(nameof(TEntity));
                         }
                     }
-
+                    /*
                     var existingEntity = dbSet.Find(keyValues);
 
                     if (existingEntity != null)
@@ -178,14 +246,38 @@ namespace ExcelDBImporter.Tool
                         // 複合キー条件に一致するエンティティが存在しない場合、Insertを行う
                         dbSet.Add(entity);
                     }
-
+                    */
+                    //既存エンティティかどうかにより処理を分岐する
+                    if (_keySelectors != null && _keySelectors.Length > 0)
+                    {
+                        TEntity? existingEntity = null;
+                        //if (IsNewEntity(_context, entity, _keySelectors,out existingEntity))
+                        if (IsNewEntity(_context, entity, _keySelectors))
+                            {
+                            //新規エンティティの場合
+                            //Insert
+                            dbSet.Add(entity);
+                        }
+                        else
+                        {
+                            //既存のエンティティの場合
+                            //Update
+                            if (existingEntity != null)
+                            {
+                                //複合キー条件に一致するエンティティが存在する場合、Updateを行う
+                                _context.Entry(existingEntity).CurrentValues.SetValues(entity);
+                            }
+                        }
+                    }
+                        
                     // 除外フィールドが指定されている場合、そのフィールドを除外する
                     if (_excludedFields != null)
                     {
                         var entry = _context.Entry(entity);
-                        foreach (var excludedField in _excludedFields)
+                        string[] strExcludeList = GetFieldNames(_excludedFields);
+                        foreach (string strExclude in strExcludeList)
                         {
-                            entry.Property(excludedField(entity).ToString()!).IsModified = false;
+                            entry.Property(strExclude!).IsModified = false;
                         }
                     }
                     if (ExcludeAutoIncrement)
