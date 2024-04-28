@@ -16,7 +16,7 @@ namespace ExcelDBImporter.Tool
     /// <typeparam name="TEntity">モデルクラス</typeparam>
     public interface IHaveDefaultPattern<TEntity> where TEntity : class
     {
-        Func<TEntity, object>[] DefaultKeyPattern();
+        Expression<Func<TEntity, object>> DefaultKeyPattern { get; }
         Expression<Func<TEntity, object>> DefauldExcludePattern { get; }
     }
 
@@ -74,10 +74,16 @@ namespace ExcelDBImporter.Tool
                 }
             }
         }
-        public static TEntity? GetEntityByFields<TEntity>(
-      this DbContext context,
-      TEntity entity1,
-      Expression<Func<TEntity, object>> fieldSelector) where TEntity : class
+        /// <summary>
+        /// 指定されたフィールド群のうち、相違があればエンティティを返す
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="entity">検査対象のエンティティ</param>
+        /// <param name="fieldSelector">対象フィールドをラムダ式形式で指定</param>
+        /// <returns></returns>
+        public static TEntity? GetEntitySpecFieldEqual<TEntity>(this DbContext context, TEntity entity,
+                                                          Expression<Func<TEntity, object>> fieldSelector) where TEntity : class
         {
             // フィールド名を取得
             var fieldNames = GetFieldNames(fieldSelector);
@@ -85,10 +91,46 @@ namespace ExcelDBImporter.Tool
             var equalityComparer = GenerateEqualityComparer<TEntity>(fieldNames);
 
             // 比較関数を使用してエンティティを取得
-            var existingEntity = context.Set<TEntity>().FirstOrDefault(origin => equalityComparer(origin, entity1));
+            var existingEntity = context.Set<TEntity>().FirstOrDefault(origin => equalityComparer(origin, entity));
             return existingEntity;
         }
 
+        /// <summary>
+        /// デフォルトパターンで指定されたフィールドで、相違があればエンティティを返す
+        /// </summary>
+        /// <typeparam name="TEntity">フィールドパターン指定しない場合、IHaveDefaultPattern<TEntity>の実装が必須</typeparam>
+        /// <param name="context"></param>
+        /// <param name="entity">検査対象のエンティティ</param>
+        /// <returns></returns>
+        public static TEntity? GetEntitySpecFieldEqual<TEntity>(this DbContext context, TEntity entity) 
+                                                                where TEntity : class,IHaveDefaultPattern<TEntity>
+        {
+            IHaveDefaultPattern<TEntity>? IFaceDefault = GetDefaultPatternInterFace<TEntity>();
+            return entity;
+        }
+        /// <summary>
+        /// IHaveDefaultPatternインターフェースを実装していれば、デフォルトパターンを得る
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="entities"></param>
+        /// <returns>IHaveDefaultPattern<T>のインターフェース、インターフェース実装無い場合はnull</returns>
+        /// <exception cref="ArgumentException"></exception>
+        private static IHaveDefaultPattern<TEntity>? GetDefaultPatternInterFace<TEntity>() where TEntity : class
+        {
+            // モデルクラスが IHaveDefaultPattern インターフェースを実装している場合、デフォルトのパターンを自動的に適用する
+            if (typeof(IHaveDefaultPattern<TEntity>).IsAssignableFrom(typeof(TEntity)))
+            {
+                var defaultPattern = (IHaveDefaultPattern<TEntity>?)Activator.CreateInstance(typeof(TEntity));
+                //IHaveDefaultPatternインターフェースが実装されていれば、インターフェースを返す
+                if (defaultPattern != null)
+                {
+                    return defaultPattern;
+                }
+                return null;
+            }
+            throw new ArgumentException($"{nameof(TEntity)} クラスは {nameof(IHaveDefaultPattern<TEntity>)} インターフェースを実装していませんでした");
+        }
         // ラムダ式からフィールド名を取得するメソッド
         private static string[] GetFieldNames<TEntity>(Expression<Func<TEntity, object>> fieldSelector)
         {
@@ -104,7 +146,7 @@ namespace ExcelDBImporter.Tool
         private static Func<TEntity, TEntity, bool> GenerateEqualityComparer<TEntity>(string[] propertyNames)
         {
             var entityType = typeof(TEntity);
-            var parameter1 = Expression.Parameter(entityType, "entity1");
+            var parameter1 = Expression.Parameter(entityType, "entity");
             var parameter2 = Expression.Parameter(entityType, "entity2");
 
             var expressions = propertyNames.Select(propertyName =>
@@ -127,30 +169,23 @@ namespace ExcelDBImporter.Tool
 
         public class UpsertOperation<TEntity> where TEntity : class
         {
-            private readonly DbContext _context;
-            private readonly List<TEntity> _entities;
-            private Func<TEntity, object>[] _keySelectors = null!;
-            private Expression<Func<TEntity, object>> _excludedFields;
+            public Expression<Func<TEntity, object>>? KeySelectors { get; set; } = null!;
+            public Expression<Func<TEntity, object>>? ExcludedFields { get; set; }
+
+            public DbContext Context { get; }
+
+            public List<TEntity> Entities { get; }
 
             public UpsertOperation(DbContext context, List<TEntity> entities)
             {
-                _context = context;
-                _entities = entities;
-                GetDefaultPattern(context, entities);
-            }
-
-            private void GetDefaultPattern(DbContext context, List<TEntity> entities)
-            {
-                // モデルクラスが IHaveDefaultPattern インターフェイスを実装している場合、デフォルトのパターンを自動的に適用する
-                if (typeof(IHaveDefaultPattern<TEntity>).IsAssignableFrom(typeof(TEntity)))
+                Context = context;
+                Entities = entities;
+                IHaveDefaultPattern<TEntity>? IFaceDefault = GetDefaultPatternInterFace<TEntity>();
+                if (IFaceDefault != null)
                 {
-                    var defaultPattern = (IHaveDefaultPattern<TEntity>?)Activator.CreateInstance(typeof(TEntity));
-                    //デフォルトパターンが取得できた場合は、設定する
-                    if (defaultPattern != null)
-                    {
-                        _keySelectors = defaultPattern.DefaultKeyPattern();
-                        _excludedFields = defaultPattern.DefauldExcludePattern;
-                    }
+                    //デフォルトパターンが見つかったら設定する
+                    KeySelectors = IFaceDefault.DefaultKeyPattern;
+                    ExcludedFields = IFaceDefault.DefauldExcludePattern;
                 }
             }
 
@@ -159,9 +194,9 @@ namespace ExcelDBImporter.Tool
             /// </summary>
             /// <param name="keySelectors">Func<TEntity, object>[](のラムダ式)</param>
             /// <returns>メソッドチェーンのために自分自身のクラスを返す</returns>
-            public UpsertOperation<TEntity> WithKeys(params Func<TEntity, object>[] keySelectors)
+            public UpsertOperation<TEntity> WithKeys(Expression<Func<TEntity, object>>? keySelectors)
             {
-                _keySelectors = keySelectors;
+                KeySelectors = keySelectors;
                 return this;
             }
 
@@ -172,7 +207,7 @@ namespace ExcelDBImporter.Tool
             /// <returns>メソッドチェーンのために自分自身のクラスを返す</returns>
             public UpsertOperation<TEntity> WithExcludedFields(Expression<Func<TEntity, object>> excludedFields)
             {
-                _excludedFields = excludedFields;
+                ExcludedFields = excludedFields;
                 return this;
             }
 
@@ -197,20 +232,21 @@ namespace ExcelDBImporter.Tool
             /// <exception cref="ArgumentException"></exception>
             public void Execute(bool ExcludeAutoIncrement = true)
             {
-                DbSet<TEntity> dbSet = _context.Set<TEntity>();
+                DbSet<TEntity> dbSet = Context.Set<TEntity>();
 
-                foreach (var entity in _entities)
+                foreach (var entity in Entities)
                 {
+                    /*
                     object[] keyValues;
 
-                    if (_keySelectors != null && _keySelectors.Length > 0)
+                    if (KeySelectors != null && KeySelectors.Length > 0)
                     {
-                        keyValues = _keySelectors.Select(selector => selector(entity)).ToArray();
+                        keyValues = KeySelectors.Select(selector => selector(entity)).ToArray();
                     }
                     else
                     {
-                        var entry = _context.Entry(entity);
-                        IEntityType? entityType = _context.Model.FindEntityType(typeof(TEntity));
+                        var entry = Context.Entry(entity);
+                        IEntityType? entityType = Context.Model.FindEntityType(typeof(TEntity));
                         if (entityType != null)
                         {
                             var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
@@ -233,6 +269,7 @@ namespace ExcelDBImporter.Tool
                             throw new ArgumentException(nameof(TEntity));
                         }
                     }
+                    */
                     /*
                     var existingEntity = dbSet.Find(keyValues);
 
@@ -247,12 +284,14 @@ namespace ExcelDBImporter.Tool
                         dbSet.Add(entity);
                     }
                     */
+
+                    /*
                     //既存エンティティかどうかにより処理を分岐する
-                    if (_keySelectors != null && _keySelectors.Length > 0)
+                    if (KeySelectors != null && KeySelectors.Length > 0)
                     {
                         TEntity? existingEntity = null;
                         //if (IsNewEntity(_context, entity, _keySelectors,out existingEntity))
-                        if (IsNewEntity(_context, entity, _keySelectors))
+                        if (IsNewEntity(Context, entity, KeySelectors))
                             {
                             //新規エンティティの場合
                             //Insert
@@ -265,16 +304,23 @@ namespace ExcelDBImporter.Tool
                             if (existingEntity != null)
                             {
                                 //複合キー条件に一致するエンティティが存在する場合、Updateを行う
-                                _context.Entry(existingEntity).CurrentValues.SetValues(entity);
+                                Context.Entry(existingEntity).CurrentValues.SetValues(entity);
                             }
                         }
                     }
-                        
-                    // 除外フィールドが指定されている場合、そのフィールドを除外する
-                    if (_excludedFields != null)
+                    */
+
+                    //既存エンティティかどうかによって処理を分岐する
+                    if (KeySelectors != null)
                     {
-                        var entry = _context.Entry(entity);
-                        string[] strExcludeList = GetFieldNames(_excludedFields);
+                        TEntity? existing = Context.GetEntitySpecFieldEqual(entity, KeySelectors);
+                    }
+                    
+                    // 除外フィールドが指定されている場合、そのフィールドを除外する
+                    if (ExcludedFields != null)
+                    {
+                        var entry = Context.Entry(entity);
+                        string[] strExcludeList = GetFieldNames(ExcludedFields);
                         foreach (string strExclude in strExcludeList)
                         {
                             entry.Property(strExclude!).IsModified = false;
@@ -284,11 +330,11 @@ namespace ExcelDBImporter.Tool
                     {
                         //オートインクリメント列自動除外有効の時
                         //オートインクリメント列を取得し、除外フィールドとしてマーク
-                        IEnumerable<string> AutoIncrements = _context.FindAutoIncrementFields<TEntity>();
+                        IEnumerable<string> AutoIncrements = Context.FindAutoIncrementFields<TEntity>();
                         if (AutoIncrements.Any())
                         {
                             //オートインクリメント列が見つかったら、除外フィールドとしてマークする
-                            var entry = _context.Entry(entity);
+                            var entry = Context.Entry(entity);
                             foreach (string StrAutoProp in AutoIncrements)
                             {
                                 entry.Property(StrAutoProp).IsModified = false;
@@ -297,7 +343,7 @@ namespace ExcelDBImporter.Tool
                     }
                 }
 
-                _context.SaveChanges();
+                Context.SaveChanges();
             }
         }
     }

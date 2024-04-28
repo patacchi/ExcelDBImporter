@@ -56,6 +56,9 @@ namespace ExcelDBImporter.Models
         [Microsoft.EntityFrameworkCore.Comment("手配機種")]
         [CsvHelper.Configuration.Attributes.Index(9)]
         public string? StrKishu { get; set; }
+        /// <summary>
+        /// 貯蔵記号
+        /// </summary>
         [Column(nameof(StrStockCode))]
         [Microsoft.EntityFrameworkCore.Comment("貯蔵記号")]
         [CsvHelper.Configuration.Attributes.Index(14)]
@@ -69,13 +72,30 @@ namespace ExcelDBImporter.Models
         [Optional]
         public string? StrDummy { get; set; }
 
+        /// <summary>
+        /// デフォルトの除外パターンを設定する
+        /// </summary>
         [NotMapped]
         [Optional]
         [Ignore]
         public Expression<Func<ShInOut, object>> DefauldExcludePattern { get; } = exclude => new
-                                                {
-                                                    exclude.StrStockCode
-                                                };
+        {
+            exclude.StrStockCode
+        };
+        /// <summary>
+        /// デフォルトのキーパターンを設定する
+        /// </summary>
+        [NotMapped, Optional]
+        [Ignore]
+        Expression<Func<ShInOut, object>> IHaveDefaultPattern<ShInOut>.DefaultKeyPattern => keys => new 
+        {
+            keys.DateInOut,
+            keys.StrOrderOrSeiban,
+            keys.StrKanriKa,      
+            keys.StrTehaiCode,
+            keys.DblInputNum, 
+            keys.DblDeliverNum
+        };
 
         public static bool IsDupe(ExcelDbContext dbContext,ShInOut shInOut,out ShInOut? outExisting)
         {
@@ -83,6 +103,7 @@ namespace ExcelDBImporter.Models
                                     .FirstOrDefault(s =>
                                     s.DateInOut == shInOut.DateInOut
                                     && s.StrOrderOrSeiban == shInOut.StrOrderOrSeiban
+                                    && s.StrKanriKa == shInOut.StrKanriKa
                                     && s.StrTehaiCode == shInOut.StrTehaiCode
                                     && s.DblInputNum == shInOut.DblInputNum
                                     && s.DblDeliverNum == shInOut.DblDeliverNum
@@ -97,37 +118,6 @@ namespace ExcelDBImporter.Models
                 //重複あり
                 return true;
             }
-        }
-
-        /*
-        Expression<Func<ShInOut, object>> IHaveDefaultPattern<ShInOut>.DefaultExcludedFieldsPattern
-        {
-            e => new
-            {
-                e => e.StrStockCode
-            };
-
-
-        }
-        */
-
-        Func<ShInOut, object>[] IHaveDefaultPattern<ShInOut>.DefaultKeyPattern()
-        {
-            return
-            [
-                key =>
-                {
-                    return new
-
-                    {
-                        key.DateInOut,
-                        key.StrOrderOrSeiban,
-                        key.DblInputNum,
-                        key.DblDeliverNum,
-                        key.StrTehaiCode
-                   };
-                }
-            ];
         }
     }
 }
