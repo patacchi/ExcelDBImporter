@@ -63,8 +63,10 @@ namespace ExcelDBImporter.Models
         [Microsoft.EntityFrameworkCore.Comment("貯蔵記号")]
         [CsvHelper.Configuration.Attributes.Index(14)]
         public string? StrStockCode { get; set; }
+        /// <summary>
+        /// 在庫数量
+        /// </summary>
         [Column(nameof(DblRemainAmount))]
-
         [Microsoft.EntityFrameworkCore.Comment("在庫数量")]
         [CsvHelper.Configuration.Attributes.Index(18)]
         public double? DblRemainAmount { get; set; } = 0;

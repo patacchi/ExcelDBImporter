@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
+using DocumentFormat.OpenXml.Vml.Office;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -17,7 +18,16 @@ namespace ExcelDBImporter.Tool
     public interface IHaveDefaultPattern<TEntity> where TEntity : class
     {
         Expression<Func<TEntity, object>> DefaultKeyPattern { get; }
-        Expression<Func<TEntity, object>> DefauldExcludePattern { get; }
+        Expression<Func<TEntity, object>>? DefauldExcludePattern { get; }
+    }
+
+    public static class TypeExtensions
+    {
+        // Nullable型かどうかを判定する拡張メソッド
+        public static bool IsNullable(this Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
     }
 
     /// <summary>
@@ -28,7 +38,7 @@ namespace ExcelDBImporter.Tool
         /// <summary>
         /// List<TEntity>を引数に、UPSertを行う
         /// </summary>
-        /// <typeparam name="TEntity">モデルクラス</typeparam>
+        /// <typeparam name="TEntity">モデルクラス,IHaveDefaultPatternインターフェースの実装を必須とする</typeparam>
         /// <param name="context"></param>
         /// <param name="entities">UPSert対象のList<TEntity></param>
         /// <returns>UpsertOprationのインスタンス、このインスタンスに対してメソッドチェーンを実行する</returns>
@@ -48,7 +58,7 @@ namespace ExcelDBImporter.Tool
          */
 
         public static UpsertOperation<TEntity> UpsertEntities<TEntity>(this DbContext context, List<TEntity> entities)
-        where TEntity : class
+        where TEntity : class,IHaveDefaultPattern<TEntity>
         {
             return new UpsertOperation<TEntity>(context, entities);
         }
@@ -87,11 +97,17 @@ namespace ExcelDBImporter.Tool
         {
             // フィールド名を取得
             var fieldNames = GetFieldNames(fieldSelector);
+            /*
             // 比較関数を自動的に生成
             var equalityComparer = GenerateEqualityComparer<TEntity>(fieldNames);
+            */
+            //フィールド名と値のDictinaoryを得る
+            Dictionary<string,object> dicEqualField = ConvertToFieldValueDic(entity, fieldNames);
+            //得られたDictionaryから比較関数を取得
+            var FirstExpression = CreateFilterExpression<TEntity>(dicEqualField);
 
             // 比較関数を使用してエンティティを取得
-            var existingEntity = context.Set<TEntity>().FirstOrDefault(origin => equalityComparer(origin, entity));
+            var existingEntity = context.Set<TEntity>().FirstOrDefault(FirstExpression);
             return existingEntity;
         }
 
@@ -114,7 +130,7 @@ namespace ExcelDBImporter.Tool
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="context"></param>
         /// <param name="entities"></param>
-        /// <returns>IHaveDefaultPattern<T>のインターフェース、インターフェース実装無い場合はnull</returns>
+        /// <returns>IHaveDefaultPattern<TEntity>のインターフェース、インターフェース実装無い場合はnull</returns>
         /// <exception cref="ArgumentException"></exception>
         private static IHaveDefaultPattern<TEntity>? GetDefaultPatternInterFace<TEntity>() where TEntity : class
         {
@@ -137,9 +153,92 @@ namespace ExcelDBImporter.Tool
             var body = fieldSelector.Body;
             if (body is NewExpression newExpression)
             {
+                if (newExpression.Members == null)
+                {
+                    //式本体が見つからなかった場合(?)
+                    return [];
+                }
                 return newExpression.Members.Select(m => m.Name).ToArray();
             }
             throw new ArgumentException("Invalid field selector expression.");
+        }
+
+        /// <summary>
+        /// モデルクラスTentityとフィールド名の配列を引数にして、Dictionary<strFieldName,objectValue>を返す
+        /// </summary>
+        /// <typeparam name="TEntity">モデルクラス</typeparam>
+        /// <param name="entity"></param>
+        /// <param name="fields">フィールド名の配列</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        private static Dictionary<string, object> ConvertToFieldValueDic<TEntity>(TEntity entity, string[] fields)
+        {
+            var dictionary = new Dictionary<string, object>();
+            var type = typeof(TEntity);
+
+            foreach (var field in fields)
+            {
+                var property = type.GetProperty(field, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                if (property != null)
+                {
+                    var value = property.GetValue(entity);
+                    if(value != null)
+                    {
+                        dictionary.Add(field, value);
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException($"Property '{field}' not found in type {type.Name}");
+                }
+            }
+            return dictionary;
+        }
+
+        /// <summary>
+        /// フィールド名とValueのDictionaryを引数に取り、比較関数を自動的に作成するメソッド
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="criteria">Dictionary<string,object> で、キーがフィールド名、Valueがその値</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static Expression<Func<TEntity, bool>> CreateFilterExpression<TEntity>(Dictionary<string, object> criteria)
+        {
+            var parameter = Expression.Parameter(typeof(TEntity), "x");
+            var expressions = new List<Expression>();
+
+            foreach (var criterion in criteria)
+            {
+                var property = typeof(TEntity).GetProperty(criterion.Key);
+                if (property == null)
+                {
+                    throw new ArgumentException($"Property '{criterion.Key}' not found in type {typeof(TEntity).Name}");
+                }
+
+                var propertyExpression = Expression.Property(parameter, property);
+
+                var targetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+                var value = Convert.ChangeType(criterion.Value, targetType);
+                ConstantExpression valueExpression;
+                Expression equalExpression;
+                if (property.PropertyType.IsNullable() && targetType.IsValueType)
+                {
+                    // Nullable型のプロパティと非Nullable型の値を比較する場合、Nullable型のプロパティもNullable型に変換する
+                    var nullableType = typeof(Nullable<>).MakeGenericType(targetType);
+                    var nullablePropertyExpression = Expression.Convert(propertyExpression, targetType);
+                    valueExpression = Expression.Constant(value, targetType);
+                    equalExpression = Expression.Equal(nullablePropertyExpression, valueExpression);
+                }
+                else
+                {
+                    valueExpression = Expression.Constant(value, targetType);
+                    equalExpression = Expression.Equal(propertyExpression, valueExpression);
+                }
+                expressions.Add(equalExpression);
+            }
+
+            var body = expressions.Aggregate(Expression.AndAlso);
+            return Expression.Lambda<Func<TEntity, bool>>(body, parameter);
         }
 
         // 比較関数を自動的に生成するメソッド
@@ -175,6 +274,10 @@ namespace ExcelDBImporter.Tool
             public DbContext Context { get; }
 
             public List<TEntity> Entities { get; }
+            /// <summary>
+            /// 除外フィールドのフィールド名の配列
+            /// </summary>
+            private string[] StrExcludeArray { get; set; } = null!;
 
             public UpsertOperation(DbContext context, List<TEntity> entities)
             {
@@ -185,7 +288,11 @@ namespace ExcelDBImporter.Tool
                 {
                     //デフォルトパターンが見つかったら設定する
                     KeySelectors = IFaceDefault.DefaultKeyPattern;
-                    ExcludedFields = IFaceDefault.DefauldExcludePattern;
+                    if (IFaceDefault.DefauldExcludePattern != null)
+                    {
+                        //除外パターンはオプションなので、指定され手入れば設定する
+                        ExcludedFields = IFaceDefault.DefauldExcludePattern;
+                    }
                 }
             }
 
@@ -233,6 +340,18 @@ namespace ExcelDBImporter.Tool
             public void Execute(bool ExcludeAutoIncrement = true)
             {
                 DbSet<TEntity> dbSet = Context.Set<TEntity>();
+                //キーパターンが定義されているかどうかチェックする
+                if (KeySelectors == null)
+                {
+                    //この時点でKeySelectorsにラムダ式が設定されていなかったら例外を投げて終了する
+                    throw new ArgumentException($"{nameof(TEntity)} クラスは {nameof(IHaveDefaultPattern<TEntity>)} インターフェースを実装していませんでした");
+                }
+                if (ExcludedFields != null)
+                {
+                    //除外パターンが設定されていた場合、除外フィールドのフィールド名の配列を得る
+                    StrExcludeArray = GetFieldNames(ExcludedFields);
+                }
+
 
                 foreach (var entity in Entities)
                 {
@@ -310,39 +429,77 @@ namespace ExcelDBImporter.Tool
                     }
                     */
 
-                    //既存エンティティかどうかによって処理を分岐する
-                    if (KeySelectors != null)
-                    {
-                        TEntity? existing = Context.GetEntitySpecFieldEqual(entity, KeySelectors);
-                    }
-                    
-                    // 除外フィールドが指定されている場合、そのフィールドを除外する
-                    if (ExcludedFields != null)
-                    {
-                        var entry = Context.Entry(entity);
-                        string[] strExcludeList = GetFieldNames(ExcludedFields);
-                        foreach (string strExclude in strExcludeList)
-                        {
-                            entry.Property(strExclude!).IsModified = false;
-                        }
-                    }
-                    if (ExcludeAutoIncrement)
-                    {
-                        //オートインクリメント列自動除外有効の時
-                        //オートインクリメント列を取得し、除外フィールドとしてマーク
-                        IEnumerable<string> AutoIncrements = Context.FindAutoIncrementFields<TEntity>();
-                        if (AutoIncrements.Any())
-                        {
-                            //オートインクリメント列が見つかったら、除外フィールドとしてマークする
-                            var entry = Context.Entry(entity);
-                            foreach (string StrAutoProp in AutoIncrements)
-                            {
-                                entry.Property(StrAutoProp).IsModified = false;
-                            }
-                        }
-                    }
-                }
+                    //既存エンティティかどうかにより処理を分岐する
+                    TEntity? existing = Context.GetEntitySpecFieldEqual(entity, KeySelectors);
 
+                    switch (existing != null)
+                    {
+                        case true:
+                            {
+                                //既存エンティティだった場合
+                                //Update処理を行う
+                                Context.Entry(existing).CurrentValues.SetValues(entity);
+                                // 除外フィールドが指定されている場合、そのフィールドを除外する
+                                if (StrExcludeArray.Length > 0)
+                                {
+                                    var entry = Context.Entry(existing);
+                                    foreach (string strExclude in StrExcludeArray)
+                                    {
+                                        entry.Property(strExclude!).IsModified = false;
+                                    }
+                                }
+                                if (ExcludeAutoIncrement)
+                                {
+                                    //オートインクリメント列自動除外有効の時
+                                    //オートインクリメント列を取得し、除外フィールドとしてマーク
+                                    IEnumerable<string> AutoIncrements = Context.FindAutoIncrementFields<TEntity>();
+                                    if (AutoIncrements.Any())
+                                    {
+                                        //オートインクリメント列が見つかったら、除外フィールドとしてマークする
+                                        var entry = Context.Entry(existing);
+                                        foreach (string StrAutoProp in AutoIncrements)
+                                        {
+                                            entry.Property(StrAutoProp).IsModified = false;
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                        case false:
+                            {
+                                //新規エンティティだった場合
+                                // 除外フィールドが指定されている場合、そのフィールドを除外する
+                                if (StrExcludeArray.Length > 0)
+                                {
+                                    var entry = Context.Entry(entity);
+                                    foreach (string strExclude in StrExcludeArray)
+                                    {
+                                        //除外フィールドの値をnullに(無かったことに)
+                                        entry.Property(strExclude!).CurrentValue = null;
+                                    }
+                                }
+                                if (ExcludeAutoIncrement)
+                                {
+                                    //オートインクリメント列自動除外有効の時
+                                    //オートインクリメント列を取得し、除外フィールドとしてマーク
+                                    IEnumerable<string> AutoIncrements = Context.FindAutoIncrementFields<TEntity>();
+                                    if (AutoIncrements.Any())
+                                    {
+                                        //オートインクリメント列が見つかったら、除外フィールドとしてマークする
+                                        var entry = Context.Entry(entity);
+                                        foreach (string StrAutoProp in AutoIncrements)
+                                        {
+                                            //オートインクリメントフィールドの値をnullに(無かったことに)
+                                            entry.Property(StrAutoProp).CurrentValue = null;
+                                        }
+                                    }
+                                }
+                                //Insert処理を行う
+                                Context.Add(entity);
+                                break;
+                            }
+                     }
+                }
                 Context.SaveChanges();
             }
         }

@@ -65,7 +65,6 @@
     <PackageReference Include="Svg" Version="3.4.7" />
     <PackageReference Include="System.IO.Ports" Version="9.0.0-preview.3.24172.9" />
     <PackageReference Include="UTF.Unknown" Version="2.5.1" />
-    <PackageReference Include="Z.EntityFramework.Extensions.EFCore" Version="8.102.2.2" />
     <PackageReference Include="ZXing.Net" Version="0.16.9" />
   </ItemGroup>
 

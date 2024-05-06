@@ -132,6 +132,10 @@ namespace ExcelDBImporter
                                             }
                                             ).ToList();
                 //ƒŠƒXƒg‚ÌŒ‹‰Ê‚ðUpsert
+                dbContext.UpsertEntities(views)
+                    .Execute();
+
+                /*
                 StringBuilder sbLog = new();
                 dbContext.BulkMerge(views, options =>
                 {
@@ -148,6 +152,7 @@ namespace ExcelDBImporter
                     options.Log = s => sbLog.AppendLine(s);
                 });
                 Debug.WriteLine(sbLog.ToString());
+                */
 
             }
             catch (Exception ex)

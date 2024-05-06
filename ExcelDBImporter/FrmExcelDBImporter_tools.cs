@@ -218,6 +218,11 @@ namespace ExcelDBImporter
                 //次のループへ
                 continue;
             }
+            dbContext.UpsertEntities(TQRinputList)
+                        .Execute();
+            //ToDo: BlukMergeから自作Upsertcontextに置き換える事
+            //throw new NotImplementedException("ZZZ Extention.Efcoreの代替指定まち");
+            /*
             //出来上がったListをDBに登録
             dbContext.BulkMerge(TQRinputList,options =>
             options.ColumnPrimaryKeyExpression = key => new 
@@ -226,6 +231,7 @@ namespace ExcelDBImporter
                 key.QROPcode
             });
             dbContext.BulkSaveChanges();
+            */
         }
         private List<string> GetCsvHeaders(string StrfilePath)
         {

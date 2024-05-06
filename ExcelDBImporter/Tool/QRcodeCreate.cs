@@ -17,7 +17,7 @@ namespace ExcelDBImporter.Tool
     internal class QRcodeCreate
     {
         /// <summary>
-        /// クラス T を引数に取り、JSON文字列にシリアライズして返す関数
+        /// クラス TEntity を引数に取り、JSON文字列にシリアライズして返す関数
         /// </summary>
         /// <typeparam name="T">任意のクラス</typeparam>
         /// <returns></returns>

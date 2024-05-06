@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using ExcelDBImporter.Tool;
 using ExcelDBImporter.Context;
+using System.Linq.Expressions;
 namespace ExcelDBImporter.Models
 {
     /// <summary>
@@ -102,7 +103,7 @@ namespace ExcelDBImporter.Models
     }
     [Comment("工程管理用 QRコード記録テーブル")]
     [Table(nameof(TQRinput))]
-    public class TQRinput()
+    public class TQRinput() : IHaveDefaultPattern<TQRinput>
     {
         private QrOPcode qROPcode;
 
@@ -128,6 +129,20 @@ namespace ExcelDBImporter.Models
         [Column(nameof(IsCompiled))]
         [Comment("ViewMarsharingテーブルに登録済みフラグ")]
         public bool IsCompiled { get; set; } = false;
+
+        /// <summary>
+        /// Upsert時のキーパターンをラムダ式で指定
+        /// </summary>
+        Expression<Func<TQRinput, object>> IHaveDefaultPattern<TQRinput>.DefaultKeyPattern { get; } = keys => new
+        {
+            keys.DateInputDate,
+            keys.QROPcode
+        };
+        /// <summary>
+        /// Upsert時の除外フィールドをラムダ式で指定
+        /// 現時点では無し(オートインクリメントフィールド自動検出テスト)
+        /// </summary>
+        Expression<Func<TQRinput, object>>? IHaveDefaultPattern<TQRinput>.DefauldExcludePattern { get; } = null;
 
         /// <summary>
         /// 重複データがあるかどうかチェック。重複条件は、InputDateとQROpcodeが一致するものとする

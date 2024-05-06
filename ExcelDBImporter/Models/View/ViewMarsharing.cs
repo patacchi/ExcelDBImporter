@@ -1,9 +1,11 @@
 ﻿using ExcelDBImporter.Context;
+using ExcelDBImporter.Tool;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,10 +16,11 @@ namespace ExcelDBImporter.Models.View
     /// </summary>
 
     [Table(nameof(ViewMarsharing))]
-    public class ViewMarsharing
+    public class ViewMarsharing : IHaveDefaultPattern<ViewMarsharing>
     {
         [Column(nameof(ViewMarsharingID))]
         public int ViewMarsharingID { get; set; }
+
         [Column(nameof(DatePerDay))]
         [Comment("日付")]
         public DateTime? DatePerDay { get; set; }
@@ -72,6 +75,24 @@ namespace ExcelDBImporter.Models.View
         [Column(nameof(IsCompiled))]
         [Comment("集計されたかどうかを示す")]
         public bool IsCompiled { get; set; } = false;
+
+        /// <summary>
+        /// Upsert時のキーフィールド
+        /// </summary>
+        Expression<Func<ViewMarsharing, object>> IHaveDefaultPattern<ViewMarsharing>.DefaultKeyPattern { get; } = keys => new
+            {
+                keys.DatePerDay
+            };
+
+        /// <summary>
+        /// Upsert時の除外フィールド
+        /// とりあえずID列、集計フラグ列
+        /// </summary>
+        Expression<Func<ViewMarsharing, object>>? IHaveDefaultPattern<ViewMarsharing>.DefauldExcludePattern { get; }= exclude => new
+        {
+            exclude.ViewMarsharingID,
+            exclude.IsCompiled
+        };
 
         /// <summary>
         /// 重複してるかチェックして、結果をboolで返すと共に、outに指定された変数にエンティティそのものを返す

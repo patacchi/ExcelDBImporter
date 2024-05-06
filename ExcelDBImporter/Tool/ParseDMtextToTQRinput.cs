@@ -153,7 +153,7 @@ namespace ExcelDBImporter.Tool
 #pragma warning disable IDE0018 // インライン変数宣言
                         DateTime result;
 #pragma warning restore IDE0018 // インライン変数宣言
-                        if (!DateTime.TryParse(string.Join("T", StrDateSplit, 0, 2), out result))
+                        if (!DateTime.TryParse(string.Join("TEntity", StrDateSplit, 0, 2), out result))
                         {
                             continue;
                         }
