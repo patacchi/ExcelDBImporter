@@ -148,7 +148,7 @@ namespace ExcelDBImporter.Tool
             throw new ArgumentException($"{nameof(TEntity)} クラスは {nameof(IHaveDefaultPattern<TEntity>)} インターフェースを実装していませんでした");
         }
         // ラムダ式からフィールド名を取得するメソッド
-        private static string[] GetFieldNames<TEntity>(Expression<Func<TEntity, object>> fieldSelector)
+        private static List<string> GetFieldNames<TEntity>(Expression<Func<TEntity, object>> fieldSelector)
         {
             var body = fieldSelector.Body;
             if (body is NewExpression newExpression)
@@ -158,7 +158,7 @@ namespace ExcelDBImporter.Tool
                     //式本体が見つからなかった場合(?)
                     return [];
                 }
-                return newExpression.Members.Select(m => m.Name).ToArray();
+                return newExpression.Members.Select(m => m.Name).ToList();
             }
             throw new ArgumentException("Invalid field selector expression.");
         }
@@ -171,7 +171,7 @@ namespace ExcelDBImporter.Tool
         /// <param name="fields">フィールド名の配列</param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        private static Dictionary<string, object> ConvertToFieldValueDic<TEntity>(TEntity entity, string[] fields)
+        private static Dictionary<string, object> ConvertToFieldValueDic<TEntity>(TEntity entity, List<string> fields)
         {
             var dictionary = new Dictionary<string, object>();
             var type = typeof(TEntity);
@@ -224,7 +224,7 @@ namespace ExcelDBImporter.Tool
                 if (property.PropertyType.IsNullable() && targetType.IsValueType)
                 {
                     // Nullable型のプロパティと非Nullable型の値を比較する場合、Nullable型のプロパティもNullable型に変換する
-                    var nullableType = typeof(Nullable<>).MakeGenericType(targetType);
+                    //var nullableType = typeof(Nullable<>).MakeGenericType(targetType);
                     var nullablePropertyExpression = Expression.Convert(propertyExpression, targetType);
                     valueExpression = Expression.Constant(value, targetType);
                     equalExpression = Expression.Equal(nullablePropertyExpression, valueExpression);
@@ -277,7 +277,7 @@ namespace ExcelDBImporter.Tool
             /// <summary>
             /// 除外フィールドのフィールド名の配列
             /// </summary>
-            private string[] StrExcludeArray { get; set; } = null!;
+            private List<string> ExcludeList { get; set; } = null!;
 
             public UpsertOperation(DbContext context, List<TEntity> entities)
             {
@@ -349,10 +349,24 @@ namespace ExcelDBImporter.Tool
                 if (ExcludedFields != null)
                 {
                     //除外パターンが設定されていた場合、除外フィールドのフィールド名の配列を得る
-                    StrExcludeArray = GetFieldNames(ExcludedFields);
+                    ExcludeList = GetFieldNames(ExcludedFields);
                 }
-
-
+                if (ExcludeAutoIncrement)
+                {
+                    //オートインクリメント列更新除外オプションが有効になっていたらオートインクリメント列も除外リストに追加する
+                    IEnumerable<string> AutoIncrements = Context.FindAutoIncrementFields<TEntity>();
+                    if (AutoIncrements.Any())
+                    {
+                        //ExcludeFieldsに存在していなかったら追加する
+                        foreach (string StrAutoProp in AutoIncrements)
+                        {
+                            if (!ExcludeList.Contains(StrAutoProp))
+                            {
+                                ExcludeList.Add(StrAutoProp);
+                            }
+                        }
+                    }
+                }
                 foreach (var entity in Entities)
                 {
                     /*
@@ -440,10 +454,10 @@ namespace ExcelDBImporter.Tool
                                 //Update処理を行う
                                 Context.Entry(existing).CurrentValues.SetValues(entity);
                                 // 除外フィールドが指定されている場合、そのフィールドを除外する
-                                if (StrExcludeArray.Length > 0)
+                                if (ExcludeList.Count > 0)
                                 {
                                     var entry = Context.Entry(existing);
-                                    foreach (string strExclude in StrExcludeArray)
+                                    foreach (string strExclude in ExcludeList)
                                     {
                                         entry.Property(strExclude!).IsModified = false;
                                     }
@@ -469,10 +483,10 @@ namespace ExcelDBImporter.Tool
                             {
                                 //新規エンティティだった場合
                                 // 除外フィールドが指定されている場合、そのフィールドを除外する
-                                if (StrExcludeArray.Length > 0)
+                                if (ExcludeList.Count > 0)
                                 {
                                     var entry = Context.Entry(entity);
-                                    foreach (string strExclude in StrExcludeArray)
+                                    foreach (string strExclude in ExcludeList)
                                     {
                                         //除外フィールドの値をnullに(無かったことに)
                                         entry.Property(strExclude!).CurrentValue = null;
