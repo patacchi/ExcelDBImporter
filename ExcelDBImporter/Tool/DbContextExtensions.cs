@@ -452,7 +452,27 @@ namespace ExcelDBImporter.Tool
                             {
                                 //既存エンティティだった場合
                                 //Update処理を行う
-                                Context.Entry(existing).CurrentValues.SetValues(entity);
+                                //一部除外設定できないので、SetValuesメソッド使用禁止、全プロパティループして個別に判断すること
+                                //Context.Entry(existing).CurrentValues.SetValues(entity);
+                                //エンティティのプロパティで、除外リストに該当しないもののみ取得
+                                IEnumerable<PropertyInfo> propinfos =  typeof(TEntity).GetProperties().Where(p => !ExcludeList.Contains(p.Name));
+                                if (!propinfos.Any()) 
+                                {
+                                    //フィルタ結果、プロパティが見つからなかった
+                                    throw new InvalidDataException("PropertyInfo not found at Exclude filter");
+                                }
+                                foreach (var prop in propinfos)
+                                {
+                                    //更新対象のプロパティがエンティティに含まれているか確認し、あれば更新後の値をセットする
+                                    PropertyInfo? newProperty = entity.GetType().GetProperty(prop.Name);
+                                    if (newProperty != null) 
+                                    {
+                                        //プロパティが存在する場合のみ処理を行う
+                                        object? newValue = newProperty.GetValue(entity,null);
+                                        prop.SetValue(existing, newValue, null);
+                                    }
+                                }
+                                
                                 // 除外フィールドが指定されている場合、そのフィールドを除外する
                                 if (ExcludeList.Count > 0)
                                 {
@@ -460,21 +480,6 @@ namespace ExcelDBImporter.Tool
                                     foreach (string strExclude in ExcludeList)
                                     {
                                         entry.Property(strExclude!).IsModified = false;
-                                    }
-                                }
-                                if (ExcludeAutoIncrement)
-                                {
-                                    //オートインクリメント列自動除外有効の時
-                                    //オートインクリメント列を取得し、除外フィールドとしてマーク
-                                    IEnumerable<string> AutoIncrements = Context.FindAutoIncrementFields<TEntity>();
-                                    if (AutoIncrements.Any())
-                                    {
-                                        //オートインクリメント列が見つかったら、除外フィールドとしてマークする
-                                        var entry = Context.Entry(existing);
-                                        foreach (string StrAutoProp in AutoIncrements)
-                                        {
-                                            entry.Property(StrAutoProp).IsModified = false;
-                                        }
                                     }
                                 }
                                 break;
