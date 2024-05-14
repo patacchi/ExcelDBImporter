@@ -89,7 +89,7 @@ namespace ExcelDBImporter.Models
         /// </summary>
         [NotMapped, Optional]
         [Ignore]
-        Expression<Func<ShInOut, object>> IHaveDefaultPattern<ShInOut>.DefaultKeyPattern => keys => new 
+        public Expression<Func<ShInOut, object>>  KeyPattern => keys => new 
         {
             keys.DateInOut,
             keys.StrOrderOrSeiban,

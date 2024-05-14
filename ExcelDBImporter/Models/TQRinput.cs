@@ -133,7 +133,7 @@ namespace ExcelDBImporter.Models
         /// <summary>
         /// Upsert時のキーパターンをラムダ式で指定
         /// </summary>
-        Expression<Func<TQRinput, object>> IHaveDefaultPattern<TQRinput>.DefaultKeyPattern { get; } = keys => new
+        Expression<Func<TQRinput, object>> IUpsertKeyPattern<TQRinput>.KeyPattern { get; } = keys => new
         {
             keys.DateInputDate,
             keys.QROPcode

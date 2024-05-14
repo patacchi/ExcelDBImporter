@@ -79,10 +79,10 @@ namespace ExcelDBImporter.Models.View
         /// <summary>
         /// Upsert時のキーフィールド
         /// </summary>
-        Expression<Func<ViewMarsharing, object>> IHaveDefaultPattern<ViewMarsharing>.DefaultKeyPattern { get; } = keys => new
-            {
-                keys.DatePerDay
-            };
+        Expression<Func<ViewMarsharing, object>> IUpsertKeyPattern<ViewMarsharing>.KeyPattern { get; } = keys => new
+        {
+            keys.DatePerDay
+        };
 
         /// <summary>
         /// Upsert時の除外フィールド

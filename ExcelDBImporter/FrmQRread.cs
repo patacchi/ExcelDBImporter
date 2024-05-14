@@ -144,8 +144,8 @@ namespace ExcelDBImporter
                 DecordQRstringToTQRinput(Strdata);
             }
             //デコード処理終了後ストップウォッチ停止
-            readTimeStopwatch.Stop();
-            Invoke(() => LblElsapedTime.Text = ($"{readTimeStopwatch.ElapsedMilliseconds} ミリ秒で処理完了"));
+            //readTimeStopwatch.Stop();
+            //Invoke(() => LblElsapedTime.Text = ($"{readTimeStopwatch.ElapsedMilliseconds} ミリ秒で処理完了"));
             readTimeStopwatch.Reset();
         }
 
@@ -206,7 +206,11 @@ namespace ExcelDBImporter
             ParseDMtextToTQRinput parseDMtext = new(text);
             parseDMtext.ParseDMStrToTempTable();
             //TempテーブルからTQRinputテーブルに登録する作業へ
-            MessageBox.Show($"{parseDMtext.RegistToTQRinput()} 件のデータを処理しました");
+            int IntRegistcount = parseDMtext.RegistToTQRinput();
+            //登録完了したら更新時間タイマー停止する
+            readTimeStopwatch.Stop();
+            Invoke(() => LblElsapedTime.Text = ($"{readTimeStopwatch.ElapsedMilliseconds} ミリ秒で処理完了"));
+            MessageBox.Show($"{IntRegistcount} 件のデータを処理しました");
         }
 
         /// <summary>
@@ -230,6 +234,12 @@ namespace ExcelDBImporter
         }
 
 
+        /// <summary>
+        /// 手動でテキストボックスの内容を登録する際に実行
+        /// ボタン押下で実行する
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnRegistToTempDB_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(TxtBoxQRread.Text))

@@ -15,10 +15,14 @@ namespace ExcelDBImporter.Tool
     /// デフォルトキーと除外パターンを実装しているクラスに付けるインターフェイス
     /// </summary>
     /// <typeparam name="TEntity">モデルクラス</typeparam>
-    public interface IHaveDefaultPattern<TEntity> where TEntity : class
-    {
-        Expression<Func<TEntity, object>> DefaultKeyPattern { get; }
+    public interface IHaveDefaultPattern<TEntity> :IUpsertKeyPattern<TEntity> where TEntity : class 
+    { 
+        //Expression<Func<TEntity, object>> DefaultKeyPattern { get; }
         Expression<Func<TEntity, object>>? DefauldExcludePattern { get; }
+    }
+    public interface IUpsertKeyPattern<TEntity> where TEntity : class
+    {
+        Expression<Func<TEntity, object>> KeyPattern {get; }
     }
 
     public static class TypeExtensions
@@ -287,7 +291,7 @@ namespace ExcelDBImporter.Tool
                 if (IFaceDefault != null)
                 {
                     //デフォルトパターンが見つかったら設定する
-                    KeySelectors = IFaceDefault.DefaultKeyPattern;
+                    KeySelectors = IFaceDefault.KeyPattern;
                     if (IFaceDefault.DefauldExcludePattern != null)
                     {
                         //除外パターンはオプションなので、指定され手入れば設定する
@@ -455,7 +459,7 @@ namespace ExcelDBImporter.Tool
                                 //一部除外設定できないので、SetValuesメソッド使用禁止、全プロパティループして個別に判断すること
                                 //Context.Entry(existing).CurrentValues.SetValues(entity);
                                 //エンティティのプロパティで、除外リストに該当しないもののみ取得
-                                IEnumerable<PropertyInfo> propinfos =  typeof(TEntity).GetProperties().Where(p => !ExcludeList.Contains(p.Name));
+                                IEnumerable<PropertyInfo> propinfos =  typeof(TEntity).GetProperties().Where(p => !ExcludeList.Contains(p.Name) && p.CanWrite);
                                 if (!propinfos.Any()) 
                                 {
                                     //フィルタ結果、プロパティが見つからなかった

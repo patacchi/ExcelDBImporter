@@ -52,7 +52,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasKey("AppSettingID");
 
-                    b.ToTable("AppSetting", t =>
+                    b.ToTable("AppSetting", null, t =>
                         {
                             t.HasComment("各アプリの設定を格納する。1アプリ１レコード");
                         });
@@ -113,7 +113,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasKey("ShInOutID");
 
-                    b.ToTable("ShInOut", t =>
+                    b.ToTable("ShInOut", null, t =>
                         {
                             t.HasComment("入出庫履歴を格納するテーブル");
                         });
@@ -194,7 +194,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasKey("ShShukkaID");
 
-                    b.ToTable("ShShukka", t =>
+                    b.ToTable("ShShukka", null, t =>
                         {
                             t.HasComment("発番出荷物件予定表モデルクラス");
                         });
@@ -240,7 +240,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasKey("TQRinputId");
 
-                    b.ToTable("TQRinput", t =>
+                    b.ToTable("TQRinput", null, t =>
                         {
                             t.HasComment("工程管理用 QRコード記録テーブル");
                         });
@@ -268,7 +268,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasIndex("DateInputDate");
 
-                    b.ToTable("TTempQRrowData", t =>
+                    b.ToTable("TTempQRrowData", null, t =>
                         {
                             t.HasComment("QRコードを読み取った生のデータを一時保存しておくテーブル。入力日時をキーとする。");
                         });
@@ -316,7 +316,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasKey("TableDBcolumnNameAndExcelFieldNameID");
 
-                    b.ToTable("TableDBcolumnNameAndExcelFieldName", t =>
+                    b.ToTable("TableDBcolumnNameAndExcelFieldName", null, t =>
                         {
                             t.HasComment("DBとExcelファイルのフィールド名の対応格納テーブル。対応Excelファイルが増えると列が増えていく");
                         });
@@ -347,7 +347,7 @@ namespace ExcelDBImporter.Migrations
                     b.HasIndex("TableDBcolumnNameAndExcelFieldNameID")
                         .IsUnique();
 
-                    b.ToTable("TableFieldAliasNameList", t =>
+                    b.ToTable("TableFieldAliasNameList", null, t =>
                         {
                             t.HasComment("テーブル列名の別名(表示名等)格納テーブル");
                         });
@@ -412,7 +412,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasKey("ViewMarsharingID");
 
-                    b.ToTable("ViewMarsharing");
+                    b.ToTable("ViewMarsharing", (string)null);
                 });
 
             modelBuilder.Entity("ExcelDBImporter.Models.TableFieldAliasNameList", b =>
