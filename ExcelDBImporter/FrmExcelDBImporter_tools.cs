@@ -28,7 +28,7 @@ namespace ExcelDBImporter
         /// </summary>
         public const string CONST_STR_ExcelDBImporterAppName = "ExcelDBImporter";
         /// <summary>
-        /// DateTimePickerの範囲内にあるレコードのOutputFlagを落とす
+        /// DateTimePickerの範囲内にあるViewMarsharingテーブルのIsCompiled フラグを落とす
         /// </summary>
         /// <returns>Intで処理件数</returns>
         private int UnsetOutputFlagByTimePickerTime()
@@ -36,7 +36,7 @@ namespace ExcelDBImporter
             try
             {
                 ExcelDbContext dbContext = new();
-                //指定範囲の日付で、更にOutputFlagがtrueになっているレコードがあるかどうか
+                //ViewMarsharingテーブルにおいて指定範囲の日付で、更にOutputFlagがtrueになっているレコードがあるかどうか
                 ViewMarsharing? flugExists = dbContext.ViewMarsharings
                                         .Where(f => f.DatePerDay >= DtpickStart.Value && f.DatePerDay <= DtpickEnd.Value
                                          && f.IsCompiled == true)

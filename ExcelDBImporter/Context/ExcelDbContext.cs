@@ -29,6 +29,7 @@ namespace ExcelDBImporter.Context
         {
             string dbPath = Path.Combine(Application.StartupPath, "excel_data.db");
             optionsBuilder.UseSqlite($"Data Source={dbPath}");
+            optionsBuilder.EnableSensitiveDataLogging(false);
             optionsBuilder.LogTo(message => Debug.WriteLine(message),LogLevel.Information);
         }
     }
