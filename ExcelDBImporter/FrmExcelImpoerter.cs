@@ -173,18 +173,11 @@ namespace ExcelDBImporter
                                   || OutputNewest.DatePerDay == null) ? DateTime.Now : (DateTime)OutputNewest.DatePerDay;
             //フラグ付き最新データと対象月初日の日付が古いほうをスタート日付とする
             DtpickStart.Value = dateFirstDayinTargetManth <= DateEndDayofMarshalling ? dateFirstDayinTargetManth : DateEndDayofMarshalling;
-            /*
-            //1か月前の最終日の23:59:59
-            DtpickEnd.Value = new DateTime(dateFirstDayinTargetManth.Year,
-                                             dateFirstDayinTargetManth.Month,
-                                             DateTime.DaysInMonth(dateFirstDayinTargetManth.Year, dateFirstDayinTargetManth.Month)
-                                             ).AddDays(1).AddSeconds(-1);
-            */
-            //終了日は当日 23:59:59.9999
+            //終了日は前日 23:59:59.9999
             DtpickEnd.Value = new DateTime(DateTime.Now.Year,
                                             DateTime.Now.Month,
                                             DateTime.Now.Day
-                                            ).AddDays(1).AddMilliseconds(-1);
+                                            ).AddMilliseconds(-1);
             //表示形式変更
             DtpickStart.CustomFormat = "yyyy年MM月dd日 HH時mm分ss秒";
             DtpickEnd.CustomFormat = "yyyy年MM月dd日 HH時mm分ss秒";
@@ -226,6 +219,9 @@ namespace ExcelDBImporter
             if (dateStart > dateEnd) { dateEnd = dateStart; }
             try
             {
+                //開始日と終了日の間でデータが無いものを補完する
+                ViewTableEditor vte = new();
+                vte.FillEmptyDay(dateStart, dateEnd);
                 using ExcelDbContext dbContext = new();
                 //dbContext.ViewMarsharings.AddRange(views);
                 //日付が範囲内でなおかつ出力済みでは「無い」物を選択
