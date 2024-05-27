@@ -364,6 +364,10 @@ namespace ExcelDBImporter.Tool
                         //ExcludeFieldsに存在していなかったら追加する
                         foreach (string StrAutoProp in AutoIncrements)
                         {
+                            if (ExcludeList is null)
+                            {
+                                ExcludeList = new List<string>();
+                            }
                             if (!ExcludeList.Contains(StrAutoProp))
                             {
                                 ExcludeList.Add(StrAutoProp);
