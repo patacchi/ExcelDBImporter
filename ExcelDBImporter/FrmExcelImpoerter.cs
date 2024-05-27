@@ -160,24 +160,23 @@ namespace ExcelDBImporter
                 MessageBox.Show($"{nameof(DateTimePickerInitialize)} で {ex.Message} エラー");
                 return;
             }
-            //Outputフラグが立っているもので最新のデータを取得
-
+            //Outputフラグが立っていないもので、一番古いデータを取得(未集計のうち、一番古いデータを取得)
+            //フラグ立っているもので最新のデータを取得していたが、これだと最後のデータが被る
             ViewMarsharing? OutputNewest = dbContext.ViewMarsharings
-                                    .Where(s => s.IsCompiled == true)
-                                    .OrderByDescending(s => s.DatePerDay)
+                                    .Where(s => s.IsCompiled == false)
+                                    .OrderBy(s => s.DatePerDay)
                                     .FirstOrDefault();
 
-            DateTime dateFirstDayinTargetManth = new(DateTime.Now.AddMonths(IntOffsetMonth).Year, DateTime.Now.AddMonths(IntOffsetMonth).Month, 1);
-            //フラグが立っているレコードが無かった場合は現在日時を設定する
-            DateTime DateEndDayofMarshalling = (OutputNewest == null
+            //マーシャリングスタート日取得、フラグが立っていないデータが無かった場合は現在日時を設定
+            DateTime DateStartDayofMarshalling = (OutputNewest == null
                                   || OutputNewest.DatePerDay == null) ? DateTime.Now : (DateTime)OutputNewest.DatePerDay;
-            //フラグ付き最新データと対象月初日の日付が古いほうをスタート日付とする
-            DtpickStart.Value = dateFirstDayinTargetManth <= DateEndDayofMarshalling ? dateFirstDayinTargetManth : DateEndDayofMarshalling;
             //終了日は前日 23:59:59.9999
             DtpickEnd.Value = new DateTime(DateTime.Now.Year,
                                             DateTime.Now.Month,
                                             DateTime.Now.Day
                                             ).AddMilliseconds(-1);
+            //終了日より開始日が前だった場合は、先程のマーシャリングスタート日とし、それ以外は終了日を開始日として設定
+            DtpickStart.Value = DtpickEnd.Value >= DateStartDayofMarshalling ? DateStartDayofMarshalling : DtpickEnd.Value;
             //表示形式変更
             DtpickStart.CustomFormat = "yyyy年MM月dd日 HH時mm分ss秒";
             DtpickEnd.CustomFormat = "yyyy年MM月dd日 HH時mm分ss秒";
