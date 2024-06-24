@@ -20,8 +20,10 @@ namespace ExcelDBImporter
         /// <summary>
         /// 出力Excelファイルの横幅
         /// </summary>
-        private const Single Const_Outpu_Title_Width = 9;
+        private const double Const_Outpu_Title_Width = 8.86;
         private const int Const_DataTable_Header_Row = 4;
+        private const double Const_Default_RowHeight = 18.75;
+        private const double Const_DataTable_Header_RowHeight = 25.50;
         private const int Const_MainTitle_Row = 2;
 
         public FrmExcelImpoerter()
@@ -277,10 +279,23 @@ namespace ExcelDBImporter
                     XLWorkbook.DefaultStyle.Font.FontName = "BIZ UDゴシック";
                     wb.Style.Font.FontName = "BIZ UDゴシック";
                     wb.Style.Font.FontSize = 9;
+                    //縦向きに設定
+                    wb.PageOptions.PageOrientation = XLPageOrientation.Portrait;
+                    //用紙サイズをA4に設定
+                    wb.PageOptions.PaperSize = XLPaperSize.A4Paper;
+                    //デフォルトの行の高さを設定
+                    wb.RowHeight = Const_Default_RowHeight;
                     IXLWorksheet xlworksheet = wb.AddWorksheet("電磁・マイクロ波資材管理実績集計" + DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月");
+                    xlworksheet.RowHeight = Const_Default_RowHeight;
                     //リストをシートに挿入
                     xlworksheet.Cell(IntTableHeaderRow, 1).InsertTable(views);
+                    //リスト部分の行の高さを設定する(タイトル行の高さを設定するとデフォルト設定がうまく動かない)
+                    xlworksheet.Rows(Const_DataTable_Header_Row, xlworksheet.LastCellUsed().Address.RowNumber)
+                        .Height = Const_Default_RowHeight;
+                    //リストタイトルを設定
                     var CellsTitle = xlworksheet.Row(IntTableHeaderRow).CellsUsed();
+                    //リストタイトルの行の高さを設定
+                    xlworksheet.Row(Const_DataTable_Header_Row).Height = Const_DataTable_Header_RowHeight;
                     foreach (IXLCell? cell in CellsTitle)
                     {
                         var aliasName = dbContext.TableFieldAliasNameLists
