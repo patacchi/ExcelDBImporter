@@ -103,7 +103,7 @@ namespace ExcelDBImporter
             else
             {
                 //メインスレッドから呼ばれた場合
-                //TxtBoxQRread.Text = Strdata;
+                //TxtBoxQRread.Text = result;
                 TxtBoxQRread.ReadOnly = true;
             }
             //処理時間ラベルの更新のみ行う、デコードはCompReceiveしてから
@@ -113,8 +113,8 @@ namespace ExcelDBImporter
         /// データ受信完了時(タイマー使用)
         /// </summary>
         /// <param name="sender"></param>
-        /// <param name="Strdata">受信した結果Queueを全て統合したもの</param>
-        private void SerialCommunication_CompReceive(object sender, string Strdata)
+        /// <param name="result">受信した結果Queueを全て統合したもの</param>
+        private void SerialCommunication_CompReceive(object sender, (string StrBody, int IntErrorCount) result)
         {
             // データ受信する度にタイマー再起動
             timerInputEnd.Stop();
@@ -129,19 +129,19 @@ namespace ExcelDBImporter
             if (this.InvokeRequired)
             {
                 //Invokeが必要な場合(メイン(UI)スレッドじゃないのが変更しようとした)
-                this.Invoke(() => TxtBoxQRread.Text = Strdata);
+                this.Invoke(() => TxtBoxQRread.Text = result.StrBody);
                 this.Invoke(() => TxtBoxQRread.ReadOnly = true);
             }
             else
             {
                 //メインスレッドから呼ばれた場合
-                TxtBoxQRread.Text = Strdata;
+                TxtBoxQRread.Text = result.StrBody;
                 TxtBoxQRread.ReadOnly = true;
             }
             //OnlyPrintチェックボックスがfalseの場合のみ実行
             if (!ChkBoxOnlyPrintMsg.Checked)
             {
-                DecordQRstringToTQRinput(Strdata);
+                DecordQRstringToTQRinput(result.StrBody);
             }
             //デコード処理終了後ストップウォッチ停止
             //readTimeStopwatch.Stop();
@@ -182,11 +182,10 @@ namespace ExcelDBImporter
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             // 入力待機時間タイムアウト後
-            int IntErrorCount;
             // SeriaCommunicationのバッファから結果を読み取り、テキストボックスに適用
-            string StrComnBuffer;
-            (StrComnBuffer,IntErrorCount) = serialCommunication.ReadAllDatafromQueue();
-            if (string.IsNullOrEmpty(StrComnBuffer)) { return; }
+            (string StrBody, int IntErrorCount) result;
+            result = serialCommunication.ReadAllDatafromQueue();
+            if (string.IsNullOrEmpty(result.StrBody)) { return; }
         }
         private void TextBoxQRread_TextChanged(object sender, EventArgs e)
         {

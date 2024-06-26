@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace ExcelDBImporter.Tool
 {
-    public class SerialCommunication
+    public partial class SerialCommunication
     {
         private enum ReceiveState
         {
@@ -225,7 +225,7 @@ namespace ExcelDBImporter.Tool
         {
             // string pattern = @"\b\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\b";
 
-            Regex regex = new Regex(Const_Str_Datepattern);
+            Regex regex = DatePatternRegEx();
             MatchCollection matches = regex.Matches(Strinput);
 
             return matches.Count;
@@ -328,5 +328,8 @@ namespace ExcelDBImporter.Tool
                 serialPort.Dispose();
             }
         }
+
+        [GeneratedRegex(Const_Str_Datepattern)]
+        private static partial Regex DatePatternRegEx();
     }
 }
