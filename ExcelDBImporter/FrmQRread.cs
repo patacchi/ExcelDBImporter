@@ -182,8 +182,10 @@ namespace ExcelDBImporter
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             // 入力待機時間タイムアウト後
+            int IntErrorCount;
             // SeriaCommunicationのバッファから結果を読み取り、テキストボックスに適用
-            string StrComnBuffer = serialCommunication.ReadAllDatafromQueue() ?? string.Empty;
+            string StrComnBuffer;
+            (StrComnBuffer,IntErrorCount) = serialCommunication.ReadAllDatafromQueue();
             if (string.IsNullOrEmpty(StrComnBuffer)) { return; }
         }
         private void TextBoxQRread_TextChanged(object sender, EventArgs e)

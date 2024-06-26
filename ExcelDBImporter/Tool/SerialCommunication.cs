@@ -3,8 +3,10 @@ using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -64,7 +66,7 @@ namespace ExcelDBImporter.Tool
         /// <summary>
         /// 受信完了イベント(タイマー使用)
         /// </summary>
-        public event EventHandler<string>? CompleteReceive;
+        public event EventHandler<(string Strresult,int IntErrorCount)>? CompleteReceive;
         /// <summary>
         /// まが行が完了していない続きがあるよ、のイベント
         /// </summary>
@@ -73,6 +75,11 @@ namespace ExcelDBImporter.Tool
         public string PortName => serialPort.PortName;
 
         public bool IsOpen => serialPort.IsOpen;
+
+        /// <summary>
+        /// DMコード内の日付形式を表す正規表現 yyyy/MM/dd HH/mm/ss
+        /// </summary>
+        private const string Const_Str_Datepattern = @"\b\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\b";
 
         public SerialCommunication()
         {
@@ -182,18 +189,26 @@ namespace ExcelDBImporter.Tool
         /// 受信バッファに存在している全てのデータを返す
         /// </summary>
         /// <returns>通信内容のString</returns>
-        public string ReadAllDatafromQueue()
+        public (string StrResult,int IntErrorCount) ReadAllDatafromQueue()
         {
             //呼ばれた時点でデータが無かったら
-            if (CqStrSerialBuffer.IsEmpty) { return string.Empty; }
+            if (CqStrSerialBuffer.IsEmpty) { return (string.Empty,0); }
             //結果格納文字列構築用StringBuilder
             System.Text.StringBuilder sb = new();
             //残り要素数、スタートは現時点での総要素数
             int IntCountRemain = cqStrSerialBuffer.Count;
+            int IntErrorcount = 0;
             while(IntCountRemain > 0)
             {
                 if (cqStrSerialBuffer.TryDequeue(out string? StrResut))
                 {
+                    //日付データの個数チェック(通信エラーチェック)
+                    if (CountDates(StrResut) > 1)
+                    {
+                        //読み出したデータに日付データが複数あった場合はエラーカウントインクリメントする
+                        Debug.WriteLine($"{nameof(ReadAllDatafromQueue)} で 1行に日付複数発見,CommuicationError");
+                        IntErrorcount++;
+                    }
                     //Dequeue成功したらSBに追加
                     sb.Append(StrResut);
                     IntCountRemain--;
@@ -202,10 +217,20 @@ namespace ExcelDBImporter.Tool
             if (sb.Length > 0) 
             {
                 //ループ抜けてSBにデータがあったらStringにして返す
-                return sb.ToString();
+                return (sb.ToString(),IntErrorcount);
             }
-            else { return string.Empty; }
+            else { return (string.Empty,0); }
     }
+        private int CountDates(string Strinput)
+        {
+            // string pattern = @"\b\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\b";
+
+            Regex regex = new Regex(Const_Str_Datepattern);
+            MatchCollection matches = regex.Matches(Strinput);
+
+            return matches.Count;
+        }
+
         /// <summary>
         /// シリアルポートからデータを読み出し、結果の最後のバイトデータによりReceiveStateEnum値を返す
         /// </summary>
@@ -262,6 +287,7 @@ namespace ExcelDBImporter.Tool
             //ここまで抜けてきちゃったらNoDataとする
             return ReceiveState.NoData;
         }
+
 
         public void Open(string portName)
         {
