@@ -130,12 +130,24 @@ namespace ExcelDBImporter
             {
                 //Invokeが必要な場合(メイン(UI)スレッドじゃないのが変更しようとした)
                 this.Invoke(() => TxtBoxQRread.Text = result.StrBody);
+                if (result.IntErrorCount > 0)
+                {
+                    //エラーカウントが1以上の場合
+                    //とりあえずメッセージボックスで注意喚起
+                    this.Invoke(() => MessageBox.Show($"エラーが {result.IntErrorCount}  回発生したようです。データの再アップロードを推奨します。"));
+                }
                 this.Invoke(() => TxtBoxQRread.ReadOnly = true);
             }
             else
             {
                 //メインスレッドから呼ばれた場合
                 TxtBoxQRread.Text = result.StrBody;
+                if (result.IntErrorCount > 0)
+                {
+                    //エラーカウントが1以上の場合
+                    //とりあえずメッセージボックスで注意喚起
+                    MessageBox.Show($"エラーが {result.IntErrorCount}  回発生したようです。データの再アップロードを推奨します。");
+                }
                 TxtBoxQRread.ReadOnly = true;
             }
             //OnlyPrintチェックボックスがfalseの場合のみ実行

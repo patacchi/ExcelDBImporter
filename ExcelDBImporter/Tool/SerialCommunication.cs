@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
+using DocumentFormat.OpenXml.ExtendedProperties;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Concurrent;
@@ -79,7 +80,7 @@ namespace ExcelDBImporter.Tool
         /// <summary>
         /// DMコード内の日付形式を表す正規表現 yyyy/MM/dd HH/mm/ss
         /// </summary>
-        private const string Const_Str_Datepattern = @"\b\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\b";
+        private const string Const_Str_Datepattern = @"\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\b";
 
         public SerialCommunication()
         {
@@ -202,13 +203,20 @@ namespace ExcelDBImporter.Tool
             {
                 if (cqStrSerialBuffer.TryDequeue(out string? StrResut))
                 {
-                    //日付データの個数チェック(通信エラーチェック)
-                    if (CountDates(StrResut) > 1)
+                    //受信したデータを行ごとに分割して配列に格納する
+                    string[] lines = StrResut.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                    //全ての行をループする
+                    foreach (string strline in lines)
                     {
-                        //読み出したデータに日付データが複数あった場合はエラーカウントインクリメントする
-                        Debug.WriteLine($"{nameof(ReadAllDatafromQueue)} で 1行に日付複数発見,CommuicationError");
-                        IntErrorcount++;
+                        if (CountDates(strline) > 1)
+                        {
+                            //読み出したデータに日付データが複数あった場合はエラーカウントインクリメントする
+                            Debug.WriteLine($"{nameof(ReadAllDatafromQueue)} で 1行に日付複数発見,CommuicationError");
+                            IntErrorcount++;
+                        }
                     }
+
+                    //日付データの個数チェック(通信エラーチェック)
                     //Dequeue成功したらSBに追加
                     sb.Append(StrResut);
                     IntCountRemain--;
@@ -329,6 +337,10 @@ namespace ExcelDBImporter.Tool
             }
         }
 
+        /// <summary>
+        /// 日付パターンの正規表現 
+        /// </summary>
+        /// <returns></returns>
         [GeneratedRegex(Const_Str_Datepattern)]
         private static partial Regex DatePatternRegEx();
     }

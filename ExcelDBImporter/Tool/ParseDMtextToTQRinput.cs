@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using ExcelDBImporter.Models.ToInput;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
+using System.Diagnostics;
 
 namespace ExcelDBImporter.Tool
 {
@@ -73,6 +74,11 @@ namespace ExcelDBImporter.Tool
             /// </summary>
             [Comment("数量")]
             Amount = 8,
+            /// <summary>
+            /// JSONデコード失敗データ(通信エラーで途中までで途切れてる可能性大)
+            /// </summary>
+            [Comment("JSON変換失敗データ")]
+            FailDecordJSON = 9,
             /// <summary>
             /// 不明データ
             /// </summary>
@@ -198,8 +204,8 @@ namespace ExcelDBImporter.Tool
                     //{ から始まってる場合(JSONの可能性が高い)
                     if (!IsValidJson(StrCheckData))
                     {
-                        //{から始まってるのにJSONに変換できない時は UnKnownにする
-                        return EnumDataKind.UnKnownData;
+                        //{から始まってるのにJSONに変換できない時は FailDecordJSON にする
+                        return EnumDataKind.FailDecordJSON;
                     }
                     //JSONに変換できる場合
                     JsonDocument jsonDocument = JsonDocument.Parse(StrCheckData);
@@ -266,6 +272,8 @@ namespace ExcelDBImporter.Tool
             Queue<int> QueIntDeleteID = new();
             //処理件数
             int IntRegistCount = 0;
+            //処理中にエラーが発生した場合、インクリメントする
+            int IntErrorCount = 0;
             foreach (TTempQRrowData ttemp in ttempList)
             {
                 try 
@@ -356,6 +364,14 @@ namespace ExcelDBImporter.Tool
                             //処理件数インクリメント
                             IntRegistCount++;
                             continue;
+                        case EnumDataKind.FailDecordJSON:
+                            //JSONデコード失敗データだった場合
+                            Debug.WriteLine($"{nameof(RegistToTQRinput)} : fail Convert to JSON");
+                            //エラーカウントインクリメント
+                            IntErrorCount++;
+                            //JSON候補行でデコード失敗したのはもういらないので、エンティティに削除マーク
+                            dbContext.TTempQRrows.Remove(ttemp);
+                            continue;
                         case EnumDataKind.UnKnownData:
                             //未定義データだった場合
                             continue;
@@ -369,6 +385,13 @@ namespace ExcelDBImporter.Tool
                     MessageBox.Show($"{nameof(RegistToTQRinput)} で {ex.Message} エラー ");
                     continue;
                 }
+            }
+            if (IntErrorCount > 0) 
+            {
+                //エラーカウントがインクリメントされていたら
+                Debug.WriteLine($"{nameof(RegistToTQRinput)} : Error Count: {IntErrorCount} times");
+                //注意喚起のメッセージボックスを表示
+                MessageBox.Show($"変換中にエラーが {IntErrorCount} 回発生しました。通信エラーの可能性が高いため、DMコードの再アップロードを推奨します。");
             }
             dbContext.SaveChanges();
             return IntRegistCount;
