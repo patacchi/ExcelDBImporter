@@ -118,7 +118,8 @@ class PdfCreator
                 (double Xnext, double Ynext) Spacing = CalculateSquareSpacing(availableWidth,
                                                                               availableHeight,
                                                                               imageSideLength,
-                                                                              titleSize.Height);
+                                                                              //titleSize.Height,
+                                                                              imagesPerPage);
                 x += Spacing.Xnext; // 次の列に移動
                 if (x + imageSideLength > pageSize.Width) // ページの右端を超えたら
                 {
@@ -168,21 +169,19 @@ class PdfCreator
     static (double horizontalSpacing, double verticalSpacing) CalculateSquareSpacing(double DblAvailableWidth,
                                                                                      double DblAvailableHeight,
                                                                                      double imageSideLength,
-                                                                                     double heigtmargin)
+                                                                                     int IntimagesInPages)
     {
-        //縦方向の余白(タイトル等)を追加した実際の使用領域を計算
-        double DblactualimageHeight = imageSideLength + heigtmargin;
         //1行あたりの数を計算
         int squaresPerRow = (int)(DblAvailableWidth / imageSideLength);
-        //行数を計算
-        int totalRows = (int)(DblAvailableHeight / DblactualimageHeight);
+        //行数を計算(1列あたりの個数)
+        int squaresPerCol = (int)Math.Ceiling((double)IntimagesInPages / squaresPerRow);
         // 余白を計算
         double totalMarginX = DblAvailableWidth - (imageSideLength * squaresPerRow);
-        double totalMarginY = DblAvailableHeight - (DblactualimageHeight * totalRows);
+        double totalMarginY = DblAvailableHeight - (imageSideLength * squaresPerCol);
 
         // 各方向の余白を均等に分配
         double marginX = totalMarginX / (squaresPerRow - 1); // 横方向の余白
-        double marginY = totalMarginY / (totalRows - 1); // 縦方向の余白
+        double marginY = totalMarginY / (squaresPerCol - 1); // 縦方向の余白
 
         // 横方向の間隔を計算
         double horizontalSpacing = imageSideLength + marginX;
