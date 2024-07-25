@@ -444,7 +444,7 @@ namespace ExcelDBImporter
         /// <param name="e"></param>
         private void BtnInOutCSVInclude_Click(object sender, EventArgs e)
         {
-            IncludeInOutCSV();
+            MessageBox.Show($"{IncludeInOutCSV()} 件のデータを処理しました。");
             //ShInOutをTQRに反映させる
             ShInOutToTQR();
 

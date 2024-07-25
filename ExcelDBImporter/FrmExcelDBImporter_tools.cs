@@ -105,7 +105,11 @@ namespace ExcelDBImporter
                 MessageBox.Show($"エクスプローラーを開く際にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        public void IncludeInOutCSV()
+        /// <summary>
+        /// 入出庫履歴のCSVをDBに取り込む
+        /// </summary>
+        /// <returns>処理件数</returns>
+        public int IncludeInOutCSV()
         {
             //DBよりLastLoadFromDirを取得、なければString.Empty
             string StrLastLoadDir = string.Empty;
@@ -125,7 +129,7 @@ namespace ExcelDBImporter
             if (DialogImportExcelFile.ShowDialog() != DialogResult.OK)
             {
                 MessageBox.Show($"{nameof(IncludeInOutCSV)} ファイル選択がキャンセルされました");
-                return;
+                return 0;
             }
 
             string StrInOutFilePath = DialogImportExcelFile.FileName;
@@ -141,7 +145,8 @@ namespace ExcelDBImporter
             List<ShInOut> listModeles = ReadCsvFile(StrInOutFilePath, header);
             //DBにUPSertする
             using ExcelDbContext context = new();
-            context.UpsertEntities(listModeles)
+            //Upsert実行し、処理件数を返す
+            return context.UpsertEntities(listModeles)
                 /*
                 .WithKeys(key => new
                 {
@@ -155,22 +160,6 @@ namespace ExcelDBImporter
                 */
                 .Execute();
                 
-            /*
-            context.BulkMerge(listModeles,
-                options => options.ColumnPrimaryKeyExpression = ShInOut => new
-                {
-                    ShInOut.DateInOut,
-                    ShInOut.StrOrderOrSeiban,
-                    ShInOut.DblInputNum,
-                    ShInOut.DblDeliverNum,
-                    ShInOut.StrTehaiCode
-                }
-            );
-            context.BulkSaveChanges();
-            */
-            context.SaveChanges();
-            ShInOut newEntity = listModeles[0];
-            ShInOut? existing = context.ShInOuts.FirstOrDefault(s => s.StrKanriKa == newEntity.StrKanriKa && s.StrKishu == newEntity.StrKishu);
         }
         
         public void ShInOutToTQR()

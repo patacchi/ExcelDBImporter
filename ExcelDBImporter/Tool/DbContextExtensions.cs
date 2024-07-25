@@ -339,9 +339,10 @@ namespace ExcelDBImporter.Tool
             /// UPSertを実行する
             /// </summary>
             /// <param name="NotExcludeAutoIncrement">false 指定するとオートインクリメント列を除外リストに自動追加しない、デフォルトは追加する</param>
+            /// <returns>処理件数 (Context.SaveChanges())</returns>
             /// <exception cref="KeyNotFoundException"></exception>
             /// <exception cref="ArgumentException"></exception>
-            public void Execute(bool ExcludeAutoIncrement = true)
+            public int Execute(bool ExcludeAutoIncrement = true)
             {
                 DbSet<TEntity> dbSet = Context.Set<TEntity>();
                 //キーパターンが定義されているかどうかチェックする
@@ -527,7 +528,17 @@ namespace ExcelDBImporter.Tool
                             }
                      }
                 }
+                //変更予定のエンティティの抽出
+                var changeEntries = Context.ChangeTracker.Entries()
+                                    .Where(e =>
+                                    e.State is EntityState.Added or
+                                    EntityState.Modified or
+                                    EntityState.Deleted);
+                //変更予定数取得
+                int intAffectedRows = changeEntries.Count();
                 Context.SaveChanges();
+                //変更数を返す
+                return intAffectedRows;
             }
         }
     }
