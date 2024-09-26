@@ -25,6 +25,7 @@ namespace ExcelDBImporter
         private const double Const_Default_RowHeight = 17.25;
         private const double Const_DataTable_Header_RowHeight = 25.50;
         private const int Const_MainTitle_Row = 2;
+        private const string Const_Subtotal_Title_Name = "小計";
 
         public FrmExcelImpoerter()
         {
@@ -103,9 +104,6 @@ namespace ExcelDBImporter
         /// </summary>
         public void DateTimePickerInitialize()
         {
-            //1か月前の初日を求める
-            //当月に変更になった・・・
-            int IntOffsetMonth = 0;
             using ExcelDbContext dbContext = new();
             try
             {
@@ -136,26 +134,6 @@ namespace ExcelDBImporter
                 //リストの結果をUpsert
                 dbContext.UpsertEntities(views)
                     .Execute();
-
-                /*
-                StringBuilder sbLog = new();
-                dbContext.BulkMerge(views, options =>
-                {
-                    options.ColumnPrimaryKeyExpression = c => c.DatePerDay;
-                    options.Log = s => sbLog.AppendLine(s);
-                    options.IgnoreOnMergeUpdateExpression = ig => new
-                    {
-                        ig.IsCompiled
-                    };
-                }
-                );
-                dbContext.BulkSaveChanges(options =>
-                {
-                    options.Log = s => sbLog.AppendLine(s);
-                });
-                Debug.WriteLine(sbLog.ToString());
-                */
-
             }
             catch (Exception ex)
             {
@@ -289,6 +267,33 @@ namespace ExcelDBImporter
                     xlworksheet.RowHeight = Const_Default_RowHeight;
                     //リストをシートに挿入
                     xlworksheet.Cell(IntTableHeaderRow, 1).InsertTable(views);
+                    //リスト最下部に集計行を追加
+                    //集計行取得
+                    int IntSubtotalRow = IntTableHeaderRow + views.Count;
+                    //集計行の列インデックス、1列目から開始する
+                    int IntColumnIndex = 1;
+                    //表の元データのリストのプロパティを得る
+                    System.Reflection.PropertyInfo[] propsView = views[0].GetType().GetProperties();
+                    //リストの全プロパティをループし、数値の列のみ集計数式を入力する
+                    foreach (System.Reflection.PropertyInfo propView in propsView)
+                    {
+                        //列インデックスが1の場合は無条件で小計のタイトルラベルを入力
+                        if (IntColumnIndex == 1)
+                        {
+                            xlworksheet.Cell(IntSubtotalRow, IntColumnIndex).Value = Const_Subtotal_Title_Name;
+                        }
+                        //リストの値が数値だった場合、集計数式を入力する
+                        else if (propView.PropertyType == typeof(int?) || propView.PropertyType == typeof(double?))
+                        {
+                            xlworksheet.Cell(IntSubtotalRow, IntColumnIndex).FormulaR1C1 =
+                                $"SUBTOTAL(109,R{IntTableHeaderRow+1}C:R[-1]C)";
+                        }
+                        //次のループのために列インデックスをインクリメント
+                        IntColumnIndex++;
+                    }
+                    //集計行のラベル列の書式設定上下中央揃え
+                    xlworksheet.Cell(IntSubtotalRow,1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    xlworksheet.Cell(IntSubtotalRow,1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     //リスト部分の行の高さを設定する(タイトル行の高さを設定するとデフォルト設定がうまく動かない)
                     xlworksheet.Rows(Const_DataTable_Header_Row, xlworksheet.LastCellUsed().Address.RowNumber)
                         .Height = Const_Default_RowHeight;
