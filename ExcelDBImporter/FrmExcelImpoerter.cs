@@ -269,7 +269,7 @@ namespace ExcelDBImporter
                     xlworksheet.Cell(IntTableHeaderRow, 1).InsertTable(views);
                     //リスト最下部に集計行を追加
                     //集計行取得
-                    int IntSubtotalRow = IntTableHeaderRow + views.Count;
+                    int IntSubtotalRow = IntTableHeaderRow + views.Count + 1;
                     //集計行の列インデックス、1列目から開始する
                     int IntColumnIndex = 1;
                     //表の元データのリストのプロパティを得る
