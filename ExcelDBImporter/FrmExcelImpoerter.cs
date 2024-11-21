@@ -334,8 +334,11 @@ namespace ExcelDBImporter
                         .Style.Alignment.Horizontal = XLAlignmentHorizontalValues.CenterContinuous;
                     //タイトル行の設定
                     xlworksheet.PageSetup.SetRowsToRepeatAtTop(1, IntTableHeaderRow);
+                    
+                    /*
                     //印刷範囲の設定
                     xlworksheet.PageSetup.PrintAreas.Add(xlworksheet.Cell(1, 1).Address, xlworksheet.LastCellUsed().Address);
+                    */
                     wb.SaveAs(saveFileDialog.FileName);
                     wb.Dispose();
                     //出力済みフラグをセット
