@@ -1,3 +1,5 @@
+using CsvHelper.Configuration;
+using System.Reflection;
 namespace ExcelDBImporter
 {
     internal static class Program
@@ -11,14 +13,34 @@ namespace ExcelDBImporter
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            try
+            string strMutex = GetMutexNambyAssemblyName();
+            using (Mutex mutex =  new Mutex(true, strMutex,out bool creaedNew))
             {
-                Application.Run(new FrmExcelImpoerter());
+                if (!creaedNew)
+                {
+                    MessageBox.Show("既に起動しています。多重起動は誤動作の可能性があるので禁止しています。");
+                    return;
+                }
+                try
+                {
+                    Application.Run(new FrmExcelImpoerter());
+                }
+                catch (Exception)
+                {
+                    return;
+                }
+
             }
-            catch (Exception)
-            {
-                return;
-            }
+        }
+        /// <summary>
+        /// アセンブリ名を元にMutex識別子を返す
+        /// </summary>
+        /// <returns></returns>
+        static string GetMutexNambyAssemblyName()
+        {
+            AssemblyName assembly = Assembly.GetExecutingAssembly().GetName();
+            string? strAppName = assembly.Name ?? null;
+            return $"Global\\{strAppName?.ToString()}_Mutex" ?? string.Empty;
         }
     }
 }
