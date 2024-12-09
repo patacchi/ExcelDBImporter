@@ -40,7 +40,8 @@ namespace ExcelDBImporter
         {
             AssemblyName assembly = Assembly.GetExecutingAssembly().GetName();
             string? strAppName = assembly.Name ?? null;
-            return $"Global\\{strAppName?.ToString()}_Mutex" ?? string.Empty;
+            string? strAppLocation = Assembly.GetEntryAssembly()?.Location ?? null;
+            return $"Global\\{strAppName?.ToString()}_{strAppLocation?.Replace("\\","_")}_Mutex" ?? string.Empty;
         }
     }
 }
