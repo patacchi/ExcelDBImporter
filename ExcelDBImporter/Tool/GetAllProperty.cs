@@ -99,10 +99,10 @@ namespace ExcelDBImporter.Tool
             return value.ToString();
         }
         /// <summary>
-        /// プロパティのラムダ式を渡して、コメント属性の文字列を返す
+        /// プロパティ名を渡して、コメント属性の文字列を返す
         /// </summary>
         /// <typeparam name="T">クラス</typeparam>
-        /// <param name="propertyExpression">プロパティをラムダ式で</param>
+        /// <param name="propertyExpression">プロパティ名をStringで指定</param>
         /// <returns>コメント属性があればそれを、無ければプロパティ名そのまま</returns>
         /// <exception cref="ArgumentException">プロパティのラムダ式じゃない時エラー</exception>
         public static string? GetPropertyComment<T>(string StrPropName) where T : class
