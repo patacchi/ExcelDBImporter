@@ -22,7 +22,7 @@ namespace ExcelDBImporter
         /// </summary>
         private const double Const_Outpu_Title_Width = 8.86;
         private const int Const_DataTable_Header_Row = 4;
-        private const double Const_Default_RowHeight = 17.25;
+        private const double Const_Default_RowHeight = 16.75;
         private const double Const_DataTable_Header_RowHeight = 25.50;
         private const int Const_MainTitle_Row = 2;
         private const string Const_Subtotal_Title_Name = "è¨åv";
