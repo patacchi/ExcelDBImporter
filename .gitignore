@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# QRcodeCreateツール (Tools/qr.cs) がカレントに出力するSVG成果物
+# (先頭スラッシュはルート直下のみ、!はプロジェクト内のsvgを除外しないため)
+/*.svg
