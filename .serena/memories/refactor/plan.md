@@ -48,7 +48,16 @@ Phase は逐次実行。各 Phase は独立ブランチで行い、完了時に 
 - 2-4: **EF preview→安定版の空マイグレーション確認**: `dotnet ef migrations add CheckEf10` → Up/Down 空を確認して削除（空でなければ差分精査）
 - 2-5: csproj 整理（実体のない Resource1.resx Update 削除、空 App.config 削除可）
 - 2-6: 検証: `dotnet build`/`dotnet run`、起動時 Migrate 成功、全フォームスモーク、`Tools/qr.cs` が `dotnet run --file` で動作
+- 2-7: **テスト基盤拡張（A+B 方針、下記「テスト戦略」参照）**: ExcelDbContext 注入対応(済) + DB層テスト(Migrate/DateTime/Upsert) + CSV往復 + QR/PDF生成 + DM解析
 - ブランチ: `refactor/phase2-net10`。完了時マージ+タグ `refactor-phase2-done`
+
+## テスト戦略（2026-09-25 決定: Phase 3 を踏まえた A/B/C 分類）
+現状テストは xls→xlsx 変換の30件のみ。EF/DB・CSV・QR 領域が無検証。Phase 3(層分離/N+1修正)を控えて、テストを「Phase 3 後の生き残り」で分類する。
+- **A. バージョンゲート（Phase 2 で実施）**: ①全マイグレーションの一時DBへ Migrate 成功 ②DateTime ラウンドトリップ(Local保存→分秒一致。SQLite UTC破壊的変更の回帰ゲート) ③QR/PDF生成が例外なし。→ スキーマ/生成ロジック不変のため Phase 3 でもそのまま生存。3d の新マイグレーションも①が自動検証
+- **B. 特性化テスト（Phase 2 で実施、振る舞い粒度で書く）**: Upsert(エンティティ投入→DB状態アサート) / CSV往復(ShInOut) / DM解析(テキスト→TTempQRrow)。実装詳細に密着させず「入力→DB/ファイルの状態」のみ検証 → Phase 3 で呼び出し先が Repository/Service に変わったら**呼び出し行だけ移植**してアサションを再利用(移植は各 3x ステップの完了条件に組み込む)
+- **C. アーキテクチャテスト（Phase 3 に回す）**: Service/Repository の async API・DI 構成・性能計測(3e-2)。Phase 3 で新設される API なので今は書けない
+- 前提(済): `ExcelDbContext` に `DbContextOptions` 注入コンストラクタ追加 + `OnConfiguring` を `IsConfigured` ガード。テストは一時 SQLite を差し込む。この形は 3a-1/3a-2 でも維持
+- テストは `ExcelDBImporter.Tests` に DB フィクスチャ(一時ファイル+Migrate)を共通化して追加
 
 ## Phase 3: DB アーキテクチャ再構築（3a→3b/3c→3d→3e、各段後にビルド+スモーク）
 ### 3a DI 基盤

@@ -34,10 +34,11 @@
 |---|---|---|---|---|---|
 | 2-1 | TFM net10.0-windows | done | PC124761-FCH | 2026-09-25 | main/tests 両方 net10.0-windows。ビルド0警告0エラー |
 | 2-2 | パッケージ一括更新 | done | PC124761-FCH | 2026-09-25 | EF Sqlite/Design/Tools 10.0.12 / IO.Ports 10.0.12 / ClosedXML 0.105.1 / PDFsharp 6.2.4 / CsvHelper 33.1.0。SQLitePCLRaw ピン留め解除(EF10トランジティブ管理)。CodePages はNU1510のため削除(共有FWに内包)。WFO1000対策: FrmPrintQRCode.DicSVGStream に Browsable(false)+DesignerSerializationVisibility(Hidden)。dotnet test 30/30成功(net10.0) |
-| 2-3 | dotnet-ef ツール化 | pending | | | |
-| 2-4 | 空マイグレーション確認 | pending | | | 重要 |
-| 2-5 | csproj 整理 | pending | | | |
-| 2-6 | 検証スモーク | pending | | | |
+| 2-3 | dotnet-ef ツール化 | done | PC124761-FCH | 2026-09-25 | dotnet-ef 9.0.7→10.0.12 (global tool update)。suggested_commands の版数注意は解消済み |
+| 2-4 | 空マイグレーション確認 | done | PC124761-FCH | 2026-09-25 | CheckEf10 生成→Up/Down完全空(=EF10安定版のスキーマはpreviewと差分ゼロ)→remove済み。ModelSnapshot の ProductVersion 9.0.0-preview.3→10.0.12 のみ差分として残す(意図的)。UTC破壊的変更の実データ影響ゼロは mem:net10-migration-findings 参照 |
+| 2-5 | csproj 整理 | done | PC124761-FCH | 2026-09-25 | 実体のない Resource1.resx Update 削除、空 App.config git rm |
+| 2-6 | 検証スモーク | pending | | | dotnet run 起動+全フォームスモーク+Tools/qr.cs 動作。2-7 のテストが緑なら GUI スモークは主観察に絞れる |
+| 2-7 | テスト基盤拡張(A+B) | pending | | | 方針は plan「テスト戦略」節。前提の DbContext 注入対応は済(ad17a1e)。A(バージョンゲート): 全Migrate/DateTime往復(Local分秒一致)/QR・PDF生成 → B(特性化・振る舞い粒度): Upsert/CSV往復(ShInOut)/DM解析。C(Service層async/DI)はPhase3へ |
 
 ## Phase 3: DB 再アーキテクチャ
 | Step | 内容 | Status | Host | 日付 | 備考 |
@@ -65,3 +66,5 @@
 - 2026-09-25 PC124761-FCH: Dev_QRread ブランチをローカル/リモートから削除（master に完全マージ済み、ロールバックはタグ v0.6.2-devqrread で可能）。以降の Phase は master からブランチを切る。
 - 2026-09-25 PC124761-FCH: **Phase 0 完了・master マージ済み**（マージコミット 0be007f、タグ refactor-phase0-done）。次: Phase 1（ブランチ refactor/phase1-com を master から作成）。
 - 2026-09-25 PC124761-FCH: **Phase 1 完了・master マージ済み**（マージコミット c7a6c35、タグ refactor-phase1-done）。COM参照全廃により `dotnet build` が VS なしで成功。テスト30件成功。既存バグ修正含む（csv等不正拡張子選択時の未捕捉例外、XlsToXlsx再スローの二重表示）。次: Phase 2（ブランチ refactor/phase2-net10 を master から作成）。
+- 2026-09-25 PC124761-FCH: **Phase 2 進行中（2-1〜2-5 done、2-6/2-7 pending）**。net10.0-windows 化+EF10.0.12等へ更新（コミット 8d177e0）、EF10空マイグレーション確認・csproj整理・DbContext注入対応（コミット ad17a1e）。ビルド0警告0エラー、テスト30/30緑(net10.0)。**テスト実装方針（A/B/C分類）を plan「テスト戦略」節に決定記録**。
+- 2026-09-25 PC124761-FCH: **【再開ポイント/他ホスト用】** 次ホストでの再開手順: ①`git pull` → `refactor/phase2-net10` をチェックアウト（HEAD=ad17a1e+docコミット、origin push 済み）②`refactor/plan`「テスト戦略」+`mem:net10-migration-findings`+本progressを読む ③**2-7 のテスト実装から着手**（A: 全Migrate/DateTime往復/QR・PDF生成 → B: Upsert/CSV往復/DM解析。共通DBフィクスチャ=一時SQLite+Migrate を ExcelDBImporter.Tests に新設。ExcelDbContext の DbContextOptions 注入コンストラクタ使用）。テストは振る舞い粒度で書くこと（Phase 3 で呼び出し移植のみで済むように）。④2-7 緑後に 2-6 GUIスモーク（主観察: 日付範囲クエリ/CSV/QR/PDF/DB Migrate）→ Phase 2 マージ+タグ `refactor-phase2-done`。⑤Phase 3 着手時、B テストの移植を各ステップ完了条件に組み込む（plan 参照）。注意点: dotnet コマンド前に `[Console]::OutputEncoding=UTF8`。GUI検証はユーザー目視。WFO1000対策済(FrmPrintQRCode)。CodePages パッケージは .NET10 では不要(削除済、RegisterProvider は維持)。
