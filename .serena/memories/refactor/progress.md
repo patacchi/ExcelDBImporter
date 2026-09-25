@@ -13,7 +13,7 @@
 ## Phase 0: UTF-8 統一
 | Step | 内容 | Status | Host | 日付 | 備考 |
 |---|---|---|---|---|---|
-| 0-1 | SJIS2本→UTF-8-BOM | pending | | | FrmExcelImpoerter.cs / Program.cs |
+| 0-1 | SJIS2本→UTF-8-BOM | in-progress | PC124761-FCH | 2026-09-25 | FrmExcelImpoerter.cs / Program.cs |
 | 0-2 | BOM付与2本 | pending | | | Tools/qr.cs / ToDo.txt |
 | 0-3 | .editorconfig 新規 | pending | | | |
 | 0-4 | Sample/README.md | pending | | | |
