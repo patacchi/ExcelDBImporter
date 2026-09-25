@@ -32,7 +32,7 @@
 ## Phase 2: .NET 10 移行
 | Step | 内容 | Status | Host | 日付 | 備考 |
 |---|---|---|---|---|---|
-| 2-1 | TFM net10.0-windows | pending | | | |
+| 2-1 | TFM net10.0-windows | in-progress | PC124761-FCH | 2026-09-25 | ブランチ refactor/phase2-net10 作成済 |
 | 2-2 | パッケージ一括更新 | pending | | | 版数は plan 参照 |
 | 2-3 | dotnet-ef ツール化 | pending | | | |
 | 2-4 | 空マイグレーション確認 | pending | | | 重要 |
