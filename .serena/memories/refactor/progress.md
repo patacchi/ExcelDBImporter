@@ -6,9 +6,9 @@
 ## Phase M: Dev_QRread → master マージ
 | Step | 内容 | Status | Host | 日付 | 備考 |
 |---|---|---|---|---|---|
-| M-1 | Dev_QRread push（未pushコミット+refactorメモリ） | in-progress | PC124761-FCH | 2026-09-25 | |
-| M-2 | master へ --no-ff マージ+push | pending | | | FF可能・コンフリクトなし調査済み |
-| M-3 | タグ v0.6.2-devqrread | pending | | | |
+| M-1 | Dev_QRread push（未pushコミット+refactorメモリ） | done | PC124761-FCH | 2026-09-25 | origin/Dev_QRread=8687742 |
+| M-2 | master へ --no-ff マージ+push | done | PC124761-FCH | 2026-09-25 | マージコミット ad18971、origin/master=ad18971。コンフリクトなし |
+| M-3 | タグ v0.6.2-devqrread | done | PC124761-FCH | 2026-09-25 | ad18971 に付与、リモート push 済み |
 
 ## Phase 0: UTF-8 統一
 | Step | 内容 | Status | Host | 日付 | 備考 |
@@ -60,3 +60,4 @@
 
 ## 変更ログ
 - 2026-09-25 PC124761-FCH: plan/progress/findings 作成。Phase M〜3 確定。
+- 2026-09-25 PC124761-FCH: **Phase M 完了**（M-1〜M-3 done）。Dev_QRread→master --no-ff マージ（ad18971）を origin に push、タグ v0.6.2-devqrread 付与。次: Phase 0（ブランチ refactor/phase0-encoding を master から作成）。
