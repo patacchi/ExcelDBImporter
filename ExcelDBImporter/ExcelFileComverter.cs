@@ -50,6 +50,13 @@ namespace ExcelDBImporter
                 }
                 dbLoadDir.SaveChanges();
                 dbLoadDir.Dispose();
+                //ダイアログのフィルタを無視して選択された場合の防御(拡張子チェック)
+                if (!IsSupportedExcelFile(StrOriginFilePath))
+                {
+                    MessageBox.Show("Excelファイル(*.xlsx / *.xls)を選択してください。",
+                        "ファイル選択エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return string.Empty;
+                }
                 if (Path.GetExtension(StrOriginFilePath).Equals(".xls", StringComparison.CurrentCultureIgnoreCase))
                 {
                     //xlsファイルだった場合(変換が必要)
@@ -58,7 +65,16 @@ namespace ExcelDBImporter
                         MessageBox.Show("ファイルが見つかりません");
                         return string.Empty;
                     }
-                    XlsToXlsx(StrOriginFilePath);
+                    try
+                    {
+                        XlsToXlsx(StrOriginFilePath);
+                    }
+                    catch (Exception)
+                    {
+                        //XlsToXlsx 側で種別に応じたエラーダイアログ表示済み。
+                        //再スローされた例外が呼び出し側(Frm)で二重表示・未捕捉にならないようここで止める
+                        return string.Empty;
+                    }
                     return StrConvertedFilePath ?? string.Empty;
                 }
                 else
@@ -69,6 +85,19 @@ namespace ExcelDBImporter
             MessageBox.Show("ファイル選択がキャンセルされました");
             return string.Empty;
         }
+        /// <summary>
+        /// ダイアログで許可している拡張子(.xlsx / .xls)かどうか。
+        /// フィルタを無視した選択(.csv等)を弾くための防御チェック。
+        /// ※テスト可能にするため internal
+        /// </summary>
+        internal static bool IsSupportedExcelFile(string? StrFilePath)
+        {
+            if (string.IsNullOrEmpty(StrFilePath)) { return false; }
+            string strExt = Path.GetExtension(StrFilePath);
+            return strExt.Equals(".xlsx", StringComparison.OrdinalIgnoreCase)
+                || strExt.Equals(".xls", StringComparison.OrdinalIgnoreCase);
+        }
+
         /// <summary>
         /// .xls を .xlsx に変換し、一時ファイルパスを StrConvertedFilePath に設定する。
         /// 失敗時は例外を投げ、種別に応じたエラーダイアログを表示する(UI 層)。

@@ -168,6 +168,25 @@ namespace ExcelDBImporter.Tests
             wb.Worksheets.Add(strResult); //例外にならない=一意
         }
 
+        /// <summary>
+        /// 拡張子チェック: ダイアログのフィルタを無視した選択(.csv等)を弾けること
+        /// </summary>
+        [Theory]
+        [InlineData("book.xlsx", true)]
+        [InlineData("book.XLSX", true)]
+        [InlineData("book.xls", true)]
+        [InlineData("book.XLS", true)]
+        [InlineData("book.csv", false)]
+        [InlineData("book.txt", false)]
+        [InlineData("book.xlsm", false)]
+        [InlineData("noext", false)]
+        [InlineData("", false)]
+        [InlineData(null, false)]
+        public void IsSupportedExcelFile_許可拡張子のみtrue(string? strFile, bool bExpected)
+        {
+            Assert.Equal(bExpected, ExcelFileComverter.IsSupportedExcelFile(strFile));
+        }
+
         private static string GetSampleFilePath(string strSampleFileName)
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);
