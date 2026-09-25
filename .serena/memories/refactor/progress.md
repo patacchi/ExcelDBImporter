@@ -6,7 +6,7 @@
 ## Phase M: Dev_QRread → master マージ
 | Step | 内容 | Status | Host | 日付 | 備考 |
 |---|---|---|---|---|---|
-| M-1 | Dev_QRread push（未push2コミット+refactorメモリ） | pending | | | |
+| M-1 | Dev_QRread push（未pushコミット+refactorメモリ） | in-progress | PC124761-FCH | 2026-09-25 | |
 | M-2 | master へ --no-ff マージ+push | pending | | | FF可能・コンフリクトなし調査済み |
 | M-3 | タグ v0.6.2-devqrread | pending | | | |
 
