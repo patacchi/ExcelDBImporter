@@ -32,8 +32,8 @@
 ## Phase 2: .NET 10 移行
 | Step | 内容 | Status | Host | 日付 | 備考 |
 |---|---|---|---|---|---|
-| 2-1 | TFM net10.0-windows | in-progress | PC124761-FCH | 2026-09-25 | ブランチ refactor/phase2-net10 作成済 |
-| 2-2 | パッケージ一括更新 | pending | | | 版数は plan 参照 |
+| 2-1 | TFM net10.0-windows | done | PC124761-FCH | 2026-09-25 | main/tests 両方 net10.0-windows。ビルド0警告0エラー |
+| 2-2 | パッケージ一括更新 | done | PC124761-FCH | 2026-09-25 | EF Sqlite/Design/Tools 10.0.12 / IO.Ports 10.0.12 / ClosedXML 0.105.1 / PDFsharp 6.2.4 / CsvHelper 33.1.0。SQLitePCLRaw ピン留め解除(EF10トランジティブ管理)。CodePages はNU1510のため削除(共有FWに内包)。WFO1000対策: FrmPrintQRCode.DicSVGStream に Browsable(false)+DesignerSerializationVisibility(Hidden)。dotnet test 30/30成功(net10.0) |
 | 2-3 | dotnet-ef ツール化 | pending | | | |
 | 2-4 | 空マイグレーション確認 | pending | | | 重要 |
 | 2-5 | csproj 整理 | pending | | | |

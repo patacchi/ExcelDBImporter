@@ -18,6 +18,8 @@ namespace ExcelDBImporter
 {
     public partial class FrmPrintQRCode : Form
     {
+        //WinForms ソースジェネレーター(WFO1000): デザイナーシリアライズ対象にしない
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Dictionary<string, MemoryStream> DicSVGStream { get; set; }
         public FrmPrintQRCode()
         {
