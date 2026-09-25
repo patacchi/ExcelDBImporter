@@ -62,3 +62,4 @@
 - 2026-09-25 PC124761-FCH: plan/progress/findings 作成。Phase M〜3 確定。
 - 2026-09-25 PC124761-FCH: **Phase M 完了**（M-1〜M-3 done）。Dev_QRread→master --no-ff マージ（ad18971）を origin に push、タグ v0.6.2-devqrread 付与。次: Phase 0（ブランチ refactor/phase0-encoding を master から作成）。
 - 2026-09-25 PC124761-FCH: Dev_QRread ブランチをローカル/リモートから削除（master に完全マージ済み、ロールバックはタグ v0.6.2-devqrread で可能）。以降の Phase は master からブランチを切る。
+- 2026-09-25 PC124761-FCH: **Phase 0 完了・master マージ済み**（マージコミット 0be007f、タグ refactor-phase0-done）。次: Phase 1（ブランチ refactor/phase1-com を master から作成）。
