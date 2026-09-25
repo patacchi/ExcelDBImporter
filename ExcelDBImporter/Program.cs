@@ -1,4 +1,4 @@
-using CsvHelper.Configuration;
+ï»¿using CsvHelper.Configuration;
 using System.Reflection;
 namespace ExcelDBImporter
 {
@@ -18,7 +18,7 @@ namespace ExcelDBImporter
             {
                 if (!creaedNew)
                 {
-                    MessageBox.Show("Šù‚É‹N“®‚µ‚Ä‚¢‚Ü‚·B‘½d‹N“®‚ÍŒë“®ì‚Ì‰Â”\«‚ª‚ ‚é‚Ì‚Å‹Ö~‚µ‚Ä‚¢‚Ü‚·B");
+                    MessageBox.Show("æ—¢ã«èµ·å‹•ã—ã¦ã„ã¾ã™ã€‚å¤šé‡èµ·å‹•ã¯èª¤å‹•ä½œã®å¯èƒ½æ€§ãŒã‚ã‚‹ã®ã§ç¦æ­¢ã—ã¦ã„ã¾ã™ã€‚");
                     return;
                 }
                 try
@@ -33,7 +33,7 @@ namespace ExcelDBImporter
             }
         }
         /// <summary>
-        /// ƒAƒZƒ“ƒuƒŠ–¼‚ğŒ³‚ÉMutex¯•Êq‚ğ•Ô‚·
+        /// ã‚¢ã‚»ãƒ³ãƒ–ãƒªåã‚’å…ƒã«Mutexè­˜åˆ¥å­ã‚’è¿”ã™
         /// </summary>
         /// <returns></returns>
         static string GetMutexNambyAssemblyName()
