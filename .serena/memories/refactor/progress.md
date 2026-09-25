@@ -22,12 +22,12 @@
 ## Phase 1: COM 全廃
 | Step | 内容 | Status | Host | 日付 | 備考 |
 |---|---|---|---|---|---|
-| 1-1 | csproj COMReference削除+ExcelDataReader追加 | in-progress | PC124761-FCH | 2026-09-25 | |
-| 1-2 | XlsToXlsx 書換え | pending | | | |
-| 1-3 | CodePagesEncodingProvider 登録 | pending | | | |
+| 1-1 | csproj COMReference削除+ExcelDataReader追加 | done | PC124761-FCH | 2026-09-25 | COMReference×2削除、ExcelDataReader 3.9.0+CodePages 8.0.0追加 |
+| 1-2 | XlsToXlsx 書換え | done | PC124761-FCH | 2026-09-25 | ExcelDataReader+ClosedXML化。エラーハンドリング強化(実体/シート/シート名サニタイズ/出力確認/例外別メッセージ)。コア処理は ConvertXlsToXlsx に分離(UI非依存) |
+| 1-3 | CodePagesEncodingProvider 登録 | done | PC124761-FCH | 2026-09-25 | Program.cs Main冒頭 |
 | 1-4 | ゴミusing削除（任意） | pending | | | 本Phaseでは後回し可 |
-| 1-5 | dotnet build 検証+インポート比較 | pending | | | |
-| 1-6 | テスト基盤+変換テスト2本 | pending | | | xUnit。Sample の実 .xls を使用 |
+| 1-5 | dotnet build 検証+インポート比較 | in-progress | PC124761-FCH | 2026-09-25 | dotnet build 0 errors 0 warnings 済。GUIでの .xls/.xlsx インポート目視比較が未実施 |
+| 1-6 | テスト基盤+変換テスト2本 | done | PC124761-FCH | 2026-09-25 | xUnit。正常系4+異常系16=20件成功。異常系: ファイル無し/偽装/空/シート名サニタイズ。ClosedXML SaveAsは出力先ディレクトリ自動作成(実測) |
 
 ## Phase 2: .NET 10 移行
 | Step | 内容 | Status | Host | 日付 | 備考 |
