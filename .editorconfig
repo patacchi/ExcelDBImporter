@@ -1,0 +1,14 @@
+# ソースエンコーディングの統一ルール（Phase 0: UTF-8-BOM 統一）
+# 詳細: .serena/memories/refactor/plan.md (Phase 0)
+root = true
+
+[*]
+charset = utf-8-bom
+
+# Sample/ の CSV・txt は意図的な Shift-JIS（UTF.Unknown 自動判定のテスト入力）。変換禁止
+[Sample/**]
+charset = unset
+
+# git submodule 配下は本リポジトリの管理対象外
+[.github/**]
+charset = unset

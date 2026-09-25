@@ -1,4 +1,4 @@
-using System.Diagnostics;
+ï»¿using System.Diagnostics;
 using System.Linq;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Bibliography;
@@ -18,14 +18,14 @@ namespace ExcelDBImporter
     public partial class FrmExcelImpoerter : Form
     {
         /// <summary>
-        /// o—ÍExcelƒtƒ@ƒCƒ‹‚Ì‰¡•
+        /// å‡ºåŠ›Excelãƒ•ã‚¡ã‚¤ãƒ«ã®æ¨ªå¹…
         /// </summary>
         private const double Const_Outpu_Title_Width = 8.86;
         private const int Const_DataTable_Header_Row = 4;
         private const double Const_Default_RowHeight = 16.75;
         private const double Const_DataTable_Header_RowHeight = 25.50;
         private const int Const_MainTitle_Row = 2;
-        private const string Const_Subtotal_Title_Name = "¬Œv";
+        private const string Const_Subtotal_Title_Name = "å°è¨ˆ";
 
         public FrmExcelImpoerter()
         {
@@ -45,14 +45,14 @@ namespace ExcelDBImporter
         }
         private void BtnImputExcelFile_Click(object sender, EventArgs e)
         {
-            //.xls(ƒoƒCƒiƒŠ)ƒtƒ@ƒCƒ‹‚¾‚Á‚½ê‡‚Í.xlsx(XML)ƒtƒ@ƒCƒ‹‚É•ÏŠ·‚·‚é
+            //.xls(ãƒã‚¤ãƒŠãƒª)ãƒ•ã‚¡ã‚¤ãƒ«ã ã£ãŸå ´åˆã¯.xlsx(XML)ãƒ•ã‚¡ã‚¤ãƒ«ã«å¤‰æ›ã™ã‚‹
             ExcelFileComverter ImportExcelFileConverter = new();
             string ImportExcelFilePath = ImportExcelFileConverter.ExcelFileComVerter();
-            //‹ó‚¾‚Á‚½‚ç‘½•ªƒLƒƒƒ“ƒZƒ‹‚©‰½‚©‚È‚Ì‚Å‚»‚Ì‚Ü‚ÜÃ‚©‚É”²‚¯‚é
+            //ç©ºã ã£ãŸã‚‰å¤šåˆ†ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã‹ä½•ã‹ãªã®ã§ãã®ã¾ã¾é™ã‹ã«æŠœã‘ã‚‹
             if (string.IsNullOrEmpty(ImportExcelFilePath)) { return; }
             if (!File.Exists(ImportExcelFilePath))
             {
-                MessageBox.Show("w’è‚³‚ê‚½ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½(ImportFile)");
+                MessageBox.Show("æŒ‡å®šã•ã‚ŒãŸãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸ(ImportFile)");
                 return;
             }
             textBoxInputFilename.Text = ImportExcelFileConverter.StrOriginFilePath;
@@ -69,13 +69,13 @@ namespace ExcelDBImporter
                     ShShukkaUpsert shShukkaUpsert = new(rangeInport);
                     shShukkaUpsert.DoUpsert();
                     //ExcelDbContext dbContext = new();
-                    MessageBox.Show("DBæ‚è‚İŠ®—¹");
+                    MessageBox.Show("DBå–ã‚Šè¾¼ã¿å®Œäº†");
                 }
                 catch (ArgumentException arg)
                 {
                     if (arg.Message.Contains("There isn't a worksheet associated with that position."))
                     {
-                        MessageBox.Show("w’è‚³‚ê‚½ˆÊ’u‚ÉƒV[ƒg‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B\n“ü—Íƒtƒ@ƒCƒ‹‚ğŠm”F‚µ‚Ä‰º‚³‚¢B");
+                        MessageBox.Show("æŒ‡å®šã•ã‚ŒãŸä½ç½®ã«ã‚·ãƒ¼ãƒˆãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚\nå…¥åŠ›ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ç¢ºèªã—ã¦ä¸‹ã•ã„ã€‚");
                         return;
                     }
                 }
@@ -100,14 +100,14 @@ namespace ExcelDBImporter
         }
 
         /// <summary>
-        /// “ú•tƒtƒBƒ‹ƒ^‚Ì‰Šúİ’è‚ğs‚¢‚Ü‚·
+        /// æ—¥ä»˜ãƒ•ã‚£ãƒ«ã‚¿ã®åˆæœŸè¨­å®šã‚’è¡Œã„ã¾ã™
         /// </summary>
         public void DateTimePickerInitialize()
         {
             using ExcelDbContext dbContext = new();
             try
             {
-                //TQRinputƒe[ƒuƒ‹‚æ‚èAViewMarsharingƒe[ƒuƒ‹‚ÉWŒv‚ğs‚¤
+                //TQRinputãƒ†ãƒ¼ãƒ–ãƒ«ã‚ˆã‚Šã€ViewMarsharingãƒ†ãƒ¼ãƒ–ãƒ«ã«é›†è¨ˆã‚’è¡Œã†
                 List<ViewMarsharing>? views = dbContext.TQRinputs
                                             .GroupBy(tqr => tqr.DateInputDate.Date)
                                             .Select(g => new ViewMarsharing
@@ -131,35 +131,35 @@ namespace ExcelDBImporter
                                                 g.Sum(tqr => tqr.QROPcode.HasFlag(QrOPcode.Other) ? 1 : 0)
                                             }
                                             ).ToList();
-                //ƒŠƒXƒg‚ÌŒ‹‰Ê‚ğUpsert
+                //ãƒªã‚¹ãƒˆã®çµæœã‚’Upsert
                 dbContext.UpsertEntities(views)
                     .Execute();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"{nameof(DateTimePickerInitialize)} ‚Å {ex.Message} ƒGƒ‰[");
+                MessageBox.Show($"{nameof(DateTimePickerInitialize)} ã§ {ex.Message} ã‚¨ãƒ©ãƒ¼");
                 return;
             }
-            //Outputƒtƒ‰ƒO‚ª—§‚Á‚Ä‚¢‚È‚¢‚à‚Ì‚ÅAˆê”ÔŒÃ‚¢ƒf[ƒ^‚ğæ“¾(–¢WŒv‚Ì‚¤‚¿Aˆê”ÔŒÃ‚¢ƒf[ƒ^‚ğæ“¾)
-            //ƒtƒ‰ƒO—§‚Á‚Ä‚¢‚é‚à‚Ì‚ÅÅV‚Ìƒf[ƒ^‚ğæ“¾‚µ‚Ä‚¢‚½‚ªA‚±‚ê‚¾‚ÆÅŒã‚Ìƒf[ƒ^‚ª”í‚é
+            //Outputãƒ•ãƒ©ã‚°ãŒç«‹ã£ã¦ã„ãªã„ã‚‚ã®ã§ã€ä¸€ç•ªå¤ã„ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—(æœªé›†è¨ˆã®ã†ã¡ã€ä¸€ç•ªå¤ã„ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—)
+            //ãƒ•ãƒ©ã‚°ç«‹ã£ã¦ã„ã‚‹ã‚‚ã®ã§æœ€æ–°ã®ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã—ã¦ã„ãŸãŒã€ã“ã‚Œã ã¨æœ€å¾Œã®ãƒ‡ãƒ¼ã‚¿ãŒè¢«ã‚‹
             ViewMarsharing? OutputNewest = dbContext.ViewMarsharings
                                     .Where(s => s.IsCompiled == false)
                                     .OrderBy(s => s.DatePerDay)
                                     .FirstOrDefault();
 
-            //ƒ}[ƒVƒƒƒŠƒ“ƒOƒXƒ^[ƒg“úæ“¾Aƒtƒ‰ƒO‚ª—§‚Á‚Ä‚¢‚È‚¢ƒf[ƒ^‚ª–³‚©‚Á‚½ê‡‚ÍŒ»İ“ú‚ğİ’è
+            //ãƒãƒ¼ã‚·ãƒ£ãƒªãƒ³ã‚°ã‚¹ã‚¿ãƒ¼ãƒˆæ—¥å–å¾—ã€ãƒ•ãƒ©ã‚°ãŒç«‹ã£ã¦ã„ãªã„ãƒ‡ãƒ¼ã‚¿ãŒç„¡ã‹ã£ãŸå ´åˆã¯ç¾åœ¨æ—¥æ™‚ã‚’è¨­å®š
             DateTime DateStartDayofMarshalling = (OutputNewest == null
                                   || OutputNewest.DatePerDay == null) ? DateTime.Now : (DateTime)OutputNewest.DatePerDay;
-            //I—¹“ú‚Í‘O“ú 23:59:59.9999
+            //çµ‚äº†æ—¥ã¯å‰æ—¥ 23:59:59.9999
             DtpickEnd.Value = new DateTime(DateTime.Now.Year,
                                             DateTime.Now.Month,
                                             DateTime.Now.Day
                                             ).AddMilliseconds(-1);
-            //I—¹“ú‚æ‚èŠJn“ú‚ª‘O‚¾‚Á‚½ê‡‚ÍAæ’ö‚Ìƒ}[ƒVƒƒƒŠƒ“ƒOƒXƒ^[ƒg“ú‚Æ‚µA‚»‚êˆÈŠO‚ÍI—¹“ú‚ğŠJn“ú‚Æ‚µ‚Äİ’è
+            //çµ‚äº†æ—¥ã‚ˆã‚Šé–‹å§‹æ—¥ãŒå‰ã ã£ãŸå ´åˆã¯ã€å…ˆç¨‹ã®ãƒãƒ¼ã‚·ãƒ£ãƒªãƒ³ã‚°ã‚¹ã‚¿ãƒ¼ãƒˆæ—¥ã¨ã—ã€ãã‚Œä»¥å¤–ã¯çµ‚äº†æ—¥ã‚’é–‹å§‹æ—¥ã¨ã—ã¦è¨­å®š
             DtpickStart.Value = DtpickEnd.Value >= DateStartDayofMarshalling ? DateStartDayofMarshalling : DtpickEnd.Value;
-            //•\¦Œ`®•ÏX
-            DtpickStart.CustomFormat = "yyyy”NMMŒdd“ú HHmm•ªss•b";
-            DtpickEnd.CustomFormat = "yyyy”NMMŒdd“ú HHmm•ªss•b";
+            //è¡¨ç¤ºå½¢å¼å¤‰æ›´
+            DtpickStart.CustomFormat = "yyyyå¹´MMæœˆddæ—¥ HHæ™‚mmåˆ†ssç§’";
+            DtpickEnd.CustomFormat = "yyyyå¹´MMæœˆddæ—¥ HHæ™‚mmåˆ†ssç§’";
             dbContext.Dispose();
         }
 
@@ -170,7 +170,7 @@ namespace ExcelDBImporter
         }
 
         /// <summary>
-        /// w’è‚³‚ê‚½“ú•tğŒ‚ğŠî‚Éxlsxƒtƒ@ƒCƒ‹‚ğo—Í‚µ‚Ü‚·
+        /// æŒ‡å®šã•ã‚ŒãŸæ—¥ä»˜æ¡ä»¶ã‚’åŸºã«xlsxãƒ•ã‚¡ã‚¤ãƒ«ã‚’å‡ºåŠ›ã—ã¾ã™
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -198,12 +198,12 @@ namespace ExcelDBImporter
             if (dateStart > dateEnd) { dateEnd = dateStart; }
             try
             {
-                //ŠJn“ú‚ÆI—¹“ú‚ÌŠÔ‚Åƒf[ƒ^‚ª–³‚¢‚à‚Ì‚ğ•âŠ®‚·‚é
+                //é–‹å§‹æ—¥ã¨çµ‚äº†æ—¥ã®é–“ã§ãƒ‡ãƒ¼ã‚¿ãŒç„¡ã„ã‚‚ã®ã‚’è£œå®Œã™ã‚‹
                 ViewTableEditor vte = new();
                 vte.FillEmptyDay(dateStart, dateEnd);
                 using ExcelDbContext dbContext = new();
                 //dbContext.ViewMarsharings.AddRange(views);
-                //“ú•t‚ª”ÍˆÍ“à‚Å‚È‚¨‚©‚Âo—ÍÏ‚İ‚Å‚Íu–³‚¢v•¨‚ğ‘I‘ğ
+                //æ—¥ä»˜ãŒç¯„å›²å†…ã§ãªãŠã‹ã¤å‡ºåŠ›æ¸ˆã¿ã§ã¯ã€Œç„¡ã„ã€ç‰©ã‚’é¸æŠ
                 var views = dbContext.ViewMarsharings
                                     .Where(e => e.DatePerDay >= dateStart && e.DatePerDay <= dateEnd
                                         && e.IsCompiled == false)
@@ -224,28 +224,28 @@ namespace ExcelDBImporter
                 if (views == null || views.Count == 0)
                 {
                     MessageBox.Show(
-                        "ŠY“–‚·‚éƒf[ƒ^‚ª‚ ‚è‚Ü‚¹‚ñ‚Å‚µ‚½B’ŠoğŒ‚ğŠm”F‚µ‚Ä‰º‚³‚¢\n" +
-                        "ŠJn“úF" + DtpickStart.Value.ToString() + "\n" +
-                        "I—¹“úF" + DtpickEnd.Value.ToString() + "\n"
+                        "è©²å½“ã™ã‚‹ãƒ‡ãƒ¼ã‚¿ãŒã‚ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚æŠ½å‡ºæ¡ä»¶ã‚’ç¢ºèªã—ã¦ä¸‹ã•ã„\n" +
+                        "é–‹å§‹æ—¥æ™‚ï¼š" + DtpickStart.Value.ToString() + "\n" +
+                        "çµ‚äº†æ—¥æ™‚ï¼š" + DtpickEnd.Value.ToString() + "\n"
                         );
                     return;
                 }
 
-                //DB‚æ‚è•Û‘¶ƒfƒBƒŒƒNƒgƒŠ‚Ìİ’è‚ª‚ ‚é‚©ƒ`ƒFƒbƒNA‚È‚¯‚ê‚ÎString.Empty
+                //DBã‚ˆã‚Šä¿å­˜ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã®è¨­å®šãŒã‚ã‚‹ã‹ãƒã‚§ãƒƒã‚¯ã€ãªã‘ã‚Œã°String.Empty
                 AppSetting? appExists = dbContext.AppSettings.FirstOrDefault(a => a.StrAppName == CONST_STR_ExcelDBImporterAppName);
                 string StrDBSaveDir = string.Empty;
                 if (appExists != null)
                 {
 
-                    //LastSaveDir‚Éİ’è’l‚ª‘¶İ‚·‚éê‡‚Ì‚İİ’è
+                    //LastSaveDirã«è¨­å®šå€¤ãŒå­˜åœ¨ã™ã‚‹å ´åˆã®ã¿è¨­å®š
                     StrDBSaveDir = string.IsNullOrEmpty(appExists.StrLastSaveToDir) ? string.Empty : appExists.StrLastSaveToDir;
                 }
-                //•Û‘¶ƒtƒ@ƒCƒ‹–¼‘I‘ğ
+                //ä¿å­˜ãƒ•ã‚¡ã‚¤ãƒ«åé¸æŠ
                 SaveFileDialog saveFileDialog = new()
                 {
                     InitialDirectory = StrDBSaveDir,
                     Filter = "Excel files (*.xlsx)|*.xlsx",
-                    FileName = "5D8B4869P002_“d¥Eƒ}ƒCƒNƒ”g‘ŞŠÇ—ÀÑWŒv" + DtpickEnd.Value.Date.Year + "”N" + DtpickEnd.Value.Date.Month + "Œ"
+                    FileName = "5D8B4869P002_é›»ç£ãƒ»ãƒã‚¤ã‚¯ãƒ­æ³¢è³‡æç®¡ç†å®Ÿç¸¾é›†è¨ˆ" + DtpickEnd.Value.Date.Year + "å¹´" + DtpickEnd.Value.Date.Month + "æœˆ"
                 };
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -253,53 +253,53 @@ namespace ExcelDBImporter
                     int IntTitleRow = Const_MainTitle_Row;
                     double DblTitleFontSize = 13;
                     XLWorkbook wb = new();
-                    //ƒfƒtƒHƒ‹ƒg‚ÌƒtƒHƒ“ƒg‚ÆƒtƒHƒ“ƒgƒTƒCƒY‚ğİ’è
-                    XLWorkbook.DefaultStyle.Font.FontName = "BIZ UDƒSƒVƒbƒN";
-                    wb.Style.Font.FontName = "BIZ UDƒSƒVƒbƒN";
+                    //ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ãƒ•ã‚©ãƒ³ãƒˆã¨ãƒ•ã‚©ãƒ³ãƒˆã‚µã‚¤ã‚ºã‚’è¨­å®š
+                    XLWorkbook.DefaultStyle.Font.FontName = "BIZ UDã‚´ã‚·ãƒƒã‚¯";
+                    wb.Style.Font.FontName = "BIZ UDã‚´ã‚·ãƒƒã‚¯";
                     wb.Style.Font.FontSize = 9;
-                    //cŒü‚«‚Éİ’è
+                    //ç¸¦å‘ãã«è¨­å®š
                     wb.PageOptions.PageOrientation = XLPageOrientation.Portrait;
-                    //—p†ƒTƒCƒY‚ğA4‚Éİ’è
+                    //ç”¨ç´™ã‚µã‚¤ã‚ºã‚’A4ã«è¨­å®š
                     wb.PageOptions.PaperSize = XLPaperSize.A4Paper;
-                    //ƒfƒtƒHƒ‹ƒg‚Ìs‚Ì‚‚³‚ğİ’è
+                    //ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®è¡Œã®é«˜ã•ã‚’è¨­å®š
                     wb.RowHeight = Const_Default_RowHeight;
-                    IXLWorksheet xlworksheet = wb.AddWorksheet("“d¥Eƒ}ƒCƒNƒ”g‘ŞŠÇ—ÀÑWŒv" + DtpickEnd.Value.Date.Year + "”N" + DtpickEnd.Value.Date.Month + "Œ");
+                    IXLWorksheet xlworksheet = wb.AddWorksheet("é›»ç£ãƒ»ãƒã‚¤ã‚¯ãƒ­æ³¢è³‡æç®¡ç†å®Ÿç¸¾é›†è¨ˆ" + DtpickEnd.Value.Date.Year + "å¹´" + DtpickEnd.Value.Date.Month + "æœˆ");
                     xlworksheet.RowHeight = Const_Default_RowHeight;
-                    //ƒŠƒXƒg‚ğƒV[ƒg‚É‘}“ü
+                    //ãƒªã‚¹ãƒˆã‚’ã‚·ãƒ¼ãƒˆã«æŒ¿å…¥
                     xlworksheet.Cell(IntTableHeaderRow, 1).InsertTable(views);
-                    //ƒŠƒXƒgÅ‰º•”‚ÉWŒvs‚ğ’Ç‰Á
-                    //WŒvsæ“¾
+                    //ãƒªã‚¹ãƒˆæœ€ä¸‹éƒ¨ã«é›†è¨ˆè¡Œã‚’è¿½åŠ 
+                    //é›†è¨ˆè¡Œå–å¾—
                     int IntSubtotalRow = IntTableHeaderRow + views.Count + 1;
-                    //WŒvs‚Ì—ñƒCƒ“ƒfƒbƒNƒXA1—ñ–Ú‚©‚çŠJn‚·‚é
+                    //é›†è¨ˆè¡Œã®åˆ—ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã€1åˆ—ç›®ã‹ã‚‰é–‹å§‹ã™ã‚‹
                     int IntColumnIndex = 1;
-                    //•\‚ÌŒ³ƒf[ƒ^‚ÌƒŠƒXƒg‚ÌƒvƒƒpƒeƒB‚ğ“¾‚é
+                    //è¡¨ã®å…ƒãƒ‡ãƒ¼ã‚¿ã®ãƒªã‚¹ãƒˆã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¾—ã‚‹
                     System.Reflection.PropertyInfo[] propsView = views[0].GetType().GetProperties();
-                    //ƒŠƒXƒg‚Ì‘SƒvƒƒpƒeƒB‚ğƒ‹[ƒv‚µA”’l‚Ì—ñ‚Ì‚İWŒv”®‚ğ“ü—Í‚·‚é
+                    //ãƒªã‚¹ãƒˆã®å…¨ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’ãƒ«ãƒ¼ãƒ—ã—ã€æ•°å€¤ã®åˆ—ã®ã¿é›†è¨ˆæ•°å¼ã‚’å…¥åŠ›ã™ã‚‹
                     foreach (System.Reflection.PropertyInfo propView in propsView)
                     {
-                        //—ñƒCƒ“ƒfƒbƒNƒX‚ª1‚Ìê‡‚Í–³ğŒ‚Å¬Œv‚Ìƒ^ƒCƒgƒ‹ƒ‰ƒxƒ‹‚ğ“ü—Í
+                        //åˆ—ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒ1ã®å ´åˆã¯ç„¡æ¡ä»¶ã§å°è¨ˆã®ã‚¿ã‚¤ãƒˆãƒ«ãƒ©ãƒ™ãƒ«ã‚’å…¥åŠ›
                         if (IntColumnIndex == 1)
                         {
                             xlworksheet.Cell(IntSubtotalRow, IntColumnIndex).Value = Const_Subtotal_Title_Name;
                         }
-                        //ƒŠƒXƒg‚Ì’l‚ª”’l‚¾‚Á‚½ê‡AWŒv”®‚ğ“ü—Í‚·‚é
+                        //ãƒªã‚¹ãƒˆã®å€¤ãŒæ•°å€¤ã ã£ãŸå ´åˆã€é›†è¨ˆæ•°å¼ã‚’å…¥åŠ›ã™ã‚‹
                         else if (propView.PropertyType == typeof(int?) || propView.PropertyType == typeof(double?))
                         {
                             xlworksheet.Cell(IntSubtotalRow, IntColumnIndex).FormulaR1C1 =
                                 $"SUBTOTAL(109,R{IntTableHeaderRow+1}C:R[-1]C)";
                         }
-                        //Ÿ‚Ìƒ‹[ƒv‚Ì‚½‚ß‚É—ñƒCƒ“ƒfƒbƒNƒX‚ğƒCƒ“ƒNƒŠƒƒ“ƒg
+                        //æ¬¡ã®ãƒ«ãƒ¼ãƒ—ã®ãŸã‚ã«åˆ—ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆ
                         IntColumnIndex++;
                     }
-                    //WŒvs‚Ìƒ‰ƒxƒ‹—ñ‚Ì‘®İ’èã‰º’†‰›‘µ‚¦
+                    //é›†è¨ˆè¡Œã®ãƒ©ãƒ™ãƒ«åˆ—ã®æ›¸å¼è¨­å®šä¸Šä¸‹ä¸­å¤®æƒãˆ
                     xlworksheet.Cell(IntSubtotalRow,1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     xlworksheet.Cell(IntSubtotalRow,1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                    //ƒŠƒXƒg•”•ª‚Ìs‚Ì‚‚³‚ğİ’è‚·‚é(ƒ^ƒCƒgƒ‹s‚Ì‚‚³‚ğİ’è‚·‚é‚ÆƒfƒtƒHƒ‹ƒgİ’è‚ª‚¤‚Ü‚­“®‚©‚È‚¢)
+                    //ãƒªã‚¹ãƒˆéƒ¨åˆ†ã®è¡Œã®é«˜ã•ã‚’è¨­å®šã™ã‚‹(ã‚¿ã‚¤ãƒˆãƒ«è¡Œã®é«˜ã•ã‚’è¨­å®šã™ã‚‹ã¨ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆè¨­å®šãŒã†ã¾ãå‹•ã‹ãªã„)
                     xlworksheet.Rows(Const_DataTable_Header_Row, xlworksheet.LastCellUsed().Address.RowNumber)
                         .Height = Const_Default_RowHeight;
-                    //ƒŠƒXƒgƒ^ƒCƒgƒ‹‚ğİ’è
+                    //ãƒªã‚¹ãƒˆã‚¿ã‚¤ãƒˆãƒ«ã‚’è¨­å®š
                     var CellsTitle = xlworksheet.Row(IntTableHeaderRow).CellsUsed();
-                    //ƒŠƒXƒgƒ^ƒCƒgƒ‹‚Ìs‚Ì‚‚³‚ğİ’è
+                    //ãƒªã‚¹ãƒˆã‚¿ã‚¤ãƒˆãƒ«ã®è¡Œã®é«˜ã•ã‚’è¨­å®š
                     xlworksheet.Row(Const_DataTable_Header_Row).Height = Const_DataTable_Header_RowHeight;
                     foreach (IXLCell? cell in CellsTitle)
                     {
@@ -313,55 +313,55 @@ namespace ExcelDBImporter
                         cell.Value = GetAllProperty.GetPropertyComment<ViewMarsharing>
                                     (cell.Value.ToString())
                                     ?? cell.Value;
-                        //ŠeƒZƒ‹‚Ì‰¡•‚ğİ’è
+                        //å„ã‚»ãƒ«ã®æ¨ªå¹…ã‚’è¨­å®š
                         xlworksheet.Column(cell.Address.ColumnNumber).Width = Const_Outpu_Title_Width;
-                        //ã‰º¶‰E•ûŒü’†‰›‘µ‚¦
+                        //ä¸Šä¸‹å·¦å³æ–¹å‘ä¸­å¤®æƒãˆ
                         cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                         cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     }
-                    //ã‰º¶‰E‚ÉŒrü‚ğˆø‚­
+                    //ä¸Šä¸‹å·¦å³ã«ç½«ç·šã‚’å¼•ã
                     xlworksheet.Range(xlworksheet.Cell(IntTableHeaderRow, 1), (xlworksheet.LastCellUsed())).Style
                         .Border.SetInsideBorder(XLBorderStyleValues.Thin)
                         .Border.SetOutsideBorder(XLBorderStyleValues.Thin);
-                    //‚Æ‚è‚ ‚¦‚¸•‚Ì©“®’²®‚Í‚È‚µ‚Å
+                    //ã¨ã‚Šã‚ãˆãšå¹…ã®è‡ªå‹•èª¿æ•´ã¯ãªã—ã§
                     //xlworksheet.ColumnsUsed().AdjustToContents();
                     //foreach (IXLCell cell1 in CellsTitle) { xlworksheet.Column(cell1.Address.ColumnNumber).Width *= 1.30; }
-                    //ƒ^ƒCƒgƒ‹‚Ì“ü—Í
-                    xlworksheet.Cell(IntTitleRow, 1).Value = DtpickEnd.Value.Date.Year + "”N" + DtpickEnd.Value.Date.Month + "Œ (MS)  “d¥Eƒ}ƒCƒNƒ”g‘ŞŠÇ—ÀÑ    5D8B4869P002";
+                    //ã‚¿ã‚¤ãƒˆãƒ«ã®å…¥åŠ›
+                    xlworksheet.Cell(IntTitleRow, 1).Value = DtpickEnd.Value.Date.Year + "å¹´" + DtpickEnd.Value.Date.Month + "æœˆ (MS)  é›»ç£ãƒ»ãƒã‚¤ã‚¯ãƒ­æ³¢è³‡æç®¡ç†å®Ÿç¸¾    5D8B4869P002";
                     xlworksheet.Cell(IntTitleRow, 1).Style.Font.FontSize = DblTitleFontSize;
-                    //‘I‘ğ”ÍˆÍ‚Å’†‰›(ãè‚­‚¢‚­‚©‚ÈH)
+                    //é¸æŠç¯„å›²ã§ä¸­å¤®(ä¸Šæ‰‹ãã„ãã‹ãªï¼Ÿ)
                     xlworksheet.Range(IntTitleRow, 1, IntTitleRow, xlworksheet.Row(IntTableHeaderRow).LastCellUsed().Address.ColumnNumber)
                         .Style.Alignment.Horizontal = XLAlignmentHorizontalValues.CenterContinuous;
-                    //ƒ^ƒCƒgƒ‹s‚Ìİ’è
+                    //ã‚¿ã‚¤ãƒˆãƒ«è¡Œã®è¨­å®š
                     xlworksheet.PageSetup.SetRowsToRepeatAtTop(1, IntTableHeaderRow);
                     
                     /*
-                    //ˆóü”ÍˆÍ‚Ìİ’è
+                    //å°åˆ·ç¯„å›²ã®è¨­å®š
                     xlworksheet.PageSetup.PrintAreas.Add(xlworksheet.Cell(1, 1).Address, xlworksheet.LastCellUsed().Address);
                     */
                     wb.SaveAs(saveFileDialog.FileName);
                     wb.Dispose();
-                    //o—ÍÏ‚İƒtƒ‰ƒO‚ğƒZƒbƒg
+                    //å‡ºåŠ›æ¸ˆã¿ãƒ•ãƒ©ã‚°ã‚’ã‚»ãƒƒãƒˆ
                     dbContext.ViewMarsharings
                         .Where(v => v.DatePerDay >= dateStart && v.DatePerDay <= dateEnd)
                         .ExecuteUpdate(u => u.SetProperty(p => p.IsCompiled, true));
-                    //o—ÍƒfƒBƒŒƒNƒgƒŠ‚ğXV
+                    //å‡ºåŠ›ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’æ›´æ–°
                     AppSetting? appSetting = dbContext.AppSettings.FirstOrDefault(a => a.StrAppName == CONST_STR_ExcelDBImporterAppName);
                     if (appSetting == null)
                     {
-                        //ƒAƒvƒŠİ’è‚»‚Ì‚à‚Ì‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½
-                        MessageBox.Show("ƒAƒvƒŠİ’è‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½Bˆ—‚ğ’†’f‚µ‚Ü‚·\n" + CONST_STR_ExcelDBImporterAppName);
+                        //ã‚¢ãƒ—ãƒªè¨­å®šãã®ã‚‚ã®ãŒè¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸ
+                        MessageBox.Show("ã‚¢ãƒ—ãƒªè¨­å®šãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚å‡¦ç†ã‚’ä¸­æ–­ã—ã¾ã™\n" + CONST_STR_ExcelDBImporterAppName);
                     }
                     else
                     {
-                        //o—ÍƒfƒBƒŒƒNƒg‚ğXV
+                        //å‡ºåŠ›ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆã‚’æ›´æ–°
                         appSetting.StrLastSaveToDir = Path.GetDirectoryName(saveFileDialog.FileName);
                         dbContext.SaveChanges();
                     }
                     dbContext.Dispose();
-                    //o—Íƒtƒ@ƒCƒ‹–¼‚ğƒeƒLƒXƒgƒ{ƒbƒNƒX‚É“K—p
+                    //å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«åã‚’ãƒ†ã‚­ã‚¹ãƒˆãƒœãƒƒã‚¯ã‚¹ã«é©ç”¨
                     TextBoxOutputFileName.Text = saveFileDialog.FileName;
-                    MessageBox.Show("xlsxƒtƒ@ƒCƒ‹o—ÍŠ®—¹‚µ‚Ü‚µ‚½B");
+                    MessageBox.Show("xlsxãƒ•ã‚¡ã‚¤ãƒ«å‡ºåŠ›å®Œäº†ã—ã¾ã—ãŸã€‚");
                 }
             }
             catch (Exception ex)
@@ -376,19 +376,19 @@ namespace ExcelDBImporter
         }
 
         /// <summary>
-        /// o—Íƒtƒ@ƒCƒ‹–¼‚Å¦‚³‚ê‚éƒfƒBƒŒƒNƒgƒŠ‚ª‘¶İ‚·‚ê‚ÎA•\¦ƒ{ƒ^ƒ“‚ğ—LŒø‚É‚·‚é
+        /// å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«åã§ç¤ºã•ã‚Œã‚‹ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªãŒå­˜åœ¨ã™ã‚Œã°ã€è¡¨ç¤ºãƒœã‚¿ãƒ³ã‚’æœ‰åŠ¹ã«ã™ã‚‹
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void TextBoxOutputFileName_TextChanged(object sender, EventArgs e)
         {
-            //ƒeƒLƒXƒgƒ{ƒbƒNƒX‚ª‹ó‚Å‚Í‚È‚¢ê‡‚Ì‚İˆ—
+            //ãƒ†ã‚­ã‚¹ãƒˆãƒœãƒƒã‚¯ã‚¹ãŒç©ºã§ã¯ãªã„å ´åˆã®ã¿å‡¦ç†
             if (!string.IsNullOrEmpty(TextBoxOutputFileName.Text) && Directory.Exists(Path.GetDirectoryName(TextBoxOutputFileName.Text)))
             {
-                //X‚ÉƒeƒLƒXƒgƒ{ƒbƒNƒX‚ÌƒfƒBƒŒƒNƒgƒŠ‚ª‘¶İ‚·‚é‚ÌƒtƒHƒ‹ƒ_•\¦ƒ{ƒ^ƒ“—LŒø‚É
+                //æ›´ã«ãƒ†ã‚­ã‚¹ãƒˆãƒœãƒƒã‚¯ã‚¹ã®ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªãŒå­˜åœ¨ã™ã‚‹æ™‚ã®ãƒ•ã‚©ãƒ«ãƒ€è¡¨ç¤ºãƒœã‚¿ãƒ³æœ‰åŠ¹ã«
                 BtnOpenOutputDir.Enabled = true;
             }
-            //ƒeƒLƒXƒgƒ{ƒbƒNƒX‚ª‹ó‚Ìê‡‚ÍƒtƒHƒ‹ƒ_•\¦ƒ{ƒ^ƒ“–³Œø
+            //ãƒ†ã‚­ã‚¹ãƒˆãƒœãƒƒã‚¯ã‚¹ãŒç©ºã®å ´åˆã¯ãƒ•ã‚©ãƒ«ãƒ€è¡¨ç¤ºãƒœã‚¿ãƒ³ç„¡åŠ¹
             else
             {
                 BtnOpenOutputDir.Enabled = false;
@@ -396,7 +396,7 @@ namespace ExcelDBImporter
         }
 
         /// <summary>
-        /// o—ÍƒfƒBƒŒƒNƒgƒŠ‚ğƒGƒNƒXƒvƒ[ƒ‰[‚ÅŠJ‚­ƒ{ƒ^ƒ“
+        /// å‡ºåŠ›ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’ã‚¨ã‚¯ã‚¹ãƒ—ãƒ­ãƒ¼ãƒ©ãƒ¼ã§é–‹ããƒœã‚¿ãƒ³
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -411,13 +411,13 @@ namespace ExcelDBImporter
         {
             switch (e.KeyCode)
             {
-                //ctrlƒL[‚ª‰Ÿ‚³‚ê‚Ä‚¢‚éŠÔ‚¾‚¯ƒtƒ‰ƒO‰ğœƒ{ƒ^ƒ“‚ğ—LŒø‚É‚·‚é
+                //ctrlã‚­ãƒ¼ãŒæŠ¼ã•ã‚Œã¦ã„ã‚‹é–“ã ã‘ãƒ•ãƒ©ã‚°è§£é™¤ãƒœã‚¿ãƒ³ã‚’æœ‰åŠ¹ã«ã™ã‚‹
                 case Keys.ControlKey:
                     {
                         BtnUnsetOutputFlag.Enabled = true;
                         break;
                     }
-                //‚»‚êˆÈŠO‚Í“Á‚É‰½‚à‚µ‚È‚¢
+                //ãã‚Œä»¥å¤–ã¯ç‰¹ã«ä½•ã‚‚ã—ãªã„
                 default: { return; }
             }
         }
@@ -426,13 +426,13 @@ namespace ExcelDBImporter
         {
             switch (e.KeyCode)
             {
-                //ctrlƒL[‚ª—£‚ê‚½‚çƒtƒ‰ƒO‰ğœƒ{ƒ^ƒ“‚ğ–³Œø‚É‚·‚é
+                //ctrlã‚­ãƒ¼ãŒé›¢ã‚ŒãŸã‚‰ãƒ•ãƒ©ã‚°è§£é™¤ãƒœã‚¿ãƒ³ã‚’ç„¡åŠ¹ã«ã™ã‚‹
                 case Keys.ControlKey:
                     {
                         BtnUnsetOutputFlag.Enabled = false;
                         break;
                     }
-                //‚»‚êˆÈŠO‚Í“Á‚É‰½‚à‚µ‚È‚¢
+                //ãã‚Œä»¥å¤–ã¯ç‰¹ã«ä½•ã‚‚ã—ãªã„
                 default: { return; }
             }
         }
@@ -446,14 +446,14 @@ namespace ExcelDBImporter
         }
 
         /// <summary>
-        /// “üoŒÉ—š—ğCSVæ
+        /// å…¥å‡ºåº«å±¥æ­´CSVå–è¾¼
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void BtnInOutCSVInclude_Click(object sender, EventArgs e)
         {
-            MessageBox.Show($"{IncludeInOutCSV()} Œ‚Ìƒf[ƒ^‚ğˆ—‚µ‚Ü‚µ‚½B");
-            //ShInOut‚ğTQR‚É”½‰f‚³‚¹‚é
+            MessageBox.Show($"{IncludeInOutCSV()} ä»¶ã®ãƒ‡ãƒ¼ã‚¿ã‚’å‡¦ç†ã—ã¾ã—ãŸã€‚");
+            //ShInOutã‚’TQRã«åæ˜ ã•ã›ã‚‹
             ShInOutToTQR();
 
         }
