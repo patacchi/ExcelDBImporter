@@ -56,9 +56,10 @@ namespace ExcelDBImporter
                 return;
             }
             textBoxInputFilename.Text = ImportExcelFileConverter.StrOriginFilePath;
-            using (XLWorkbook xlImputWorkbook = new(ImportExcelFilePath))
+            try
             {
-                try
+                //コンストラクタ(ファイル読み込み)も try の内側で例外を捕まえる
+                using (XLWorkbook xlImputWorkbook = new(ImportExcelFilePath))
                 {
                     var xlWorkSheet = xlImputWorkbook.Worksheet(2);
                     IXLRange? rangeInport = xlWorkSheet.RangeUsed();
@@ -71,24 +72,22 @@ namespace ExcelDBImporter
                     //ExcelDbContext dbContext = new();
                     MessageBox.Show("DB取り込み完了");
                 }
-                catch (ArgumentException arg)
+            }
+            catch (ArgumentException arg)
+            {
+                if (arg.Message.Contains("There isn't a worksheet associated with that position."))
                 {
-                    if (arg.Message.Contains("There isn't a worksheet associated with that position."))
-                    {
-                        MessageBox.Show("指定された位置にシートが見つかりませんでした。\n入力ファイルを確認して下さい。");
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
+                    MessageBox.Show("指定された位置にシートが見つかりませんでした。\n入力ファイルを確認して下さい。");
                     return;
-                    throw;
                 }
-                finally
-                {
-                    if (xlImputWorkbook != null) { xlImputWorkbook?.Dispose(); }
-                }
+                //ClosedXML が拡張子不支持等で例外を投げた場合(フィルタを無視した選択等)
+                MessageBox.Show($"Excelファイルを読み込めませんでした。\n{arg.Message}");
+                return;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
             }
             if (!string.IsNullOrEmpty(ImportExcelFileConverter.StrConvertedFilePath))
             {

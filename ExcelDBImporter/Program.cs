@@ -10,6 +10,8 @@ namespace ExcelDBImporter
         [STAThread]
         static void Main()
         {
+            //旧バイナリExcel(.xls)のコードページ(cp932等)を読み取るために必要(ExcelDataReader)
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
