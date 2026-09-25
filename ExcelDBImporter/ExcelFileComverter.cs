@@ -8,6 +8,7 @@ using ClosedXML.Excel;
 using ExcelDBImporter.Context;
 using ExcelDBImporter.Models;
 using ExcelDataReader;
+using ExcelDataReader.Exceptions;
 namespace ExcelDBImporter
 {
     /// <summary>
@@ -68,82 +69,37 @@ namespace ExcelDBImporter
             MessageBox.Show("ファイル選択がキャンセルされました");
             return string.Empty;
         }
-        private void XlsToXlsx(string StrOldExcelFilePath)
+        /// <summary>
+        /// .xls を .xlsx に変換し、一時ファイルパスを StrConvertedFilePath に設定する。
+        /// 失敗時は例外を投げ、種別に応じたエラーダイアログを表示する(UI 層)。
+        /// 変換ロジック自体は ConvertXlsToXlsx に分離している(UI 非依存・テスト可能)。
+        /// </summary>
+        internal void XlsToXlsx(string StrOldExcelFilePath)
         {
-            //旧バイナリ形式(.xls)をExcelDataReaderで読み取り、ClosedXMLで.xlsxとして書き出す
-            //Excelの起動は行わない(Excel/Office非依存)
-
-            //1.変換元ファイルの実体確認
-            if (!File.Exists(StrOldExcelFilePath))
-            {
-                MessageBox.Show($"変換元のファイルが見つかりません。\n{StrOldExcelFilePath}",
-                    "xls→xlsx変換エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                throw new FileNotFoundException("変換元のファイルが見つかりません", StrOldExcelFilePath);
-            }
-
-            //2.出力パスの決定(変換元と同じフォルダ)
+            //出力パスの決定(変換元と同じフォルダ)
             string StrXlsfileDir = Path.GetDirectoryName(StrOldExcelFilePath) ?? Path.GetTempPath();
             string StrOutputFileName = Path.Combine(StrXlsfileDir, Path.GetRandomFileName() + ".xlsx");
-
             try
             {
-                using (FileStream fsOrigin = File.Open(StrOldExcelFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                using (IExcelDataReader reader = ExcelReaderFactory.CreateReader(fsOrigin))
-                using (XLWorkbook xlWorkbook = new())
-                {
-                    //3.シート存在チェック(シートが1つも無いファイルを弾く)
-                    if (reader.ResultsCount == 0)
-                    {
-                        throw new InvalidDataException("ファイル内にシートが見つかりません");
-                    }
-
-                    int intSheetIndex = 0;
-                    do
-                    {
-                        //シート名はExcel/ClosedXMLの制約(不正文字・長さ・重複)に合うよう整形してから追加
-                        IXLWorksheet xlSheet = xlWorkbook.Worksheets.Add(SanitizeSheetName(reader.Name, intSheetIndex, xlWorkbook));
-                        int intRow = 1;
-                        while (reader.Read())
-                        {
-                            for (int intCol = 0; intCol < reader.FieldCount; intCol++)
-                            {
-                                if (reader.IsDBNull(intCol)) { continue; }
-                                object? value = reader.GetValue(intCol);
-                                if (value == null) { continue; }
-                                IXLCell xlCell = xlSheet.Cell(intRow, intCol + 1);
-                                xlCell.Value = ToXlCellValue(value);
-                                //表示書式があれば引き継ぐ(値自体はGetValueの型で保持)。
-                                //書式の取得・設定失敗は値に影響しないため致命的化しない
-                                try
-                                {
-                                    string? StrFormat = reader.GetNumberFormatString(intCol);
-                                    if (!string.IsNullOrEmpty(StrFormat))
-                                    {
-                                        xlCell.Style.NumberFormat.Format = StrFormat;
-                                    }
-                                }
-                                catch
-                                {
-                                    //意図的に無視(表示書式のみの問題)
-                                }
-                            }
-                            intRow++;
-                        }
-                        intSheetIndex++;
-                    } while (reader.NextResult());
-                    xlWorkbook.SaveAs(StrOutputFileName);
-                }
-
-                //4.出力ファイルの実体確認
-                if (!File.Exists(StrOutputFileName))
-                {
-                    throw new IOException($"xlsxファイルが生成されませんでした。\n出力先: {StrOutputFileName}");
-                }
+                ConvertXlsToXlsx(StrOldExcelFilePath, StrOutputFileName);
                 StrConvertedFilePath = StrOutputFileName;
+            }
+            catch (FileNotFoundException ex)
+            {
+                MessageBox.Show($"変換元のファイルが見つかりません。\n{ex.FileName}",
+                    "xls→xlsx変換エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw;
             }
             catch (ArgumentException ex)
             {
                 //ExcelDataReaderが認識できない形式(.xls偽装ファイル等)
+                MessageBox.Show($"Excelファイルとして認識できませんでした。\nファイル形式(.xls)を確認して下さい。\n\n{ex.Message}",
+                    "xls→xlsx変換エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                throw;
+            }
+            catch (ExcelReaderException ex)
+            {
+                //ExcelDataReaderがファイルシグネチャを認識できない(.xls偽装ファイル・破損等)
                 MessageBox.Show($"Excelファイルとして認識できませんでした。\nファイル形式(.xls)を確認して下さい。\n\n{ex.Message}",
                     "xls→xlsx変換エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 throw;
@@ -176,10 +132,81 @@ namespace ExcelDBImporter
         }
 
         /// <summary>
+        /// .xls → .xlsx 変換のコア処理(UI 非依存・テスト可能)。
+        /// 失敗時は種別に応じた例外を投げる(FileNotFoundException / ArgumentException /
+        /// InvalidDataException / UnauthorizedAccessException / IOException)。
+        /// </summary>
+        internal static void ConvertXlsToXlsx(string StrOldExcelFilePath, string StrOutputFileName)
+        {
+            //旧バイナリ形式(.xls)をExcelDataReaderで読み取り、ClosedXMLで.xlsxとして書き出す
+            //Excelの起動は行わない(Excel/Office非依存)
+
+            //1.変換元ファイルの実体確認
+            if (!File.Exists(StrOldExcelFilePath))
+            {
+                throw new FileNotFoundException("変換元のファイルが見つかりません", StrOldExcelFilePath);
+            }
+
+            using (FileStream fsOrigin = File.Open(StrOldExcelFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (IExcelDataReader reader = ExcelReaderFactory.CreateReader(fsOrigin))
+            using (XLWorkbook xlWorkbook = new())
+            {
+                //2.シート存在チェック(シートが1つも無いファイルを弾く)
+                if (reader.ResultsCount == 0)
+                {
+                    throw new InvalidDataException("ファイル内にシートが見つかりません");
+                }
+
+                int intSheetIndex = 0;
+                do
+                {
+                    //シート名はExcel/ClosedXMLの制約(不正文字・長さ・重複)に合うよう整形してから追加
+                    IXLWorksheet xlSheet = xlWorkbook.Worksheets.Add(SanitizeSheetName(reader.Name, intSheetIndex, xlWorkbook));
+                    int intRow = 1;
+                    while (reader.Read())
+                    {
+                        for (int intCol = 0; intCol < reader.FieldCount; intCol++)
+                        {
+                            if (reader.IsDBNull(intCol)) { continue; }
+                            object? value = reader.GetValue(intCol);
+                            if (value == null) { continue; }
+                            IXLCell xlCell = xlSheet.Cell(intRow, intCol + 1);
+                            xlCell.Value = ToXlCellValue(value);
+                            //表示書式があれば引き継ぐ(値自体はGetValueの型で保持)。
+                            //書式の取得・設定失敗は値に影響しないため致命的化しない
+                            try
+                            {
+                                string? StrFormat = reader.GetNumberFormatString(intCol);
+                                if (!string.IsNullOrEmpty(StrFormat))
+                                {
+                                    xlCell.Style.NumberFormat.Format = StrFormat;
+                                }
+                            }
+                            catch
+                            {
+                                //意図的に無視(表示書式のみの問題)
+                            }
+                        }
+                        intRow++;
+                    }
+                    intSheetIndex++;
+                } while (reader.NextResult());
+                xlWorkbook.SaveAs(StrOutputFileName);
+            }
+
+            //3.出力ファイルの実体確認
+            if (!File.Exists(StrOutputFileName))
+            {
+                throw new IOException($"xlsxファイルが生成されませんでした。\n出力先: {StrOutputFileName}");
+            }
+        }
+
+        /// <summary>
         /// シート名をExcel/ClosedXMLの制約に合わせて整形する
         /// (不正文字 : \ / ? * [ ] の置換、31文字制限、空名・重複名の回避)
+        /// ※テスト可能にするため internal
         /// </summary>
-        private static string SanitizeSheetName(string? StrRawName, int intSheetIndex, XLWorkbook xlWorkbook)
+        internal static string SanitizeSheetName(string? StrRawName, int intSheetIndex, XLWorkbook xlWorkbook)
         {
             string StrName = (StrRawName ?? string.Empty).Trim();
             foreach (char c in new[] { ':', '\\', '/', '?', '*', '[', ']' })
