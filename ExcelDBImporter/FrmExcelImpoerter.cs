@@ -8,14 +8,28 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using ExcelDBImporter.Context;
 using ExcelDBImporter.Models;
 using Microsoft.EntityFrameworkCore;
+using ExcelDBImporter.Models.View;
+using ExcelDBImporter.Tool;
+using System.Text;
+
 
 namespace ExcelDBImporter
 {
     public partial class FrmExcelImpoerter : Form
     {
+        /// <summary>
+        /// 出力Excelファイルの横幅
+        /// </summary>
+        private const double Const_Outpu_Title_Width = 8.86;
+        private const int Const_DataTable_Header_Row = 4;
+        private const double Const_Default_RowHeight = 16.75;
+        private const double Const_DataTable_Header_RowHeight = 25.50;
+        private const int Const_MainTitle_Row = 2;
+        private const string Const_Subtotal_Title_Name = "小計";
+
         public FrmExcelImpoerter()
         {
-            try 
+            try
             {
                 InitializeComponent();
                 Tool.DatabaseInitializer.DatabaseExlistCheker();
@@ -23,7 +37,7 @@ namespace ExcelDBImporter
                 AppSettingExistsCheck();
                 DateTimePickerInitialize();
             }
-            catch 
+            catch
             {
                 this.Close();
                 throw;
@@ -31,6 +45,7 @@ namespace ExcelDBImporter
         }
         private void BtnImputExcelFile_Click(object sender, EventArgs e)
         {
+            //.xls(バイナリ)ファイルだった場合は.xlsx(XML)ファイルに変換する
             ExcelFileComverter ImportExcelFileConverter = new();
             string ImportExcelFilePath = ImportExcelFileConverter.ExcelFileComVerter();
             //空だったら多分キャンセルか何かなのでそのまま静かに抜ける
@@ -89,27 +104,59 @@ namespace ExcelDBImporter
         /// </summary>
         public void DateTimePickerInitialize()
         {
-            //1か月前の初日を求める
-            //当月に変更になった・・・
-            int IntOffsetMonth = 0;
-            //Outputフラグが立っているもので最新のデータを取得
-            ExcelDbContext dbContext = new();
-            ShShukka? OutputNewest = dbContext.ShShukka
-                                    .Where(s => s.IsAlreadyOutput == true)
-                                    .OrderByDescending(s => s.DateMarshalling)
+            using ExcelDbContext dbContext = new();
+            try
+            {
+                //TQRinputテーブルより、ViewMarsharingテーブルに集計を行う
+                List<ViewMarsharing>? views = dbContext.TQRinputs
+                                            .GroupBy(tqr => tqr.DateInputDate.Date)
+                                            .Select(g => new ViewMarsharing
+                                            {
+                                                DatePerDay = g.Key,
+                                                IntPrepareReceive =
+                                                g.Sum(tqr => tqr.QROPcode.HasFlag(QrOPcode.PrepareReveiveSet) ? 1 : 0),
+                                                IntFreewayData =
+                                                g.Sum(tqr => tqr.QROPcode.HasFlag(QrOPcode.FreewayDataInput) ? 1 : 0),
+                                                IntDelivery =
+                                                g.Sum(tqr => tqr.QROPcode.HasFlag(QrOPcode.Delivery) ? 1 : 0),
+                                                IntShipping =
+                                                g.Sum(tqr => tqr.QROPcode.HasFlag(QrOPcode.PrepareShpping) ? 1 : 0),
+                                                IntMicroWave =
+                                                g.Sum(tqr => tqr.QROPcode.HasFlag(QrOPcode.opMicroWave) ? 1 : 0),
+                                                IntCableCut =
+                                                g.Sum(tqr => tqr.QROPcode.HasFlag(QrOPcode.CutCable) ? 1 : 0),
+                                                IntMoving =
+                                                g.Sum(tqr => tqr.QROPcode.HasFlag(QrOPcode.Moving) ? 1 : 0),
+                                                IntOther =
+                                                g.Sum(tqr => tqr.QROPcode.HasFlag(QrOPcode.Other) ? 1 : 0)
+                                            }
+                                            ).ToList();
+                //リストの結果をUpsert
+                dbContext.UpsertEntities(views)
+                    .Execute();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"{nameof(DateTimePickerInitialize)} で {ex.Message} エラー");
+                return;
+            }
+            //Outputフラグが立っていないもので、一番古いデータを取得(未集計のうち、一番古いデータを取得)
+            //フラグ立っているもので最新のデータを取得していたが、これだと最後のデータが被る
+            ViewMarsharing? OutputNewest = dbContext.ViewMarsharings
+                                    .Where(s => s.IsCompiled == false)
+                                    .OrderBy(s => s.DatePerDay)
                                     .FirstOrDefault();
 
-            DateTime dateFirstDayinTargetManth = new(DateTime.Now.AddMonths(IntOffsetMonth).Year, DateTime.Now.AddMonths(IntOffsetMonth).Month, 1);
-            //フラグが立っているレコードが無かった場合は現在日時を設定する
-            DateTime DateEndDayofMarshalling = (OutputNewest == null
-                                  || OutputNewest.DateMarshalling == null) ? DateTime.Now : (DateTime)OutputNewest.DateMarshalling;
-            //フラグ付き最新データと対象月初日の日付が古いほうをスタート日付とする
-            DtpickStart.Value = dateFirstDayinTargetManth <= DateEndDayofMarshalling ? dateFirstDayinTargetManth : DateEndDayofMarshalling;
-            //1か月前の最終日の23:59:59
-            DtpickEnd.Value = new DateTime(dateFirstDayinTargetManth.Year,
-                                             dateFirstDayinTargetManth.Month,
-                                             DateTime.DaysInMonth(dateFirstDayinTargetManth.Year, dateFirstDayinTargetManth.Month)
-                                             ).AddDays(1).AddSeconds(-1);
+            //マーシャリングスタート日取得、フラグが立っていないデータが無かった場合は現在日時を設定
+            DateTime DateStartDayofMarshalling = (OutputNewest == null
+                                  || OutputNewest.DatePerDay == null) ? DateTime.Now : (DateTime)OutputNewest.DatePerDay;
+            //終了日は前日 23:59:59.9999
+            DtpickEnd.Value = new DateTime(DateTime.Now.Year,
+                                            DateTime.Now.Month,
+                                            DateTime.Now.Day
+                                            ).AddMilliseconds(-1);
+            //終了日より開始日が前だった場合は、先程のマーシャリングスタート日とし、それ以外は終了日を開始日として設定
+            DtpickStart.Value = DtpickEnd.Value >= DateStartDayofMarshalling ? DateStartDayofMarshalling : DtpickEnd.Value;
             //表示形式変更
             DtpickStart.CustomFormat = "yyyy年MM月dd日 HH時mm分ss秒";
             DtpickEnd.CustomFormat = "yyyy年MM月dd日 HH時mm分ss秒";
@@ -133,6 +180,17 @@ namespace ExcelDBImporter
 
         }
 
+        private void BtnfrmShowQR_Read_Click(object sender, EventArgs e)
+        {
+            FrmQRread frmQRread = new();
+            frmQRread.ShowDialog();
+        }
+        private void BtnShowQRForm_Click(object sender, EventArgs e)
+        {
+            FrmPrintQRCode frmPrintQRCode = new();
+            frmPrintQRCode.ShowDialog();
+        }
+
         private void OutputxlsxFilterdByTimePickerTime()
         {
             DateTime dateStart = DtpickStart.Value.Date;
@@ -140,25 +198,30 @@ namespace ExcelDBImporter
             if (dateStart > dateEnd) { dateEnd = dateStart; }
             try
             {
+                //開始日と終了日の間でデータが無いものを補完する
+                ViewTableEditor vte = new();
+                vte.FillEmptyDay(dateStart, dateEnd);
                 using ExcelDbContext dbContext = new();
+                //dbContext.ViewMarsharings.AddRange(views);
                 //日付が範囲内でなおかつ出力済みでは「無い」物を選択
-                var listFilterdData = dbContext.ShShukka
-                                                .Where(e => e.DateMarshalling >= dateStart && e.DateMarshalling <= dateEnd
-                                                        && e.IsAlreadyOutput == false)
-                                                .OrderBy(e => e.DateMarshalling)
-                                                .ThenBy(e => e.StrSeiban)
-                                                .Select(e => new
-                                                {
-                                                    //抽出する列の選択
-                                                    e.StrSeiban,
-                                                    //e.StrOrderFrom,
-                                                    e.StrKishu,
-                                                    e.StrHinmei,
-                                                    e.IntAmount,
-                                                    e.DateMarshalling
-                                                }
-                                                ).ToList();
-                if (listFilterdData == null || listFilterdData.Count == 0)
+                var views = dbContext.ViewMarsharings
+                                    .Where(e => e.DatePerDay >= dateStart && e.DatePerDay <= dateEnd
+                                        && e.IsCompiled == false)
+                                            .OrderBy(e => e.DatePerDay)
+                                            .Select(s => new
+                                            {
+                                                s.DatePerDay,
+                                                s.IntPrepareReceive,
+                                                s.IntFreewayData,
+                                                s.IntDelivery,
+                                                s.IntShipping,
+                                                s.IntMicroWave,
+                                                s.IntCableCut,
+                                                s.IntMoving,
+                                                s.IntOther
+                                            })
+                                            .ToList();
+                if (views == null || views.Count == 0)
                 {
                     MessageBox.Show(
                         "該当するデータがありませんでした。抽出条件を確認して下さい\n" +
@@ -182,21 +245,62 @@ namespace ExcelDBImporter
                 {
                     InitialDirectory = StrDBSaveDir,
                     Filter = "Excel files (*.xlsx)|*.xlsx",
-                    FileName = "5D8B4869P002_マーシャリング実績集計" + DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月"
+                    FileName = "5D8B4869P002_電磁・マイクロ波資材管理実績集計" + DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月"
                 };
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    int IntTableHeaderRow = 4;
-                    int IntTitleRow = 2;
+                    int IntTableHeaderRow = Const_DataTable_Header_Row;
+                    int IntTitleRow = Const_MainTitle_Row;
                     double DblTitleFontSize = 13;
                     XLWorkbook wb = new();
                     //デフォルトのフォントとフォントサイズを設定
                     XLWorkbook.DefaultStyle.Font.FontName = "BIZ UDゴシック";
                     wb.Style.Font.FontName = "BIZ UDゴシック";
                     wb.Style.Font.FontSize = 9;
-                    IXLWorksheet xlworksheet = wb.AddWorksheet("マーシャリング実績集計" + DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月");
-                    xlworksheet.Cell(IntTableHeaderRow, 1).InsertTable(listFilterdData);
+                    //縦向きに設定
+                    wb.PageOptions.PageOrientation = XLPageOrientation.Portrait;
+                    //用紙サイズをA4に設定
+                    wb.PageOptions.PaperSize = XLPaperSize.A4Paper;
+                    //デフォルトの行の高さを設定
+                    wb.RowHeight = Const_Default_RowHeight;
+                    IXLWorksheet xlworksheet = wb.AddWorksheet("電磁・マイクロ波資材管理実績集計" + DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月");
+                    xlworksheet.RowHeight = Const_Default_RowHeight;
+                    //リストをシートに挿入
+                    xlworksheet.Cell(IntTableHeaderRow, 1).InsertTable(views);
+                    //リスト最下部に集計行を追加
+                    //集計行取得
+                    int IntSubtotalRow = IntTableHeaderRow + views.Count + 1;
+                    //集計行の列インデックス、1列目から開始する
+                    int IntColumnIndex = 1;
+                    //表の元データのリストのプロパティを得る
+                    System.Reflection.PropertyInfo[] propsView = views[0].GetType().GetProperties();
+                    //リストの全プロパティをループし、数値の列のみ集計数式を入力する
+                    foreach (System.Reflection.PropertyInfo propView in propsView)
+                    {
+                        //列インデックスが1の場合は無条件で小計のタイトルラベルを入力
+                        if (IntColumnIndex == 1)
+                        {
+                            xlworksheet.Cell(IntSubtotalRow, IntColumnIndex).Value = Const_Subtotal_Title_Name;
+                        }
+                        //リストの値が数値だった場合、集計数式を入力する
+                        else if (propView.PropertyType == typeof(int?) || propView.PropertyType == typeof(double?))
+                        {
+                            xlworksheet.Cell(IntSubtotalRow, IntColumnIndex).FormulaR1C1 =
+                                $"SUBTOTAL(109,R{IntTableHeaderRow+1}C:R[-1]C)";
+                        }
+                        //次のループのために列インデックスをインクリメント
+                        IntColumnIndex++;
+                    }
+                    //集計行のラベル列の書式設定上下中央揃え
+                    xlworksheet.Cell(IntSubtotalRow,1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    xlworksheet.Cell(IntSubtotalRow,1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    //リスト部分の行の高さを設定する(タイトル行の高さを設定するとデフォルト設定がうまく動かない)
+                    xlworksheet.Rows(Const_DataTable_Header_Row, xlworksheet.LastCellUsed().Address.RowNumber)
+                        .Height = Const_Default_RowHeight;
+                    //リストタイトルを設定
                     var CellsTitle = xlworksheet.Row(IntTableHeaderRow).CellsUsed();
+                    //リストタイトルの行の高さを設定
+                    xlworksheet.Row(Const_DataTable_Header_Row).Height = Const_DataTable_Header_RowHeight;
                     foreach (IXLCell? cell in CellsTitle)
                     {
                         var aliasName = dbContext.TableFieldAliasNameLists
@@ -206,32 +310,44 @@ namespace ExcelDBImporter
                                                 /*.Where(t => t.StrClassName == typeof(ShShukka).Name &&
                                                 t.StrColumnName == cell.Value.ToString())*/
                                                 .FirstOrDefault();
-                        if (aliasName != null)
-                        {
-                            cell.Value = aliasName.StrColnmnAliasName ?? cell.Value;
-                        }
+                        cell.Value = GetAllProperty.GetPropertyComment<ViewMarsharing>
+                                    (cell.Value.ToString())
+                                    ?? cell.Value;
+                        //各セルの横幅を設定
+                        xlworksheet.Column(cell.Address.ColumnNumber).Width = Const_Outpu_Title_Width;
+                        //上下左右方向中央揃え
+                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     }
-                    xlworksheet.ColumnsUsed().AdjustToContents();
-                    foreach (IXLCell cell1 in CellsTitle) { xlworksheet.Column(cell1.Address.ColumnNumber).Width *= 1.30; }
+                    //上下左右に罫線を引く
+                    xlworksheet.Range(xlworksheet.Cell(IntTableHeaderRow, 1), (xlworksheet.LastCellUsed())).Style
+                        .Border.SetInsideBorder(XLBorderStyleValues.Thin)
+                        .Border.SetOutsideBorder(XLBorderStyleValues.Thin);
+                    //とりあえず幅の自動調整はなしで
+                    //xlworksheet.ColumnsUsed().AdjustToContents();
+                    //foreach (IXLCell cell1 in CellsTitle) { xlworksheet.Column(cell1.Address.ColumnNumber).Width *= 1.30; }
                     //タイトルの入力
-                    xlworksheet.Cell(IntTitleRow, 1).Value = DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月  マーシャリング実績    5D8B4869P002";
+                    xlworksheet.Cell(IntTitleRow, 1).Value = DtpickEnd.Value.Date.Year + "年" + DtpickEnd.Value.Date.Month + "月 (MS)  電磁・マイクロ波資材管理実績    5D8B4869P002";
                     xlworksheet.Cell(IntTitleRow, 1).Style.Font.FontSize = DblTitleFontSize;
                     //選択範囲で中央(上手くいくかな？)
                     xlworksheet.Range(IntTitleRow, 1, IntTitleRow, xlworksheet.Row(IntTableHeaderRow).LastCellUsed().Address.ColumnNumber)
                         .Style.Alignment.Horizontal = XLAlignmentHorizontalValues.CenterContinuous;
                     //タイトル行の設定
                     xlworksheet.PageSetup.SetRowsToRepeatAtTop(1, IntTableHeaderRow);
+                    
+                    /*
                     //印刷範囲の設定
                     xlworksheet.PageSetup.PrintAreas.Add(xlworksheet.Cell(1, 1).Address, xlworksheet.LastCellUsed().Address);
+                    */
                     wb.SaveAs(saveFileDialog.FileName);
                     wb.Dispose();
                     //出力済みフラグをセット
-                    dbContext.ShShukka
-                        .Where(e => e.DateMarshalling >= dateStart && e.DateMarshalling <= dateEnd)
-                        .ExecuteUpdate(u => u.SetProperty(p => p.IsAlreadyOutput, true));
+                    dbContext.ViewMarsharings
+                        .Where(v => v.DatePerDay >= dateStart && v.DatePerDay <= dateEnd)
+                        .ExecuteUpdate(u => u.SetProperty(p => p.IsCompiled, true));
                     //出力ディレクトリを更新
                     AppSetting? appSetting = dbContext.AppSettings.FirstOrDefault(a => a.StrAppName == CONST_STR_ExcelDBImporterAppName);
-                    if (appSetting == null) 
+                    if (appSetting == null)
                     {
                         //アプリ設定そのものが見つからなかった
                         MessageBox.Show("アプリ設定が見つかりませんでした。処理を中断します\n" + CONST_STR_ExcelDBImporterAppName);
@@ -251,6 +367,7 @@ namespace ExcelDBImporter
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+                return;
                 throw;
             }
             finally
@@ -289,26 +406,6 @@ namespace ExcelDBImporter
             OpenFolderInExplorer(Strfolderpath);
         }
 
-        private static void OpenFolderInExplorer(string folderPath)
-        {
-            try
-            {
-                // フォルダが存在するかどうか確認
-                if (Directory.Exists(folderPath))
-                {
-                    // 指定のパスのフォルダをエクスプローラーで開く
-                    Process.Start("explorer.exe", folderPath);
-                }
-                else
-                {
-                    MessageBox.Show("指定のフォルダが存在しません。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"エクスプローラーを開く際にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
 
         private void FrmExcelImpoerter_KeyDown(object sender, KeyEventArgs e)
         {
@@ -346,6 +443,19 @@ namespace ExcelDBImporter
             DateTimePickerInitialize();
             BtnUnsetOutputFlag.Enabled = false;
             return;
+        }
+
+        /// <summary>
+        /// 入出庫履歴CSV取込
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnInOutCSVInclude_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show($"{IncludeInOutCSV()} 件のデータを処理しました。");
+            //ShInOutをTQRに反映させる
+            ShInOutToTQR();
+
         }
     }
 }

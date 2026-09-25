@@ -22,6 +22,9 @@ namespace ExcelDBImporter.Models
         [Column(name:nameof(StrshProcessManagementFieldName), Order = 4)]
         [Comment("工程管理システムからの出力Excelファイルのフィールド名")]
         public string? StrshProcessManagementFieldName { get; set; }
+        [Column(nameof(StrShInOutFieldName), Order = 5)]
+        [Comment("入出庫履歴(CSV)のフィールド名")]
+        public string? StrShInOutFieldName { get; set; }
 
         public TableFieldAliasNameList? Alias { get; set; }
     }

@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Office.CoverPageProps;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ExcelDBImporter.Models
@@ -12,19 +13,20 @@ namespace ExcelDBImporter.Models
         public int ShShukkaID {  get; set; }
         [Comment("出荷計画")]
         [Column(Order =1)]
-        public DateTime DateShukka { get; set; }
+        public DateTime? DateShukka { get; set; }
         [Comment("機種")]
         [Column(Order =2)]
         public string? StrKishu { get; set; }
         [Comment("製番")]
+        [Required]
         [Column(Order =3)]
         public string StrSeiban { get; set; } = null!;
         [Comment("注文主")]
         [Column(Order =4)]
-        public string StrOrderFrom { get; set; } = null!;
+        public string? StrOrderFrom { get; set; }
         [Comment("品名")]
         [Column(Order =5)]
-        public string StrHinmei { get; set; } = null!;
+        public string? StrHinmei { get; set; }
         [Comment("発番数量")]
         [Column(Order =6)]
         public int IntAmount { get; set; }

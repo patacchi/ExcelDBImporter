@@ -6,6 +6,7 @@ using System.Windows.Forms;
 /// Nuget ClosedXML
 using ClosedXML.Excel;
 using ExcelDBImporter.Models;
+using ExcelDBImporter.Models.View;
 
 /// Nuget Microsoft.EntityFrameworkCore.Sqlite
 using Microsoft.EntityFrameworkCore;
@@ -19,11 +20,16 @@ namespace ExcelDBImporter.Context
         public DbSet<TableFieldAliasNameList> TableFieldAliasNameLists { get; set; }
         public DbSet<AppSetting> AppSettings { get; set; }
         public DbSet<TableDBcolumnNameAndExcelFieldName> TableDBcolumnNameAndExcelFieldNames { get; set; }
+        public DbSet<TQRinput> TQRinputs { get; set; }
+        public DbSet<TTempQRrowData> TTempQRrows { get; set; }
+        public DbSet<ViewMarsharing> ViewMarsharings { get; set; }
+        public DbSet<ShInOut> ShInOuts { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             string dbPath = Path.Combine(Application.StartupPath, "excel_data.db");
             optionsBuilder.UseSqlite($"Data Source={dbPath}");
+            optionsBuilder.EnableSensitiveDataLogging(false);
             optionsBuilder.LogTo(message => Debug.WriteLine(message),LogLevel.Information);
         }
     }

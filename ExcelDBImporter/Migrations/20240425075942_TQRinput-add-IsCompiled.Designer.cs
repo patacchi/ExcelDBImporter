@@ -3,6 +3,7 @@ using System;
 using ExcelDBImporter.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExcelDBImporter.Migrations
 {
     [DbContext(typeof(ExcelDbContext))]
-    partial class ExcelDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240425075942_TQRinput-add-IsCompiled")]
+    partial class TQRinputaddIsCompiled
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0-preview.3.24172.4");
@@ -52,7 +55,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasKey("AppSettingID");
 
-                    b.ToTable("AppSetting", null, t =>
+                    b.ToTable("AppSetting", t =>
                         {
                             t.HasComment("各アプリの設定を格納する。1アプリ１レコード");
                         });
@@ -113,7 +116,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasKey("ShInOutID");
 
-                    b.ToTable("ShInOut", null, t =>
+                    b.ToTable("ShInOut", t =>
                         {
                             t.HasComment("入出庫履歴を格納するテーブル");
                         });
@@ -194,7 +197,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasKey("ShShukkaID");
 
-                    b.ToTable("ShShukka", null, t =>
+                    b.ToTable("ShShukka", t =>
                         {
                             t.HasComment("発番出荷物件予定表モデルクラス");
                         });
@@ -240,7 +243,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasKey("TQRinputId");
 
-                    b.ToTable("TQRinput", null, t =>
+                    b.ToTable("TQRinput", t =>
                         {
                             t.HasComment("工程管理用 QRコード記録テーブル");
                         });
@@ -268,7 +271,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasIndex("DateInputDate");
 
-                    b.ToTable("TTempQRrowData", null, t =>
+                    b.ToTable("TTempQRrowData", t =>
                         {
                             t.HasComment("QRコードを読み取った生のデータを一時保存しておくテーブル。入力日時をキーとする。");
                         });
@@ -316,7 +319,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasKey("TableDBcolumnNameAndExcelFieldNameID");
 
-                    b.ToTable("TableDBcolumnNameAndExcelFieldName", null, t =>
+                    b.ToTable("TableDBcolumnNameAndExcelFieldName", t =>
                         {
                             t.HasComment("DBとExcelファイルのフィールド名の対応格納テーブル。対応Excelファイルが増えると列が増えていく");
                         });
@@ -347,7 +350,7 @@ namespace ExcelDBImporter.Migrations
                     b.HasIndex("TableDBcolumnNameAndExcelFieldNameID")
                         .IsUnique();
 
-                    b.ToTable("TableFieldAliasNameList", null, t =>
+                    b.ToTable("TableFieldAliasNameList", t =>
                         {
                             t.HasComment("テーブル列名の別名(表示名等)格納テーブル");
                         });
@@ -412,7 +415,7 @@ namespace ExcelDBImporter.Migrations
 
                     b.HasKey("ViewMarsharingID");
 
-                    b.ToTable("ViewMarsharing", (string)null);
+                    b.ToTable("ViewMarsharing");
                 });
 
             modelBuilder.Entity("ExcelDBImporter.Models.TableFieldAliasNameList", b =>

@@ -26,6 +26,9 @@ namespace ExcelDBImporter.Models
         [Column(name: nameof(StrLastSaveToDir), Order = 3)]
         [Comment("最終保存ディレクトリ")]
         public string? StrLastSaveToDir { get; set; }
+        [Column(name:nameof(StrLastPDFSaveToDir),Order = 4)]
+        [Comment("PDFファイル最終保存ディレクトリ")]
+        public string? StrLastPDFSaveToDir { get; set; }
 
     }
 }

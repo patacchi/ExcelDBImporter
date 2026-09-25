@@ -41,6 +41,9 @@
             label4 = new Label();
             BtnOpenOutputDir = new Button();
             BtnUnsetOutputFlag = new Button();
+            BtnShowQRForm = new Button();
+            btnQRread = new Button();
+            BtnInOutCSVInclude = new Button();
             SuspendLayout();
             // 
             // textBoxInputFilename
@@ -175,16 +178,49 @@
             BtnUnsetOutputFlag.UseVisualStyleBackColor = true;
             BtnUnsetOutputFlag.Click += BtnUnsetOutputFlag_Click;
             // 
+            // BtnShowQRForm
+            // 
+            BtnShowQRForm.Location = new Point(182, 264);
+            BtnShowQRForm.Name = "BtnShowQRForm";
+            BtnShowQRForm.Size = new Size(141, 48);
+            BtnShowQRForm.TabIndex = 2;
+            BtnShowQRForm.Text = "QRコード印刷";
+            BtnShowQRForm.UseVisualStyleBackColor = true;
+            BtnShowQRForm.Click += BtnShowQRForm_Click;
+            // 
+            // btnQRread
+            // 
+            btnQRread.Location = new Point(21, 264);
+            btnQRread.Name = "btnQRread";
+            btnQRread.Size = new Size(141, 48);
+            btnQRread.TabIndex = 2;
+            btnQRread.Text = "QRコード読み取り";
+            btnQRread.UseVisualStyleBackColor = true;
+            btnQRread.Click += BtnfrmShowQR_Read_Click;
+            // 
+            // BtnInOutCSVInclude
+            // 
+            BtnInOutCSVInclude.Location = new Point(500, 192);
+            BtnInOutCSVInclude.Name = "BtnInOutCSVInclude";
+            BtnInOutCSVInclude.Size = new Size(141, 48);
+            BtnInOutCSVInclude.TabIndex = 2;
+            BtnInOutCSVInclude.Text = "入出庫履歴取込";
+            BtnInOutCSVInclude.UseVisualStyleBackColor = true;
+            BtnInOutCSVInclude.Click += BtnInOutCSVInclude_Click;
+            // 
             // FrmExcelImpoerter
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoScroll = true;
-            ClientSize = new Size(863, 253);
+            ClientSize = new Size(863, 324);
             Controls.Add(BtnUnsetOutputFlag);
             Controls.Add(BtnOpenOutputDir);
             Controls.Add(DtpickEnd);
             Controls.Add(DtpickStart);
+            Controls.Add(btnQRread);
+            Controls.Add(BtnShowQRForm);
+            Controls.Add(BtnInOutCSVInclude);
             Controls.Add(BtnFieldNamAlias);
             Controls.Add(BtnOutpuToxlsx);
             Controls.Add(btnImputExcelFile);
@@ -218,5 +254,8 @@
         private Label label4;
         private Button BtnOpenOutputDir;
         private Button BtnUnsetOutputFlag;
+        private Button BtnShowQRForm;
+        private Button btnQRread;
+        private Button BtnInOutCSVInclude;
     }
 }
