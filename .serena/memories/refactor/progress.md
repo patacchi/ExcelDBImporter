@@ -13,11 +13,11 @@
 ## Phase 0: UTF-8 統一
 | Step | 内容 | Status | Host | 日付 | 備考 |
 |---|---|---|---|---|---|
-| 0-1 | SJIS2本→UTF-8-BOM | in-progress | PC124761-FCH | 2026-09-25 | FrmExcelImpoerter.cs / Program.cs |
-| 0-2 | BOM付与2本 | pending | | | Tools/qr.cs / ToDo.txt |
-| 0-3 | .editorconfig 新規 | pending | | | |
-| 0-4 | Sample/README.md | pending | | | |
-| 0-5 | 検証+単独コミット | pending | | | |
+| 0-1 | SJIS2本→UTF-8-BOM | done | PC124761-FCH | 2026-09-25 | FrmExcelImpoerter.cs / Program.cs。元blob cp932デコードと文字単位一致（改行正規化後）検証済 |
+| 0-2 | BOM付与2本 | done | PC124761-FCH | 2026-09-25 | Tools/qr.cs / ToDo.txt。内容不変・BOMのみ |
+| 0-3 | .editorconfig 新規 | done | PC124761-FCH | 2026-09-25 | utf-8-bom 統一 / Sample/** と .github/** は unset |
+| 0-4 | Sample/README.md | done | PC124761-FCH | 2026-09-25 | Shift-JIS 維持の理由明記 |
+| 0-5 | 検証+単独コミット | done | PC124761-FCH | 2026-09-25 | MSBuild exit=0 / 診断エラーなし / GUI起動で日本語表示OK（メインフォームタイトル＋多重起動MessageBox、ユーザー目視確認済） |
 
 ## Phase 1: COM 全廃
 | Step | 内容 | Status | Host | 日付 | 備考 |
