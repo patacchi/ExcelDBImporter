@@ -22,11 +22,12 @@
 ## Phase 1: COM 全廃
 | Step | 内容 | Status | Host | 日付 | 備考 |
 |---|---|---|---|---|---|
-| 1-1 | csproj COMReference削除+ExcelDataReader追加 | pending | | | |
+| 1-1 | csproj COMReference削除+ExcelDataReader追加 | in-progress | PC124761-FCH | 2026-09-25 | |
 | 1-2 | XlsToXlsx 書換え | pending | | | |
 | 1-3 | CodePagesEncodingProvider 登録 | pending | | | |
-| 1-4 | ゴミusing削除（任意） | pending | | | |
+| 1-4 | ゴミusing削除（任意） | pending | | | 本Phaseでは後回し可 |
 | 1-5 | dotnet build 検証+インポート比較 | pending | | | |
+| 1-6 | テスト基盤+変換テスト2本 | pending | | | xUnit。Sample の実 .xls を使用 |
 
 ## Phase 2: .NET 10 移行
 | Step | 内容 | Status | Host | 日付 | 備考 |

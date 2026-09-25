@@ -37,6 +37,7 @@ Phase は逐次実行。各 Phase は独立ブランチで行い、完了時に 
 - 1-3: `Program.cs` Main 冒頭に `Encoding.RegisterProvider(CodePagesEncodingProvider.Instance)`
 - 1-4:（任意・並行）未使用 `using DocumentFormat.OpenXml.*` 削除（約14ファイル）
 - 1-5: 検証: `dotnet build ExcelDBImporter.sln` 0 errors（VS MSBuild 不要）+ .xls/.xlsx 両方インポート結果目視比較
+- 1-6: **テスト基盤**: `ExcelDBImporter.Tests/`（xUnit、net8.0-windows、main を ProjectReference）を sln に追加。`XlsToXlsx` の変換テスト2本: ①Sample の実 .xls → 変換 → ClosedXML で開ける/シート構成 ②ExcelDataReader 直接読取値と変換後 xlsx の ClosedXML 読取値のセル単位突合（double/DateTime/bool/string/空の型境界）。`dotnet test` が全ホスト共通の回帰ゲートになる（Phase 2/3 で再利用）
 - ブランチ: `refactor/phase1-com`。完了時 master マージ+タグ `refactor-phase1-done`
 - （任意）GitHub Actions windows-latest で `dotnet build` CI → ホスト間検証の客観化
 
