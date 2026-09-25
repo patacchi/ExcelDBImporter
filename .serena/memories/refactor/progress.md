@@ -64,3 +64,4 @@
 - 2026-09-25 PC124761-FCH: **Phase M 完了**（M-1〜M-3 done）。Dev_QRread→master --no-ff マージ（ad18971）を origin に push、タグ v0.6.2-devqrread 付与。次: Phase 0（ブランチ refactor/phase0-encoding を master から作成）。
 - 2026-09-25 PC124761-FCH: Dev_QRread ブランチをローカル/リモートから削除（master に完全マージ済み、ロールバックはタグ v0.6.2-devqrread で可能）。以降の Phase は master からブランチを切る。
 - 2026-09-25 PC124761-FCH: **Phase 0 完了・master マージ済み**（マージコミット 0be007f、タグ refactor-phase0-done）。次: Phase 1（ブランチ refactor/phase1-com を master から作成）。
+- 2026-09-25 PC124761-FCH: **Phase 1 完了・master マージ済み**（マージコミット c7a6c35、タグ refactor-phase1-done）。COM参照全廃により `dotnet build` が VS なしで成功。テスト30件成功。既存バグ修正含む（csv等不正拡張子選択時の未捕捉例外、XlsToXlsx再スローの二重表示）。次: Phase 2（ブランチ refactor/phase2-net10 を master から作成）。
